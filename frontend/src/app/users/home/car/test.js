@@ -1,13 +1,12 @@
 'use client';
 
 import React from 'react';
-import { Layout, Calendar, Badge, Divider, Tag,Typography } from 'antd';
+import { Layout, Calendar, Badge, Divider, Tag } from 'antd';
 import Navbar from './components/navbar';
 import Sidebar from './components/sidebar';
 import { Content } from 'antd/lib/layout/layout';
 
 const { Header } = Layout;
-const { Title } = Typography;
 
 function Home() {
   // ข้อมูลการจองรถ
@@ -17,33 +16,30 @@ function Home() {
       type: 'รถเก๋ง',
       time: '09:00 - 12:00',
       destination: 'การประชุมภายนอก',
-    },
-    {
-      date: '2024-11-26',
-      type: 'รถเก๋ง',
-      time: '09:00 - 12:00',
-      destination: 'การประชุมภายนอก',
+      color: 'orange',
     },
     {
       date: '2024-11-27',
       type: 'รถตู้',
       time: '13:00 - 16:00',
       destination: 'เดินทางไปสาขาย่อย',
+      color: 'green',
     },
     {
-      date: '2024-11-27',
-      type: 'รถบัส',
-      time: '13:00 - 16:00',
-      destination: 'เดินทางไปสาขาย่อย',
+      date: '2024-11-28',
+      type: 'รถบรรทุก HINO',
+      time: '09:00 - 12:00',
+      destination: 'ขนส่งสินค้า',
+      color: 'blue',
+    },
+    {
+      date: '2024-11-29',
+      type: 'รถเก๋ง',
+      time: '10:00 - 12:00',
+      destination: 'ประชุมในบริษัท',
+      color: 'purple',
     },
   ];
-
-  // สีประจำรถ
-  const carColors = {
-    รถเก๋ง: '#ff5733', // สีแดง
-    รถตู้: '#33cc33', // สีเขียว
-    รถบัส: '#0077ff', // สีน้ำเงิน
-  };
 
   // ฟังก์ชันกรองข้อมูลตามวันที่
   const getListData = (value) => {
@@ -59,8 +55,9 @@ function Home() {
         {listData.map((item, index) => (
           <li key={index} style={{ marginBottom: '8px' }}>
             <Badge
-              color={carColors[item.type] || 'default'}
+              status="processing"
               text={`${item.type} (${item.time})`}
+              style={{ backgroundColor: item.color }}
             />
             <div style={{ fontSize: '12px', color: '#888' }}>{item.destination}</div>
           </li>
@@ -80,25 +77,19 @@ function Home() {
 
         {/* เนื้อหาหลักของหน้า */}
         <Layout style={{ padding: '0px 20px' }}>
-          <Content style={{ padding: '24px', backgroundColor: '#ffff' }}>
-            <div style={{ maxWidth: '920px', margin: '0 auto' }}>
-              <Title level={2} style={{ textAlign: 'center', marginBottom: '24px', color: 'black' }}>ปฎิทิน</Title>
+          <Content style={{ padding: '24px', backgroundColor: '#fff' }}>
+            {/* ปฏิทิน */}
+            <Calendar dateCellRender={dateCellRender} />
+            <Divider />
 
-              <Divider />
-              
-              {/* ปฏิทิน */}
-              <Calendar dateCellRender={dateCellRender} />
-              <Divider />
-
-              {/* รายการจองรถใต้ปฏิทิน */}
-              <div style={{ marginTop: '10px' }}>
-                <h3>สีประจำรถ</h3>
-                {Object.entries(carColors).map(([type, color]) => (
-                  <Tag key={type} color={color} style={{ marginBottom: '5px', display: 'flex' }}>
-                    {type}
-                  </Tag>
-                ))}
-              </div>
+            {/* รายการจองรถใต้ปฏิทิน */}
+            <div style={{ marginTop: '20px' }}>
+              <h3>สีประจำรถ</h3>
+              {bookings.map((booking, index) => (
+                <Tag key={index} color={booking.color} style={{ margin: '5px' }}>
+                  {`${booking.type} - ${booking.destination} (${booking.time})`}
+                </Tag>
+              ))}
             </div>
           </Content>
         </Layout>

@@ -12,6 +12,7 @@ function Navbar() {
       items={[
         { key: 'th', label: 'TH' },
         { key: 'en', label: 'EN' },
+        { key: 'my', label: 'melayu' }
       ]}
     />
   )
@@ -19,20 +20,22 @@ function Navbar() {
   return (
     <Layout>
       <Header
-        
+
         style={{
-          backgroundColor: '#001529',
+          backgroundColor: '#ffffff',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: '0 20px',
+          boxShadow: '2px 0 5px rgba(0, 0, 0, 0.1)'
+
         }}
       >
         {/* Logo */}
         <div
           className="logo"
           style={{
-            color: '#fff',
+            color: 'black',
             fontSize: '18px',
             fontWeight: 'bold',
           }}
@@ -50,7 +53,7 @@ function Navbar() {
         >
           {/* Language Switcher */}
           <Dropdown overlay={languageMenu} trigger={['click']}>
-            <Space style={{ color: '#fff', cursor: 'pointer' }}>
+            <Space style={{ color: 'black', cursor: 'pointer' }}>
               <GlobalOutlined />
               <span>TH</span>
             </Space>
@@ -61,7 +64,7 @@ function Navbar() {
             style={{
               display: 'flex',
               alignItems: 'center',
-              color: '#fff',
+              color: 'black',
               gap: '10px',
             }}
           >
@@ -70,7 +73,7 @@ function Navbar() {
                 นายอนันต์ โต๊ะเตียะ
               </div>
             </div>
-            <UserOutlined style={{ fontSize: '20px', color: '#fff' }} />
+            <UserOutlined style={{ fontSize: '20px', color: 'black' }} />
           </div>
         </div>
       </Header>

@@ -52,8 +52,9 @@ function CarBooking() {
         <Layout style={{ padding: '0px 20px' }}>
           <Content style={{ padding: '24px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
             <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-              <Title level={2} style={{ textAlign: 'center', marginBottom: '24px', color: 'black' }}>ฟอร์มจองรถ</Title>
+              <Title level={2} style={{ textAlign: 'center', marginBottom: '24px', color: 'black' }}>วันและเวลาที่ต้องการจองรถ</Title>
 
+              <Divider/>
               {/* Section: ค้นหารถ */}
               <div style={{ marginBottom: '32px' }}>
                 <Title level={4} style={{ color: 'black' }}>1. ค้นหารถที่ว่างพร้อมใช้งาน</Title>

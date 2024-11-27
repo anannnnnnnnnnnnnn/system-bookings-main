@@ -1,22 +1,46 @@
-'use client'
+'use client';
 
-import React from 'react'
-import { Layout, Typography, Space, DatePicker, Divider, Input, Radio, Select, Button } from 'antd'
-import Navbar from '../../components/navbar'
-import Sidebar from '../../components/sidebar'
-import { Content } from 'antd/lib/layout/layout'
-import Link from 'next/link'
+import React, { useState } from 'react';
+import { Layout, Typography, Input, Radio, Button, Divider } from 'antd';
+import { useRouter } from 'next/navigation'; // สำหรับเปลี่ยนหน้า
+import Navbar from '../../components/navbar';
+import Sidebar from '../../components/sidebar';
+import { Content } from 'antd/lib/layout/layout';
 
-const { Option } = Select
-const { TextArea } = Input
-const { Title } = Typography
+const { TextArea } = Input;
+const { Title } = Typography;
 
 function BookingDetails() {
+    const router = useRouter(); // ใช้เพื่อเปลี่ยนหน้า
+    const [formData, setFormData] = useState({
+        bookingNumber: 'ABC0000001',
+        bookingDate: '06 ก.พ. 67 เวลา 06:00',
+        purpose: '',
+        destination: '',
+        passengers: '',
+        department: '',
+        contactNumber: '',
+        driverRequired: 'yes',
+    });
+
+    // ฟังก์ชันจัดการการเปลี่ยนแปลงข้อมูล
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
+
+    // ฟังก์ชันจัดการเปลี่ยนหน้าพร้อมส่งข้อมูล
+    const handleNext = () => {
+        sessionStorage.setItem('bookingData', JSON.stringify(formData)); // เก็บข้อมูลลงใน sessionStorage
+        router.push('/users/home/car/complete/ConfirmBooking'); // เปลี่ยนหน้าโดยไม่ต้องใช้ query
+    };
+
+
     return (
         <Layout style={{ minHeight: '100vh' }}>
             {/* Navbar */}
             <Navbar />
-
+            
             <Layout style={{ padding: '0px 20px', marginTop: '20px' }}>
                 {/* Sidebar */}
                 <Sidebar />
@@ -31,91 +55,68 @@ function BookingDetails() {
                             boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
                         }}
                     >
-                        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
                             <Title level={2} style={{ textAlign: 'center', marginBottom: '24px', color: 'black' }}>
                                 รายละเอียดการจอง
                             </Title>
 
-                            {/* Section: ข้อมูลรถ */}
-                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '32px' }}>
-                                <img
-                                    src="/path/to/car-image.jpg"
-                                    alt="Car"
-                                    style={{ width: '150px', height: '100px', borderRadius: '8px', marginRight: '16px', objectFit: 'cover' }}
-                                />
+                            <Divider />
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                                 <div>
-                                    <Title level={4} style={{ marginBottom: '4px' }}>รถยนต์ Honda</Title>
-                                    <p style={{ marginBottom: '4px' }}>วันที่ใช้งาน: 06 ก.พ. 58 เวลา 06:00</p>
-                                    <p>ถึงวันที่: 10 ก.พ. 58 เวลา 17:55</p>
+                                    <label style={{ fontWeight: 'bold' }}>เลขที่ใบจอง</label>
+                                    <Input value={formData.bookingNumber} disabled />
+                                </div>
+                                <div>
+                                    <label style={{ fontWeight: 'bold' }}>วันที่-เวลา</label>
+                                    <Input value={formData.bookingDate} disabled />
+                                </div>
+                                <div>
+                                    <label style={{ fontWeight: 'bold' }}>จุดประสงค์การใช้งาน</label>
+                                    <TextArea name="purpose" rows={2} placeholder="กรุณาระบุจุดประสงค์" onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <label style={{ fontWeight: 'bold' }}>ปลายทาง</label>
+                                    <TextArea name="destination" rows={2} placeholder="กรุณาระบุปลายทาง" onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <label style={{ fontWeight: 'bold' }}>จำนวนผู้โดยสาร</label>
+                                    <Input type="number" name="passengers" placeholder="จำนวนผู้โดยสาร" onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <label style={{ fontWeight: 'bold' }}>แผนก/ฝ่าย</label>
+                                    <Input name="department" placeholder="กรุณาป้อนแผนกหรือฝ่าย" onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <label style={{ fontWeight: 'bold' }}>เบอร์ติดต่อ</label>
+                                    <Input name="contactNumber" placeholder="กรุณาป้อนเบอร์ติดต่อ" onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <label style={{ fontWeight: 'bold' }}>ต้องการพนักงานขับรถ</label>
+                                    <Radio.Group
+                                        name="driverRequired"
+                                        value={formData.driverRequired}
+                                        onChange={(e) => handleChange(e)}
+                                    >
+                                        <Radio value="yes">ต้องการ</Radio>
+                                        <Radio value="no">ไม่ต้องการ</Radio>
+                                    </Radio.Group>
                                 </div>
                             </div>
 
                             <Divider />
 
-                            {/* Form */}
-                            <div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                                    <div>
-                                        <label style={{ fontWeight: 'bold' }}>เลขที่ใบจอง</label>
-                                        <Input placeholder="ABC0011624" disabled />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontWeight: 'bold' }}>วันที่-เวลา</label>
-                                        <Input placeholder="06 ก.พ. 58 เวลา 06:00" disabled />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontWeight: 'bold' }}>จุดประสงค์การใช้งาน</label>
-                                        <TextArea rows={2} placeholder="กรุณาระบุจุดประสงค์" />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontWeight: 'bold' }}>ปลายทาง</label>
-                                        <TextArea rows={2} placeholder="กรุณาระบุปลายทาง" />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontWeight: 'bold' }}>จำนวนผู้โดยสาร</label>
-                                        <Input type="number" placeholder="จำนวนผู้โดยสาร" />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontWeight: 'bold' }}>แผนก/ฝ่าย</label>
-                                        <Input placeholder="กรุณาป้อนแผนกหรือฝ่าย" />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontWeight: 'bold' }}>เบอร์ติดต่อ</label>
-                                        <Input placeholder="กรุณาป้อนเบอร์ติดต่อ" />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontWeight: 'bold' }}>ต้องการพนักงานขับรถ</label>
-                                        <Radio.Group>
-                                            <Radio value="yes">ต้องการ</Radio>
-                                            <Radio value="no">ไม่ต้องการ</Radio>
-                                        </Radio.Group>
-                                    </div>
-                                </div>
-
-                                {/* Footer Buttons */}
-                                <div style={{ textAlign: 'right', marginTop: '24px' }}>
-
-                                    <dive style={{ marginRight: '16px', }}>
-                                        <Link href="/users/home/car/complete">
-                                            <Button type="default">ยกเลิก</Button>
-                                        </Link>
-                                    </dive>
-
-                                    <Link href="/users/home/car/complete/comfirm">
-                                        <Button type="primary" style={{ backgroundColor: '#029B36', borderColor: '#029B36' }}>
-                                            บันทึกการจอง
-                                        </Button>
-                                    </Link>
-                                    
-
-                                </div>
+                            <div style={{ textAlign: 'right', marginTop: '24px' }}>
+                                <Button type="primary" onClick={handleNext}>
+                                    ถัดไป
+                                </Button>
                             </div>
                         </div>
                     </Content>
                 </Layout>
             </Layout>
         </Layout>
-    )
+    );
 }
 
-export default BookingDetails
+export default BookingDetails;

@@ -30,32 +30,25 @@ function Sidebar() {
           marginBottom: '20px',
         }}
       >
-        ระบบจองรถ
+        Admin
       </div>
       <Menu defaultSelectedKeys={['1']} style={{ background: '#fafafa' }}>
         <Menu.Item key="1" icon={<HomeOutlined />} style={{ fontSize: '18px' }}>
-          <Link href="/users/home/car">
+          <Link href="/admin/admincar">
             หน้าหลัก
           </Link>
         </Menu.Item>
         <Menu.Item key="2" icon={<InfoCircleOutlined />} style={{ fontSize: '18px' }}>
-          <Link href="/users/home/car/detail">
-            รายละเอียด
+          <Link href="/admin/admincar/approve ">
+            สถานะ
           </Link>
         </Menu.Item>
         <Menu.Item key="3" icon={<CarOutlined />} style={{ fontSize: '18px' }}>
-          <Link href="/users/home/car/complete">
-            จองรถ
+          <Link href="/admin/admincar/resource">
+            การจัดการทรัพยากร
           </Link>
         </Menu.Item>
-
-        <Menu.Item key="4" icon={<RollbackOutlined/>} style={{ fontSize: '18px' }}>
-          <Link href="/users/home">
-            ย้อนกลับ
-          </Link>
-        </Menu.Item>
-
-        <Menu.Item key="5" icon={<LogoutOutlined />} style={{ fontSize: '18px' }}>
+        <Menu.Item key="4" icon={<LogoutOutlined />} style={{ fontSize: '18px' }}>
           <Link href="/">
             ออกจากระบบ
           </Link>

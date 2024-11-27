@@ -1,11 +1,12 @@
 'use client'
 
 import React from 'react';
-import { Layout, Table, Tag, Image } from 'antd';
+import { Layout, Table, Tag, Image, Divider, Typography } from 'antd';
 import Sidebar from '../components/sidebar';
 import Navbar from '../components/navbar';
 
 const { Content } = Layout;
+const { Title } = Typography;
 
 
 
@@ -77,8 +78,8 @@ function details() {
       expiration: '01 มี.ค. 2600',
     },
     {
-      key: '2',
-      no: '2',
+      key: '3',
+      no: '3',
       image: '/test-image2.jpg', // เปลี่ยนเป็น path รูปภาพจริง
       details: (
         <div>
@@ -101,14 +102,23 @@ function details() {
       <Layout style={{ padding: '0px 20px', marginTop: '20px' }}>
         <Sidebar />
         <Layout style={{ padding: '0px 20px' }}>
-          <Content style={{
-            backgroundColor: '#fff',
-            borderRadius: '12px',
-            padding: '30px',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h2>ข้อมูลรถ</h2>
-            <Table columns={columns} dataSource={data} pagination={false} />
+          <Content style={{ padding: '24px', backgroundColor: '#ffff' }}>
+            <div style={{ maxWidth: '920px', margin: '0 auto', marginTop: '10px' }}>
+              <Title  level={2} style={{ textAlign: 'center', marginBottom: '24px', color: 'black' }}>รายละเเอียดรถ</Title>
+              
+              <Divider/>
+
+              <div style={{
+                backgroundColor: '#fff',
+                borderRadius: '12px',
+                padding: '30px',
+                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',  // ปรับเงาให้ดูนุ่มนวล
+                overflow: 'hidden'  // เพื่อป้องกันเงาหรือขอบที่อาจล้นจากตาราง
+              }}>
+                <Table columns={columns} dataSource={data} pagination={false} />
+              </div>
+
+            </div>
           </Content>
         </Layout>
       </Layout>
