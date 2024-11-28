@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import Sidebar from '../component/sidebar';
 import Navbar from '../component/navbar';
-import { Layout, Table, Button, Modal, Form, Input, Select,Image } from 'antd';
+import { Layout, Table, Button, Modal, Form, Input, Select, Tag, Image, previewImage, Upload } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 
 const { Content } = Layout;
 const { Option } = Select;
@@ -11,34 +12,44 @@ function ResourceManagement() {
     const [data, setData] = useState([
         {
             key: '1',
-            brand: 'Toyota',
-            model: 'Corolla',
-            color: 'White',
-            equipment: 'GPS, Airbags',
-            status: 'พร้อมใช้งาน',
+            no: '1',
+            brand: 'MITSUBISHI',
+            type: 'รถแวนด์',
+            license: 'กค 7137 ม.ค.',
+            seats: '5',
+            fuel: 'ดีเซล',
+            responsiblePerson: 'นายวันอัสร์ เจ๊ะหะ',
+            status: 'ใช้งานปกติ',
+            image: 'https://via.placeholder.com/100', // ตัวอย่างรูปภาพ
         },
         {
             key: '2',
-            brand: 'Honda',
-            model: 'Civic',
-            color: 'Black',
-            equipment: 'Sunroof, Camera',
-            status: 'ไม่พร้อมใช้งาน',
+            no: '2',
+            brand: 'TOYOTA',
+            type: 'รถเก๋ง',
+            license: 'กค 8125 ม.ค.',
+            seats: '4',
+            fuel: 'เบนซิน',
+            responsiblePerson: 'นางสาวมลฤดี อินทร์สุข',
+            status: 'ต้องซ่อมบำรุง',
+            image: 'https://via.placeholder.com/100', // ตัวอย่างรูปภาพ
         },
     ]);
+
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
     const [form] = Form.useForm();
+    const [previewImage, setPreviewImage] = useState(null);
 
     const handleAdd = () => {
-        setEditingRecord(null); // ล้างค่า editingRecord
-        form.resetFields(); // รีเซ็ตค่าในฟอร์ม
+        setEditingRecord(null);
+        form.resetFields();
         setIsModalVisible(true);
     };
 
     const handleEdit = (record) => {
-        setEditingRecord(record); // ตั้งค่า editingRecord
-        form.setFieldsValue(record); // เติมค่าฟอร์มด้วยข้อมูลของ record
+        setEditingRecord(record);
+        form.setFieldsValue(record);
         setIsModalVisible(true);
     };
 
@@ -48,53 +59,60 @@ function ResourceManagement() {
 
     const handleSubmit = (values) => {
         if (editingRecord) {
-            // แก้ไขข้อมูล
+            // Update existing record
             setData((prevData) =>
                 prevData.map((item) =>
                     item.key === editingRecord.key ? { ...item, ...values } : item
                 )
             );
         } else {
-            // เพิ่มข้อมูลใหม่
+            // Add new record
             const newKey = (data.length + 1).toString();
-            setData([...data, { ...values, key: newKey }]);
+            const newRecord = { ...values, key: newKey, no: newKey };
+            setData([...data, newRecord]);
         }
         setIsModalVisible(false);
     };
 
     const columns = [
-
         {
             title: 'NO',
             dataIndex: 'no',
             key: 'no',
+            width: '5%',
+            align: 'center',
         },
-
         {
             title: 'รูปรถ',
             dataIndex: 'image',
             key: 'image',
-            render: (image) => <Image src={image} width={100} alt="Car Image" />,
+            render: (image) => (
+                <div style={{ textAlign: 'center' }}>
+                    <Image
+                        src={image}
+                        width={200} // ปรับขนาดของรูปภาพที่แสดง
+                        alt="Car Image"
+                        style={{ borderRadius: '8px' }} // เพิ่มการตกแต่งให้ภาพดูสวยงาม
+                    />
+                </div>
+            ),
+            width: '25%', // เพิ่มความกว้างของแถว
         },
         {
             title: 'รายละเอียดรถ',
             key: 'details',
             render: (record) => (
                 <div style={{ lineHeight: '1.8' }}>
-                    <strong>รุ่น/ยี่ห้อ:</strong> {record.brand} {record.model} <br />
-                    <strong>สี:</strong> {record.color} <br />
-                    <strong>อุปกรณ์:</strong> {record.equipment} <br />
+                    <strong>รุ่น/ยี่ห้อ:</strong> {record.brand} <br />
+                    <strong>ประเภท:</strong> {record.type} <br />
+                    <strong>ทะเบียน:</strong> {record.license} <br />
+                    <strong>จำนวนที่นั่ง:</strong> {record.seats} ที่นั่ง <br />
+                    <strong>เชื้อเพลิง:</strong> {record.fuel} <br />
+                    <strong>ผู้รับผิดชอบ:</strong> {record.responsiblePerson} <br />
                     <strong>สถานะ:</strong>{' '}
-                    <span
-                        style={{
-                            backgroundColor: record.status === 'พร้อมใช้งาน' ? '#4caf50' : '#f44336',
-                            color: '#fff',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                        }}
-                    >
+                    <Tag color={record.status === 'ใช้งานปกติ' ? 'green' : 'red'}>
                         {record.status}
-                    </span>
+                    </Tag>
                 </div>
             ),
         },
@@ -102,24 +120,19 @@ function ResourceManagement() {
             title: 'การกระทำ',
             key: 'action',
             render: (_, record) => (
-                <>
+                <div style={{ display: 'flex', gap: '8px' }}>
                     <Button
-                        type="link"
-                        size="small"
-                        style={{ background: '#029B36', color: '#fff',display: 'block' }}
+                        type="primary"
                         onClick={() => handleEdit(record)}
+                        size="small"
+                        style={{ background: '#029B36', border: 'none' }}
                     >
                         แก้ไข
                     </Button>
-                    <Button
-                        type="link"
-                        danger
-                        style={{ color: 'black' }}
-                        onClick={() => handleDelete(record)}
-                    >
+                    <Button danger onClick={() => handleDelete(record)} size="small">
                         ลบ
                     </Button>
-                </>
+                </div>
             ),
         },
     ];
@@ -133,7 +146,7 @@ function ResourceManagement() {
                     <Content
                         style={{
                             padding: '24px',
-                            backgroundColor: '#fff',
+                            backgroundColor: '#f9f9f9',
                             borderRadius: '8px',
                             boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
                         }}
@@ -146,69 +159,142 @@ function ResourceManagement() {
                                     marginBottom: '16px',
                                 }}
                             >
-                                <h2>การจัดการทรัพยากร</h2>
+                                <h2 style={{ margin: 0 }}>การจัดการทรัพยากร</h2>
                                 <Button
                                     type="primary"
-                                    style={{ background: '#029B36' }}
+                                    style={{ background: '#029B36', border: 'none' }}
                                     onClick={handleAdd}
                                 >
                                     เพิ่มข้อมูลรถ
                                 </Button>
                             </div>
                             <Table columns={columns} dataSource={data} pagination={false} />
-
                             <Modal
                                 title={editingRecord ? 'แก้ไขข้อมูลรถ' : 'เพิ่มข้อมูลรถ'}
                                 visible={isModalVisible}
                                 onCancel={() => setIsModalVisible(false)}
                                 footer={null}
+                                centered
+                                width={800} // เพิ่มความกว้าง
+                                bodyStyle={{ padding: '24px', background: '#f7f7f7', borderRadius: '12px' }}
                             >
                                 <Form
-                                    form={form} // เชื่อมฟอร์มกับ form instance
+                                    form={form}
                                     onFinish={handleSubmit}
                                     layout="vertical"
+                                    style={{
+                                        background: '#fff',
+                                        padding: '20px',
+                                        borderRadius: '12px',
+                                        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                                    }}
                                 >
-                                    <Form.Item
-                                        label="ยี่ห้อ"
-                                        name="brand"
-                                        rules={[{ required: true, message: 'กรุณาใส่ยี่ห้อรถ' }]}
-                                    >
-                                        <Input />
-                                    </Form.Item>
-                                    <Form.Item
-                                        label="รุ่น"
-                                        name="model"
-                                        rules={[{ required: true, message: 'กรุณาใส่รุ่นรถ' }]}
-                                    >
-                                        <Input />
-                                    </Form.Item>
-                                    <Form.Item
-                                        label="สี"
-                                        name="color"
-                                        rules={[{ required: true, message: 'กรุณาใส่สีรถ' }]}
-                                    >
-                                        <Input />
-                                    </Form.Item>
-                                    <Form.Item label="อุปกรณ์ภายใน" name="equipment">
-                                        <Input />
-                                    </Form.Item>
-                                    <Form.Item
-                                        label="สถานะ"
-                                        name="status"
-                                        rules={[{ required: true, message: 'กรุณาเลือกสถานะรถ' }]}
-                                    >
-                                        <Select>
-                                            <Option value="พร้อมใช้งาน">พร้อมใช้งาน</Option>
-                                            <Option value="ไม่พร้อมใช้งาน">ไม่พร้อมใช้งาน</Option>
-                                        </Select>
-                                    </Form.Item>
+                                    <div style={{ display: 'flex', gap: '16px' }}>
+                                        {/* คอลัมน์ซ้าย */}
+                                        <div style={{ flex: 1 }}>
+                                            <Form.Item
+                                                label="รุ่น/ยี่ห้อ"
+                                                name="brand"
+                                                rules={[{ required: true, message: 'กรุณาใส่รุ่น/ยี่ห้อรถ' }]}
+                                            >
+                                                <Input placeholder="เช่น TOYOTA, HONDA" allowClear />
+                                            </Form.Item>
+                                            <Form.Item
+                                                label="ประเภท"
+                                                name="type"
+                                                rules={[{ required: true, message: 'กรุณาใส่ประเภทของรถ' }]}
+                                            >
+                                                <Input placeholder="เช่น รถเก๋ง, รถแวน" allowClear />
+                                            </Form.Item>
+                                            <Form.Item
+                                                label="ทะเบียน"
+                                                name="license"
+                                                rules={[{ required: true, message: 'กรุณาใส่ทะเบียนรถ' }]}
+                                            >
+                                                <Input placeholder="เช่น กจ 1234 กทม" allowClear />
+                                            </Form.Item>
+                                            <Form.Item
+                                                label="จำนวนที่นั่ง"
+                                                name="seats"
+                                                rules={[{ required: true, message: 'กรุณาใส่จำนวนที่นั่ง' }]}
+                                            >
+                                                <Input type="number" placeholder="เช่น 5" min={1} max={20} />
+                                            </Form.Item>
+                                        </div>
+                                        {/* คอลัมน์ขวา */}
+                                        <div style={{ flex: 1 }}>
+                                            <Form.Item
+                                                label="เชื้อเพลิง"
+                                                name="fuel"
+                                                rules={[{ required: true, message: 'กรุณาใส่ประเภทเชื้อเพลิง' }]}
+                                            >
+                                                <Input placeholder="เช่น ดีเซล, เบนซิน, ไฟฟ้า" allowClear />
+                                            </Form.Item>
+                                            <Form.Item
+                                                label="ผู้รับผิดชอบ"
+                                                name="responsiblePerson"
+                                                rules={[{ required: true, message: 'กรุณาใส่ชื่อผู้รับผิดชอบ' }]}
+                                            >
+                                                <Input placeholder="ชื่อผู้รับผิดชอบ" allowClear />
+                                            </Form.Item>
+                                            <Form.Item
+                                                label="สถานะ"
+                                                name="status"
+                                                rules={[{ required: true, message: 'กรุณาเลือกสถานะรถ' }]}
+                                            >
+                                                <Select placeholder="เลือกสถานะ">
+                                                    <Option value="ใช้งานปกติ">ใช้งานปกติ</Option>
+                                                    <Option value="ต้องซ่อมบำรุง">ต้องซ่อมบำรุง</Option>
+                                                </Select>
+                                            </Form.Item>
+                                            <Form.Item
+                                                label="เพิ่มรูปภาพรถ"
+                                                name="image"
+                                                rules={[{ required: true, message: 'กรุณาอัปโหลดรูปภาพของรถ' }]}
+                                            >
+                                                <Upload
+                                                    listType="text" // ไม่แสดงตัวอย่างรูปภาพ
+                                                    maxCount={1} // จำกัดให้เลือกรูปได้เพียง 1 รูป
+                                                    beforeUpload={(file) => {
+                                                        const isImage = file.type.startsWith('image/');
+                                                        const isSmallEnough = file.size / 1024 / 1024 < 2; // จำกัดขนาดไฟล์ < 2MB
+                                                        if (!isImage) {
+                                                            Modal.error({ title: 'ไฟล์ที่เลือกไม่ใช่รูปภาพ' });
+                                                            return false;
+                                                        }
+                                                        if (!isSmallEnough) {
+                                                            Modal.error({ title: 'ไฟล์รูปภาพต้องมีขนาดไม่เกิน 2MB' });
+                                                            return false;
+                                                        }
+                                                        // อนุญาตให้อัปโหลดไฟล์ต่อไปโดยไม่แสดงตัวอย่าง
+                                                        return false;
+                                                    }}
+                                                >
+                                                    <Button icon={<UploadOutlined />}>เลือกรูปภาพ</Button>
+                                                </Upload>
+                                            </Form.Item>
+
+
+                                        </div>
+                                    </div>
                                     <Form.Item>
-                                        <Button type="primary" htmlType="submit" block>
+                                        <Button
+                                            type="primary"
+                                            htmlType="submit"
+                                            block
+                                            style={{
+                                                borderRadius: '8px',
+                                                backgroundColor: '#029B36',
+                                                borderColor: '#029B36',
+                                            }}
+                                        >
                                             บันทึก
                                         </Button>
                                     </Form.Item>
                                 </Form>
                             </Modal>
+
+
                         </div>
                     </Content>
                 </Layout>
