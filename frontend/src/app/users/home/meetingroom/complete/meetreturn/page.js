@@ -84,14 +84,13 @@ function CarReturn() {
                                         borderRadius: '12px',
                                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
                                         marginBottom: '15px',
-                                        backgroundColor: '#f9f9f9'
                                     }}
                                 >
                                     <Space direction="vertical" size="small" style={{ width: '100%' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                                             <img
-                                                src={bookingData.carImage || '/default-car-image.jpg'}
-                                                alt="Car"
+                                                src={bookingData.roomImage || '/default-room-image.jpg'}
+                                                alt="Room"
                                                 style={{
                                                     width: '200px',
                                                     height: '120px',
@@ -101,27 +100,32 @@ function CarReturn() {
                                                 }}
                                             />
                                             <div style={{ flex: 1 }}>
-                                                <Text strong>ทะเบียนรถ:</Text> {bookingData.licensePlate} <br />
-                                                <Text strong>ประเภทรถ:</Text> {bookingData.carType} <br />
-                                                <Text strong>วันที่ใช้รถ:</Text> {bookingData.startDate} <br />
-                                                <Text strong>ถึงวันที่:</Text> {bookingData.endDate} <br />
+                                                <Text strong>ชื่อห้องประชุม:</Text> {bookingData.roomName || 'N/A'} <br />
+                                                <Text strong>ความจุ:</Text> {bookingData.capacity || 'N/A'} <br />
+
+                                                <Text strong>วันที่เริ่มต้น:</Text> {bookingData.startDate || 'N/A'} <br />
+                                                <Text strong>ถึงวันที่:</Text> {bookingData.endDate || 'N/A'}
                                             </div>
                                         </div>
+
                                         <Divider style={{ margin: '10px 0' }} />
                                         <div>
                                             <Text strong>เลขที่ใบจอง:</Text> {bookingData.bookingNumber || 'N/A'} <br />
-                                            <Text strong>จุดประสงค์:</Text> {bookingData.purpose || 'ไม่ได้ระบุ'} <br />
+                                            <Text strong>วันที่-เวลา:</Text> {bookingData.bookingDate || 'N/A'} <br />
+                                            <Text strong>จุดประสงค์การใช้งาน:</Text> {bookingData.purpose || 'ไม่ได้ระบุ'} <br />
                                             <Text strong>ปลายทาง:</Text> {bookingData.destination || 'ไม่ได้ระบุ'} <br />
-                                            <Text strong>จำนวนผู้โดยสาร:</Text> {bookingData.passengers || 'ไม่ได้ระบุ'} <br />
-                                            <Text strong>แผนก:</Text> {bookingData.department || 'ไม่ได้ระบุ'} <br />
+                                            <Text strong>แผนก/ฝ่าย:</Text> {bookingData.department || 'ไม่ได้ระบุ'} <br />
                                             <Text strong>เบอร์ติดต่อ:</Text> {bookingData.contactNumber || 'ไม่ได้ระบุ'} <br />
-                                            <Text strong>พนักงานขับรถ:</Text>{' '}
-                                            {bookingData.driverRequired === 'yes' ? 'ต้องการ' : 'ไม่ต้องการ'}
+                                            <Text strong>อุปกรณ์เสริมที่เลือก:</Text>
+                                            {bookingData.additionalEquipment && bookingData.additionalEquipment.length > 0
+                                                ? bookingData.additionalEquipment.join(', ')
+                                                : 'ไม่มีการเลือกอุปกรณ์เสริม'}
+                                            <br />
                                         </div>
                                     </Space>
                                 </Card>
                             ) : (
-                                <p>ไม่พบข้อมูลการจอง</p>
+                                <p>กำลังโหลดข้อมูล...</p>
                             )}
                             <Divider style={{ margin: '10px 0' }} />
                             <div style={{ textAlign: 'center'}}>
