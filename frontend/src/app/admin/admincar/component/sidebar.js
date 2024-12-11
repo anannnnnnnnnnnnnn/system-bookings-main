@@ -32,7 +32,7 @@ function Sidebar() {
       >
         Admin
       </div>
-      <Menu defaultSelectedKeys={['1']} style={{ background: '#fafafa' }}>
+      <Menu defaultSelectedKeys={['1']} style={{ background: '#fafafa', fontFamily: 'var(--font-kanit)' }}>
         <Menu.Item key="1" icon={<HomeOutlined />} style={{ fontSize: '18px' }}>
           <Link href="/admin/admincar">
             หน้าหลัก

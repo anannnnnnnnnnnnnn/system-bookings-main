@@ -76,10 +76,6 @@ function MeetingRoomBooking() {
                       <label style={{ fontWeight: 'bold' }}>วันเวลาที่ต้องการ</label>
                       <DatePicker name="showTime" placeholder="เลือกวันเวลาเริ่มต้น" onChange={handleChange} style={{ width: '100%' }} /> 
                     </div>
-                    <div style={{ flex: 1, minWidth: '200px' }}>
-                      <label style={{ fontWeight: 'bold' }}>วันเวลาที่ต้องการคืนห้อง</label>
-                      <DatePicker showTime placeholder="เลือกวันเวลาคืนห้อง" style={{ width: '100%' }} />
-                    </div>
                   </div>
                 </Space>
               </div>

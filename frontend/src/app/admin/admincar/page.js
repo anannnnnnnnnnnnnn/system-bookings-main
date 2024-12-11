@@ -1,36 +1,65 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Layout, Card, Row, Col, Statistic, Calendar, Modal, Badge, List } from 'antd';
+import { Layout, Card, Row, Col, Statistic, Calendar, Modal, List } from 'antd';
 import { CarFilled, UserOutlined, ToolOutlined, IdcardOutlined } from '@ant-design/icons';
 import Sidebar from './component/sidebar';
 import Navbar from './component/navbar';
 
 const { Content } = Layout;
 
-const getListData = (value) => {
-  let listData = [];
-  switch (value.date()) {
-    case 8:
-      listData = [
-        { type: 'processing', car: 'รถเก๋ง', time: '09:00 - 12:00', destination: 'การประชุมภายนอก' },
-        { type: 'success', car: 'รถตู้', time: '13:00 - 16:00', destination: 'เดินทางไปโรงงาน' },
-      ];
-      break;
-    case 15:
-      listData = [
-        { type: 'warning', car: 'รถกระบะ', time: '10:00 - 12:00', destination: 'ส่งของที่คลังสินค้า' },
-        { type: 'error', car: 'รถเก๋ง', time: '14:00 - 17:00', destination: 'เข้าอู่ซ่อม' },
-      ];
-      break;
-    case 22:
-      listData = [
-        { type: 'processing', car: 'รถตู้', time: '08:00 - 12:00', destination: 'ตรวจสุขภาพพนักงาน' },
-      ];
-      break;
-    default:
+// ข้อมูลการจองตัวอย่าง
+const bookings = [
+  {
+    id: 1,
+    car: 'รถเก๋ง',
+    time: '09:00 - 12:00',
+    destination: 'การประชุมภายนอก',
+    startDate: '2024-12-08',
+    endDate: '2024-12-10',
+    bookedBy: 'User1',
+  },
+  {
+    id: 2,
+    car: 'รถกระบะ',
+    time: '10:00 - 12:00',
+    destination: 'ส่งของที่คลังสินค้า',
+    startDate: '2024-12-20',
+    endDate: '2024-12-22',
+    bookedBy: 'User2',
+  },
+  {
+    id: 3,
+    car: 'รถตู้',
+    time: '10:00 - 12:00',
+    destination: 'ส่งของที่คลังสินค้า',
+    startDate: '2024-12-10',
+    endDate: '2024-12-15',
+    bookedBy: 'User2',
+  },
+];
+
+// รวมช่วงวันที่ที่จองติดกันโดยคนเดียวกัน
+const mergeBookings = () => {
+  let mergedBookings = [];
+  bookings.sort((a, b) => new Date(a.startDate) - new Date(b.startDate)); // เรียงตามวันที่เริ่มต้น
+  let current = bookings[0];
+
+  for (let i = 1; i < bookings.length; i++) {
+    const next = bookings[i];
+    const currentEndDate = new Date(current.endDate);
+    const nextStartDate = new Date(next.startDate);
+
+    if (current.bookedBy === next.bookedBy && currentEndDate >= new Date(nextStartDate.setDate(nextStartDate.getDate() - 1))) {
+      // รวมช่วงวันที่ที่จองติดกัน
+      current.endDate = next.endDate;
+    } else {
+      mergedBookings.push(current);
+      current = next;
+    }
   }
-  return listData || [];
+  mergedBookings.push(current);
+  return mergedBookings;
 };
 
 const App = () => {
@@ -38,34 +67,106 @@ const App = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedBookings, setSelectedBookings] = useState([]);
 
+  const mergedBookings = mergeBookings();
+
   const handleDateClick = (value) => {
-    const bookings = getListData(value);
-    if (bookings.length > 0) {
-      setSelectedDate(value.format('YYYY-MM-DD'));
-      setSelectedBookings(bookings);
+    const date = value.format('YYYY-MM-DD');
+    const bookingForDate = mergedBookings.find(
+      (b) => new Date(b.startDate) <= new Date(date) && new Date(b.endDate) >= new Date(date)
+    );
+
+    if (bookingForDate) {
+      setSelectedDate(date);
+      setSelectedBookings([bookingForDate]);
       setIsModalVisible(true);
     }
   };
 
-  const dateCellRender = (value) => {
-    const listData = getListData(value);
-    return (
-      <ul style={{ padding: 0, listStyle: 'none', cursor: listData.length > 0 ? 'pointer' : 'default' }} onClick={() => handleDateClick(value)}>
-        {listData.map((item, index) => (
-          <li key={index}>
-            <Badge status={item.type} text={`${item.car} (${item.time})`} />
-          </li>
-        ))}
-      </ul>
-    );
+  const getCarColor = (carType) => {
+    // กำหนดสีตามประเภทของรถ
+    switch (carType) {
+      case 'รถเก๋ง':
+        return '#4caf50'; // สีเขียว
+      case 'รถตู้':
+        return '#2196f3'; // สีน้ำเงิน
+      case 'รถกระบะ':
+        return '#ff9800'; // สีส้ม
+      default:
+        return '#9e9e9e'; // สีเทาสำหรับรถที่ไม่ระบุประเภท
+    }
   };
 
+  const dateCellRender = (value) => {
+    const date = value.format('YYYY-MM-DD');
+    const bookingsForDate = mergedBookings.filter(
+      (b) => new Date(b.startDate) <= new Date(date) && new Date(b.endDate) >= new Date(date)
+    );
+
+    if (bookingsForDate.length > 0) {
+      return (
+        <div
+          style={{
+            backgroundColor: '#e0f7fa',
+            border: '1px solid #26a69a',
+            borderRadius: '4px',
+            padding: '5px',
+            cursor: 'pointer',
+            textAlign: 'center',
+            position: 'relative',
+          }}
+          onClick={() => handleDateClick(value)}
+        >
+          {bookingsForDate.map((booking, index) => {
+            const isStartDate = booking.startDate === date;
+            const isEndDate = booking.endDate === date;
+            const barColor = getCarColor(booking.car);
+
+            return (
+              <div
+                key={index}
+                style={{
+                  position: 'relative',
+                  margin: '2px 0',
+                }}
+              >
+                {isStartDate && (
+                  <>
+                    <strong>{booking.car}</strong>
+                    <br />
+                    <small>{booking.time}</small>
+                    <br />
+                    <small>{booking.destination}</small>
+                  </>
+                )}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    left: isStartDate ? '50%' : 0,
+                    right: isEndDate ? '50%' : 0,
+                    backgroundColor: barColor,
+                    opacity: 0.3,
+                    zIndex: -1,
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+    return null;
+  };
+
+
+
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: "100vh" }}>
       <Navbar />
-      <Layout style={{ padding: '0px 20px', marginTop: '20px' }}>
+      <Layout style={{ padding: "0px 20px", marginTop: "65px" }}>
         <Sidebar />
-        <Layout style={{ padding: '0px 20px' }}>
+        <Layout style={{ padding: "0px 20px" }}>
           <Content
             style={{
               padding: '24px',
@@ -75,13 +176,13 @@ const App = () => {
               marginTop: '20px',
             }}
           >
-            <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-              {/* สถิติ */}
+            <div style={{fontFamily: 'var(--font-kanit)', maxWidth: '900px', margin: '0 auto' }}>
+              {/* ข้อมูลสถิติ */}
               <div style={{ marginBottom: '30px' }}>
                 <h3 style={{ marginBottom: '20px' }}>ข้อมูลสถิติ</h3>
                 <Row gutter={[24, 24]} style={{ justifyContent: 'center' }}>
                   <Col xs={24} sm={12} md={6} lg={6} xl={6}>
-                    <Card bordered={false} style={{ backgroundColor: '#a5d6a7', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                    <Card bordered={false} style={{ backgroundColor: '#a5d6a7', borderRadius: '8px' }}>
                       <Statistic
                         title="จำนวนรถ"
                         value={27}
@@ -91,7 +192,7 @@ const App = () => {
                     </Card>
                   </Col>
                   <Col xs={24} sm={12} md={6} lg={6} xl={6}>
-                    <Card bordered={false} style={{ backgroundColor: '#c5e1a5', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                    <Card bordered={false} style={{ backgroundColor: '#c5e1a5', borderRadius: '8px' }}>
                       <Statistic
                         title="สมาชิก"
                         value={114}
@@ -101,7 +202,7 @@ const App = () => {
                     </Card>
                   </Col>
                   <Col xs={24} sm={12} md={6} lg={6} xl={6}>
-                    <Card bordered={false} style={{ backgroundColor: '#aed581', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                    <Card bordered={false} style={{ backgroundColor: '#aed581', borderRadius: '8px' }}>
                       <Statistic
                         title="Admin"
                         value={2}
@@ -111,7 +212,7 @@ const App = () => {
                     </Card>
                   </Col>
                   <Col xs={24} sm={12} md={6} lg={6} xl={6}>
-                    <Card bordered={false} style={{ backgroundColor: '#81c784', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+                    <Card bordered={false} style={{ backgroundColor: '#81c784', borderRadius: '8px' }}>
                       <Statistic
                         title="พนักงานขับรถ"
                         value={11}
@@ -124,47 +225,44 @@ const App = () => {
               </div>
 
               {/* ปฏิทิน */}
-              <div style={{ marginTop: '20px', maxWidth: '900px', margin: '0 auto' }}>
-                <h3 style={{ marginBottom: '20px' }}>ปฏิทินการจองรถ</h3>
-                <div
+              <h3 style={{ marginBottom: '20px' }}>ปฏิทินการจองรถ</h3>
+              <div
+                style={{
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                  height: '500px', // ขนาดเท่าเดิม
+                  overflow: 'hidden',
+                  
+                }}
+              >
+                <Calendar
+                  dateCellRender={dateCellRender}
                   style={{
-                    overflow: 'hidden',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                    height: '500px', // กำหนดความสูงใหม่
+                    width: '100%',
+                    transform: 'scale(0.8)', // ย่อให้ดูเหมือนก่อน
+                    transformOrigin: 'top center',
+                    fontFamily: 'var(--font-kanit)',
                   }}
-                >
-                  <Calendar
-                    dateCellRender={dateCellRender}
-                    style={{
-                      width: '100%',
-                      transform: 'scale(0.8)', // ปรับให้เล็กลงอีก 
-                      transformOrigin: 'top center',
-                    }}
-                  />
-                </div>
-
+                />
               </div>
-              {/* Modal แสดงข้อมูลการจอง */}
+
+              {/* Modal */}
               <Modal
+                style={{fontFamily: 'var(--font-kanit)'}}
                 title={`รายละเอียดการจองสำหรับวันที่ ${selectedDate}`}
                 visible={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
                 footer={null}
-                centered // ใช้ property นี้
+                centered
               >
                 <List
+                style={{fontFamily: 'var(--font-kanit)'}}
                   itemLayout="horizontal"
                   dataSource={selectedBookings}
                   renderItem={(item) => (
                     <List.Item>
                       <List.Item.Meta
-                        title={
-                          <div>
-                            <Badge status={item.type} text={item.car} />
-                            <span style={{ marginLeft: '10px' }}>เวลา: {item.time}</span>
-                          </div>
-                        }
+                        title={`รถ: ${item.car} (เวลา: ${item.time})`}
                         description={`ปลายทาง: ${item.destination}`}
                       />
                     </List.Item>

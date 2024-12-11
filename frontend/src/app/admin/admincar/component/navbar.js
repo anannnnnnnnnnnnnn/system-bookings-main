@@ -12,7 +12,7 @@ function Navbar() {
       items={[
         { key: 'th', label: 'TH' },
         { key: 'en', label: 'EN' },
-        { key: 'my', label: 'melayu' }
+        { key: 'my', label: 'Melayu' }
       ]}
     />
   )
@@ -20,24 +20,34 @@ function Navbar() {
   return (
     <Layout>
       <Header
-
         style={{
+          fontFamily: 'var(--font-kanit)',
           backgroundColor: '#ffffff',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: '0 20px',
-          boxShadow: '2px 0 5px rgba(0, 0, 0, 0.1)'
-
+          boxShadow: '2px 0 5px rgba(0, 0, 0, 0.1)',
+          flexWrap: 'wrap', // ช่วยให้เนื้อหาจัดระเบียบตามขนาดหน้าจอ
+          position: 'fixed', // ตำแหน่งคงที่
+          top: 0, // ชิดด้านบน
+          left: 0, // ชิดซ้าย
+          right: 0, // ชิดขวา
+          zIndex: 1000, // ให้แถบเมนูมีค่า z-index สูงสุด
         }}
       >
         {/* Logo */}
         <div
           className="logo"
           style={{
+            fontFamily: 'var(--font-kanit)',
             color: 'black',
             fontSize: '18px',
             fontWeight: 'bold',
+            flex: '1', // ให้โลโก้ขยายเพื่อไม่ให้ซ้อนกัน
+            textAlign: 'left', // จัดให้โลโก้อยู่ทางซ้าย
+            marginRight: '20px',
+            
           }}
         >
           สำนักงาน Anan
@@ -46,14 +56,17 @@ function Navbar() {
         {/* User Info and Language Switcher */}
         <div
           style={{
+            fontFamily: 'var(--font-kanit)',
             display: 'flex',
             alignItems: 'center',
             gap: '20px',
+            flex: '1',
+            justifyContent: 'flex-end', // จัดให้ส่วนนี้ไปทางขวา
           }}
         >
           {/* Language Switcher */}
           <Dropdown overlay={languageMenu} trigger={['click']}>
-            <Space style={{ color: 'black', cursor: 'pointer' }}>
+            <Space style={{fontFamily: 'var(--font-kanit)', color: 'black', cursor: 'pointer' }}>
               <GlobalOutlined />
               <span>TH</span>
             </Space>
@@ -80,5 +93,4 @@ function Navbar() {
     </Layout>
   )
 }
-
 export default Navbar

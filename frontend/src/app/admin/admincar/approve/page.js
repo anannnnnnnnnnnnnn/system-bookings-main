@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState } from "react";
 import { Layout, Table, Button, Select, Input, DatePicker, Space, Modal, Form } from "antd";
 import Sidebar from "../component/sidebar";
@@ -61,9 +61,15 @@ function Approve() {
 
     const [isRejectModalVisible, setIsRejectModalVisible] = useState(false);
     const [rejectReason, setRejectReason] = useState("");
-    const [selectedRecord, setSelectedRecord] = useState(null);
+    const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+    const [selectedRow, setSelectedRow] = useState(null);
     const [isFailedReturnModalVisible, setIsFailedReturnModalVisible] = useState(false);
     const [failedReturnReason, setFailedReturnReason] = useState("");
+
+    const handleRowClick = (record) => {
+        setSelectedRow(record);
+        setIsDetailModalVisible(true);
+    };
 
     const handleApprove = (record) => {
         setData((prevData) =>
@@ -74,14 +80,14 @@ function Approve() {
     };
 
     const handleReject = (record) => {
-        setSelectedRecord(record);
+        setSelectedRow(record);
         setIsRejectModalVisible(true);
     };
 
     const handleRejectSubmit = () => {
         setData((prevData) =>
             prevData.map((item) =>
-                item.key === selectedRecord.key
+                item.key === selectedRow.key
                     ? { ...item, status: "ไม่อนุมัติ" }
                     : item
             )
@@ -99,14 +105,14 @@ function Approve() {
     };
 
     const handleFailedReturn = (record) => {
-        setSelectedRecord(record);
+        setSelectedRow(record);
         setIsFailedReturnModalVisible(true);
     };
 
     const handleFailedReturnSubmit = () => {
         setData((prevData) =>
             prevData.map((item) =>
-                item.key === selectedRecord.key
+                item.key === selectedRow.key
                     ? { ...item, status: "ส่งคืนไม่สำเร็จ" }
                     : item
             )
@@ -184,14 +190,20 @@ function Approve() {
                                 type="primary"
                                 size="small"
                                 style={{ background: "#029B36", color: "#fff" }}
-                                onClick={() => handleApprove(record)}
+                                onClick={(e) => {
+                                    e.stopPropagation(); // ป้องกันการเรียก handleRowClick
+                                    handleApprove(record);
+                                }}
                             >
                                 อนุมัติ
                             </Button>
                             <Button
                                 type="danger"
                                 size="small"
-                                onClick={() => handleReject(record)}
+                                onClick={(e) => {
+                                    e.stopPropagation(); // ป้องกันการเรียก handleRowClick
+                                    handleReject(record);
+                                }}
                             >
                                 ไม่อนุมัติ
                             </Button>
@@ -227,7 +239,7 @@ function Approve() {
     return (
         <Layout style={{ minHeight: "100vh" }}>
             <Navbar />
-            <Layout style={{ padding: "0px 20px", marginTop: "20px" }}>
+            <Layout style={{ padding: "0px 20px", marginTop: "65px" }}>
                 <Sidebar />
                 <Layout style={{ padding: "0px 20px" }}>
                     <Content
@@ -238,7 +250,7 @@ function Approve() {
                             boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
                         }}
                     >
-                        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+                        <div style={{ fontFamily: 'var(--font-kanit)',maxWidth: "900px", margin: "0 auto" }}>
                             <div style={{ marginBottom: "16px", display: "flex", gap: "8px" }}>
                                 <Select
                                     placeholder="==ทุกสถานะ=="
@@ -258,60 +270,72 @@ function Approve() {
                                 <Button type="primary" style={{ background: '#029B36' }}>ค้นหา</Button>
                             </div>
 
-                            <Table columns={columns} dataSource={data} pagination={false} />
-                            <div style={{ marginTop: "16px", textAlign: "right" }}>
-                                <span>ค้นเจอทั้งหมด {data.length} รายการ</span>
-                            </div>
+                            <Table
+                                columns={columns}
+                                dataSource={data}
+                                pagination={false}
+                                onRow={(record) => ({
+                                    onClick: (e) => {
+                                        if (!e.target.closest("button")) { // เช็คว่าไม่ใช่ปุ่ม
+                                            handleRowClick(record);
+                                        }
+                                    },
+                                })}
+                                rowClassName="clickable-row"
+                                style={{ cursor: "pointer" }}
+                            />
                         </div>
-
-                        {/* Modal for rejection */}
-                        <Modal
-                            title="เหตุผลที่ปฏิเสธ"
-                            visible={isRejectModalVisible}
-                            onOk={handleRejectSubmit}
-                            onCancel={() => setIsRejectModalVisible(false)}
-                        >
-                            <Form>
-                                <Form.Item
-                                    label="เหตุผล"
-                                    rules={[{ required: true, message: "กรุณากรอกเหตุผล" }]}
-                                >
-                                    <Input.TextArea
-                                        value={rejectReason}
-                                        onChange={(e) => setRejectReason(e.target.value)}
-                                        rows={4}
-                                        placeholder="กรอกเหตุผลที่ปฏิเสธ..."
-                                    />
-                                </Form.Item>
-                            </Form>
-                        </Modal>
-
-                        {/* Modal for failed return */}
-                        <Modal
-                            title="เหตุผลที่ส่งคืนไม่สำเร็จ"
-                            visible={isFailedReturnModalVisible}
-                            onOk={handleFailedReturnSubmit}
-                            onCancel={() => setIsFailedReturnModalVisible(false)}
-                        >
-                            <Form>
-                                <Form.Item
-                                    label="เหตุผล"
-                                    rules={[{ required: true, message: "กรุณากรอกเหตุผล" }]}
-                                >
-                                    <Input.TextArea
-                                        value={failedReturnReason}
-                                        onChange={(e) => setFailedReturnReason(e.target.value)}
-                                        rows={4}
-                                        placeholder="กรอกเหตุผลที่ส่งคืนไม่สำเร็จ..."
-                                    />
-                                </Form.Item>
-                            </Form>
-                        </Modal>
                     </Content>
                 </Layout>
             </Layout>
+
+            {/* Modal Details */}
+            <Modal
+                title="รายละเอียดการจอง"
+                visible={isDetailModalVisible}
+                onCancel={() => setIsDetailModalVisible(false)}
+                footer={null}
+            >
+                <div>
+                    <p><strong>เลขที่ใบจอง:</strong> {selectedRow?.reservationNumber}</p>
+                    <p><strong>ทะเบียน:</strong> {selectedRow?.license}</p>
+                    <p><strong>วันที่ใช้งาน:</strong> {selectedRow?.usageDate}</p>
+                    <p><strong>จองใช้งานเพื่อ:</strong> {selectedRow?.purpose}</p>
+                </div>
+            </Modal>
+
+            {/* Modal Reject */}
+            <Modal
+                title="เหตุผลที่ไม่อนุมัติ"
+                visible={isRejectModalVisible}
+                onCancel={() => setIsRejectModalVisible(false)}
+                onOk={handleRejectSubmit}
+            >
+                <Input.TextArea
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    rows={4}
+                    placeholder="กรุณากรอกเหตุผล"
+                />
+            </Modal>
+
+            {/* Modal Failed Return */}
+            <Modal
+                title="เหตุผลที่ส่งคืนไม่สำเร็จ"
+                visible={isFailedReturnModalVisible}
+                onCancel={() => setIsFailedReturnModalVisible(false)}
+                onOk={handleFailedReturnSubmit}
+            >
+                <Input.TextArea
+                    value={failedReturnReason}
+                    onChange={(e) => setFailedReturnReason(e.target.value)}
+                    rows={4}
+                    placeholder="กรุณากรอกเหตุผล"
+                />
+            </Modal>
         </Layout>
-    );
+    
+  );
 }
 
 export default Approve;

@@ -1,43 +1,64 @@
-'use client'
-import React, { useState, useEffect } from 'react';
-import { Layout, Typography, Button, Divider, Alert, Card, Space, message, Modal } from 'antd';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { Layout, Typography, Button, Divider, Alert, Card, Space, message } from 'antd';
 import { useRouter } from 'next/navigation';
-import { Content } from 'antd/es/layout/layout';
-import Navbar from '../../components/navbar';
-import Sidebar from '../../components/sidebar';
-import { CheckCircleOutlined, WarningOutlined, PrinterOutlined, CheckOutlined, QrcodeOutlined } from '@ant-design/icons';
-import { jsPDF } from 'jspdf';
-import QRCode from 'qrcode.react';
+import { Html5QrcodeScanner } from 'html5-qrcode'; // import html5-qrcode
+import Navbar from '../admincar/component/navbar';
+import Sidebar from '../admincar/component/sidebar';
+import { Content } from 'antd/lib/layout/layout';
+import { CheckCircleOutlined, WarningOutlined, PrinterOutlined, CarOutlined, CheckOutlined, QrcodeOutlined } from '@ant-design/icons';
+import QRCode from 'qrcode.react'; // ใช้ default import
 
 const { Title, Text } = Typography;
 
 function ApprovalPending() {
-    const [bookingData, setBookingData] = useState(null); // เก็บข้อมูลการจอง
+    const [bookingData, setBookingData] = useState(null);
     const [isApproved, setIsApproved] = useState(false);
-    const [qrCodeData, setQrCodeData] = useState(null); // เก็บข้อมูลสำหรับ QR Code
-    const [isModalVisible, setIsModalVisible] = useState(false); // สถานะของ Modal
+    const [scanning, setScanning] = useState(false); // เพิ่มสถานะการสแกน
+    const [qrCodeData, setQrCodeData] = useState(null); // เก็บข้อมูล QR code
     const router = useRouter();
 
     useEffect(() => {
-        // ดึงข้อมูลการจองจาก sessionStorage หรือ API
-        const data = sessionStorage.getItem('bookingData');
-        if (data) {
-            setBookingData(JSON.parse(data)); // ถ้ามีข้อมูลการจองให้เซ็ตลงใน state
-        } else {
-            message.error('ไม่พบข้อมูลการจอง');
+        try {
+            const data = JSON.parse(sessionStorage.getItem('bookingData'));
+            if (data) {
+                setBookingData(data);
+            } else {
+                message.error('ไม่พบข้อมูลการจองใน sessionStorage');
+            }
+        } catch (error) {
+            message.error('เกิดข้อผิดพลาดในการโหลดข้อมูลการจอง');
         }
     }, []);
 
     useEffect(() => {
-        if (bookingData) {
-            const qrData = JSON.stringify(bookingData); // แปลงข้อมูลการจองเป็น JSON string สำหรับ QR Code
-            setQrCodeData(qrData);
+        if (scanning && !qrCodeData) { // ตรวจสอบว่าไม่มี qrCodeData เมื่อเริ่มสแกน
+            const html5QrCodeScanner = new Html5QrcodeScanner("qr-code-scanner", {
+                fps: 10,
+                qrbox: 250
+            });
+            html5QrCodeScanner.render(onScanSuccess, onScanError);
+
+            return () => {
+                html5QrCodeScanner.clear();
+            };
         }
-    }, [bookingData]);
+    }, [scanning, qrCodeData]);
+
+    const onScanSuccess = (decodedText, decodedResult) => {
+        message.success(`QR Code Scanned: ${decodedText}`);
+        setQrCodeData(decodedText); // ตั้งค่า qrCodeData เมื่อสแกนสำเร็จ
+        setScanning(false);
+    };
+
+    const onScanError = (errorMessage) => {
+        console.error(errorMessage);
+    };
 
     const handleApprove = () => {
         setIsApproved(true);
-        message.success('อนุมัติเรียบร้อยแล้ว');
+        message.success('อนุมัติเรี ยบร้อยแล้ว');
     };
 
     const handlePrint = () => {
@@ -45,45 +66,20 @@ function ApprovalPending() {
             message.warning('กรุณาอนุมัติก่อนพิมพ์ใบจอง');
             return;
         }
+        console.log('พิมพ์ใบจอง:', bookingData);
+    };
 
-        // สร้าง PDF ด้วย jsPDF
-        const doc = new jsPDF();
-
-        // เพิ่มข้อมูลการจองใน PDF
-        doc.setFontSize(16);
-        doc.text('ใบจองรถ', 20, 20);
-
-        doc.setFontSize(12);
-        doc.text(`เลขที่ใบจอง: ${bookingData.bookingNumber || 'N/A'}`, 20, 30);
-        doc.text(`ทะเบียนรถ: ${bookingData.licensePlate || 'N/A'}`, 20, 40);
-        doc.text(`ประเภท: ${bookingData.carType || 'N/A'}`, 20, 50);
-        doc.text(`วันที่ใช้รถ: ${bookingData.startDate || 'N/A'}`, 20, 60);
-        doc.text(`ถึงวันที่: ${bookingData.endDate || 'N/A'}`, 20, 70);
-        doc.text(`จุดประสงค์: ${bookingData.purpose || 'ไม่ได้ระบุ'}`, 20, 80);
-        doc.text(`ปลายทาง: ${bookingData.destination || 'ไม่ได้ระบุ'}`, 20, 90);
-        doc.text(`จำนวนผู้โดยสาร: ${bookingData.passengers || 'ไม่ได้ระบุ'}`, 20, 100);
-
-        // สร้าง QR Code ใน PDF
-        if (qrCodeData) {
-            const canvas = document.createElement('canvas');
-            QRCode.toCanvas(canvas, qrCodeData, (error) => {
-                if (error) {
-                    console.error(error);
-                } else {
-                    const qrImage = canvas.toDataURL('image/png');
-                    doc.addImage(qrImage, 'PNG', 20, 110, 50, 50); // วาง QR Code ที่จุด (20, 110) ขนาด 50x50
-                    doc.save('booking_confirmation.pdf');
-                }
-            });
+    const handleReturnCar = () => {
+        if (!isApproved) {
+            message.warning('กรุณาอนุมัติก่อนคืนรถ');
+            return;
         }
-    };
-
-    const handleScanQRCode = () => {
-        setIsModalVisible(true); // เปิด Modal
-    };
-
-    const handleCancel = () => {
-        setIsModalVisible(false); // ปิด Modal
+        if (!bookingData) {
+            message.error('ไม่มีข้อมูลการจอง');
+            return;
+        }
+        const bookingDataParam = encodeURIComponent(JSON.stringify(bookingData));
+        router.push(`/users/home/car/complete/carreturn?bookingData=${bookingDataParam}`);
     };
 
     return (
@@ -185,60 +181,41 @@ function ApprovalPending() {
                                     type="default"
                                     icon={<PrinterOutlined />}
                                     onClick={handlePrint}
-                                    
+                                    disabled={!isApproved}
                                 >
                                     พิมพ์ใบจอง
                                 </Button>
                                 <Button
+                                    type="primary"
+                                    icon={<CarOutlined />}
+                                    onClick={handleReturnCar}
+                                    disabled={!isApproved}
+                                >
+                                    คืนรถ
+                                </Button>
+                                <Button
                                     type="default"
                                     icon={<QrcodeOutlined />}
-                                    onClick={handleScanQRCode}
-                                    disabled={!isApproved}
+                                    onClick={() => setScanning(true)} // เมื่อคลิกจะเริ่มการสแกน
                                 >
                                     สแกน QR Code
                                 </Button>
                             </div>
-                        </div>
 
-                        {/* Modal สำหรับ QR Code */}
-                        <Modal
-                            title={
-                                <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: 'bold', color: '#333' }}>
-                                    QR Code การจองรถ
+                            {/* แสดง QR code ให้คนอื่นสแกน */}
+                            {qrCodeData ? (
+                                <div style={{ marginTop: '20px' }}>
+                                    <QRCode value={qrCodeData} size={256} />
                                 </div>
-                            }
-                            open={isModalVisible}
-                            onCancel={handleCancel}
-                            footer={[
-                                <Button key="close" type="primary" onClick={handleCancel} style={{ borderRadius: '8px' }}>
-                                    ปิด
-                                </Button>
-                            ]}
-                            centered
-                            bodyStyle={{
-                                padding: '30px',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    border: '3px dashed #d9d9d9',
-                                    borderRadius: '16px',
-                                    padding: '30px',
-                                    background: '#f7f7f7',
-                                    boxShadow: '0 6px 15px rgba(0, 0, 0, 0.15)',
-                                    width: '350px',
-                                    height: '350px',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                
-                            </div>
-                        </Modal>
+                            ) : (
+                                <Text>ไม่มีข้อมูลการจอง</Text>
+                            )}
+
+                            {/* Div สำหรับ HTML5 QR Code Scanner */}
+                            {scanning && !qrCodeData && (  // ตรวจสอบให้แน่ใจว่าไม่มี QR Code แสดงเมื่อกำลังสแกน
+                                <div id="qr-code-scanner" style={{ width: '100%', height: '300px' }}></div>
+                            )}
+                        </div>
                     </Content>
                 </Layout>
             </Layout>

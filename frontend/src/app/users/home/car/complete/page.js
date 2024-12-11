@@ -1,20 +1,31 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react'
-import { Layout, Typography, Space, DatePicker, Divider, Button, Radio, List, Card, Badge } from 'antd'
-import Sidebar from '../components/sidebar'
-import Navbar from '../components/navbar'
-import { Content } from 'antd/lib/layout/layout'
-import Link from 'next/link'
+import React, { useState } from 'react';
+import { Layout, Typography, Space, DatePicker, Divider, Button, Radio, List, Card, Badge, Grid,TimePicker } from 'antd';
+import Sidebar from '../components/sidebar';
+import Navbar from '../components/navbar';
+import Navigation from '../components/navigation';
+import { Content } from 'antd/lib/layout/layout';
+import Link from 'next/link';
+import { Kanit } from 'next/font/google'; // เปลี่ยน @next/font เป็น next/font
+import '/src/app/globals.css';
+; // ใช้ "./" เพราะไฟล์อยู่ในโฟลเดอร์เดียวกัน
 
-const { Title } = Typography
+// ตั้งค่าฟอนต์ Kanit
+const kanit = Kanit({
+  subsets: ['latin', 'thai'], // รองรับภาษาไทย
+  weight: ['300', '400', '700'], // น้ำหนักของฟอนต์
+});
+
+
+const { Title } = Typography;
+const { useBreakpoint } = Grid;
 
 function CarBooking() {
   const [cars, setCars] = useState([]); // สถานะข้อมูลรถ
   const [loading, setLoading] = useState(false); // สถานะการโหลด
   const [filter, setFilter] = useState('available'); // ตัวกรองสถานะรถ
-    const [startDate, setStartDate] = useState(null); // วันเริ่มต้น
-  const [endDate, setEndDate] = useState(null); // วันสิ้นสุด
+  const screens = useBreakpoint();
 
   // Mock ข้อมูลรถ
   const carData = [
@@ -25,10 +36,10 @@ function CarBooking() {
 
   // ฟังก์ชันค้นหา
   const handleSearch = () => {
-    setLoading(true); // เริ่มโหลดข้อมูล
+    setLoading(true);
     setTimeout(() => {
-      setCars(carData); // ดึงข้อมูลรถ
-      setLoading(false); // เสร็จสิ้นการโหลด
+      setCars(carData);
+      setLoading(false);
     }, 1000);
   };
 
@@ -40,36 +51,79 @@ function CarBooking() {
   });
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <main className={kanit.className}>
+    <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
       {/* Navbar */}
       <Navbar />
 
-      <Layout style={{ padding: '0px 20px', marginTop: '20px' }}>
+      <Layout style={{ padding: '0px 49px', marginTop: '20px', backgroundColor: '#fff' }}>
         {/* Sidebar */}
         <Sidebar />
 
         {/* เนื้อหาหลัก */}
-        <Layout style={{ padding: '0px 20px' }}>
-          <Content style={{ padding: '24px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-              <Title level={2} style={{ textAlign: 'center', marginBottom: '24px', color: 'black' }}>วันและเวลาที่ต้องการจองรถ</Title>
+        <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
+          <Navigation />
+          <Content
+            style={{
+              marginTop: '21px',
+              padding: '24px',
+              backgroundColor: '#fff',
+              borderRadius: '8px',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+            }}
+          >
+            <div
+              style={{
+                maxWidth: screens.xs ? '100%' : '800px',
+                margin: '0 auto',
+              }}
+            >
+              <Title
+                level={2}
+                style={{
+                  marginBottom: '24px',
+                  font: '24px',
+                  fontSize: screens.xs ? '20px' : '28px',
+                  color: 'black',
+                }}
+              >
+                ค้นหารถ
+              </Title>
 
-              <Divider/>
+              <Divider />
               {/* Section: ค้นหารถ */}
-              <div style={{ marginBottom: '32px' }}>
-                <Title level={4} style={{ color: 'black' }}>1. ค้นหารถที่ว่างพร้อมใช้งาน</Title>
-                <Space size="large" direction="vertical" style={{ width: '100%' }}>
-                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: 1, minWidth: '200px' }}>
-                      <label style={{ fontWeight: 'bold' }}>วันเวลาที่ต้องการ</label>
-                      <DatePicker showTime placeholder="เลือกวันเวลาเริ่มต้น" style={{ width: '100%' }} />
-                    </div>
-                    <div style={{ flex: 1, minWidth: '200px' }}>
-                      <label style={{ fontWeight: 'bold' }}>วันเวลาที่ต้องคืน</label>
-                      <DatePicker showTime placeholder="เลือกวันเวลาคืน" style={{ width: '100%' }} />
-                    </div>
-                  </div>
-                </Space>
+              <div style={{ maxWidth: '700px', marginBottom: '32px', }}>
+              <Space size="large" direction="vertical" style={{ width: '100%', maxWidth: '800px' }}>
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: '200px' }}>
+            <label style={{ fontWeight: 'bold' }}>วันเวลาที่ต้องการ</label>
+            <DatePicker placeholder="วัน/เดือน/ปี" style={{ width: '100%' }} />
+          </div>  
+          <div style={{ flex: 1, minWidth: '200px' }}>
+            <label style={{ fontWeight: 'bold' }}>เวลาเดินทาง</label>
+            <TimePicker
+              format="HH:mm"  // กำหนดให้แสดงเป็นเวลา (ชั่วโมง:นาที)
+              placeholder="เลือกเวลา"
+              style={{ width: '100%' }}
+            />  
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: '200px' }}>
+            <label style={{ fontWeight: 'bold' }}>วันเวลาที่ต้องคืน</label>
+            <DatePicker placeholder="วัน/เดือน/ปี" style={{ width: '100%' }} />
+          </div>
+          <div style={{ flex: 1, minWidth: '200px' }}>
+            <label style={{ fontWeight: 'bold' }}>เวลาคืนรถ</label>
+            <TimePicker
+              format="HH:mm"  // กำหนดให้แสดงเป็นเวลา (ชั่วโมง:นาที)
+              placeholder="เลือกเวลา"
+              style={{ width: '100%' }}
+            />  
+          </div>
+        </div>
+      </Space>
               </div>
               <div style={{ display: 'flex', justifyContent: 'end' }}>
                 <Button
@@ -81,7 +135,7 @@ function CarBooking() {
                     backgroundColor: '#029B36',
                     borderColor: '#ffff',
                     height: '43px',
-                    fontSize: '16px',
+                    fontSize: screens.xs ? '14px' : '16px',
                   }}
                   onClick={handleSearch}
                   loading={loading}
@@ -96,7 +150,7 @@ function CarBooking() {
               <Radio.Group
                 onChange={(e) => setFilter(e.target.value)}
                 value={filter}
-                style={{ marginBottom: '16px' }}
+                style={{ marginBottom: '16px', fontSize: screens.xs ? '14px' : '16px' }}
               >
                 <Radio value="available">เฉพาะว่าง</Radio>
                 <Radio value="unavailable">ไม่ว่าง</Radio>
@@ -105,24 +159,32 @@ function CarBooking() {
 
               {/* แสดงรายการรถ */}
               <List
-                grid={{ gutter: 16, column: 1 }}
+                grid={{ gutter: 16, column: screens.xs ? 1 : 2 }}
                 dataSource={filteredCars}
                 renderItem={(car) => (
                   <List.Item>
                     <Card
                       hoverable
-                      style={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-                      cover={<img alt={car.name} src={car.image}
-                        style={{
-                          borderRadius: '8px 8px 0 0',
-                          objectFit: 'cover',
-                          width: '50px',
-                          height: '100px'
-                        }} />}
+                      style={{
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      }}
+                      cover={
+                        <img
+                          alt={car.name}
+                          src={car.image}
+                          style={{
+                            borderRadius: '8px 8px 0 0',
+                            objectFit: 'cover',
+                            width: '100%',
+                            height: screens.xs ? '150px' : '200px',
+                          }}
+                        />
+                      }
                     >
                       <div>
                         <Title level={5}>{car.plate}</Title>
-                        <p>รถ: {car.name}, {car.model}</p>
+                        <p style={{ fontSize: screens.xs ? '14px' : '16px' }}>รถ: {car.name}, {car.model}</p>
                         <Badge
                           status={car.status === 'ว่าง' ? 'success' : 'error'}
                           text={`สถานะ: ${car.status}`}
@@ -130,7 +192,15 @@ function CarBooking() {
                       </div>
                       <div>
                         <Link href="/users/home/car/complete/booking">
-                          <Button type="primary" disabled={car.status !== 'ว่าง'} style={{ marginTop: '16px' ,background: '#029B36'}}>
+                          <Button
+                            type="primary"
+                            disabled={car.status !== 'ว่าง'}
+                            style={{
+                              marginTop: '16px',
+                              background: '#029B36',
+                              fontSize: screens.xs ? '14px' : '16px',
+                            }}
+                          >
                             เลือก
                           </Button>
                         </Link>
@@ -144,6 +214,7 @@ function CarBooking() {
         </Layout>
       </Layout>
     </Layout>
+    </main>
   );
 }
 

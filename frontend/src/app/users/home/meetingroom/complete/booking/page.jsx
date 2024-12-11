@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Layout, Typography, Input, Button, Divider, Modal, Checkbox, } from 'antd';
+import { Layout, Typography, Input, Button, Divider, Modal, Checkbox, Form, Row, Col, Radio } from 'antd';
 import Sidebar from '../../components/sidebar';
 import Navbar from '../../components/navbar';
 import { Content } from 'antd/lib/layout/layout';
@@ -13,30 +13,75 @@ const { Title, Text } = Typography;
 function BookingDetails() {
   const [formData, setFormData] = useState({
     roomImage: 'url-to-room-image', // ใส่ URL ของภาพห้อง
+    username: 'anan',
     roomName: 'Conference Room A',
     capacity: '10 คน',
     amenities: 'โปรเจคเตอร์, กระดานไวท์บอร์ด',
-    startDate: '2024-12-01',
-    endDate: '2024-12-05',
+    email: '',
+    time: '09.00-11.00',
     bookingNumber: 'RM001',
-    bookingDate: '2024-12-05',
+    bookingDate: '2024-12-10',
     purpose: '',
     department: '',
-    contactNumber: '',
+    objective: '',  
+    contactNumber: '0987654321',
     additionalEquipment: [], // เก็บข้อมูลอุปกรณ์เสริม
+    selectedTime: [], // เพิ่มสถานะเก็บเวลาที่เลือก
+    
   });
 
+  
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isTimeConfirmed, setIsTimeConfirmed] = useState(false); // สถานะยืนยันเวลา
+
+  const handleTimeSelect = (time) => {
+    setFormData((prev) => ({
+      ...prev,
+      selectedTime: prev.selectedTime.includes(time)
+        ? prev.selectedTime.filter((t) => t !== time)
+        : [...prev.selectedTime, time],
+    }));
+  };
+
+  const handleTimeConfirm = () => {
+    if (formData.selectedTime.length > 0) {
+      setIsTimeConfirmed(true);
+    } else {
+      alert('กรุณาเลือกเวลาอย่างน้อยหนึ่งช่วง!');
+    }
+  };
+
+  const handleEquipmentChange = (checkedValues) => {
+    setFormData({ ...formData, additionalEquipment: checkedValues });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+
   const handleConfirm = () => {
     sessionStorage.setItem('bookingData', JSON.stringify(formData));
     window.location.href = '/users/home/meetingroom/complete/approv';
   };
+
+  const BookingSummaryModal = ({ isModalVisible, setIsModalVisible, formData }) => {
+    const handleConfirm = () => {
+      console.log("ข้อมูลการจอง:", formData);
+      setIsModalVisible(false);
+    }
+  };
+
+  // เพิ่มฟังก์ชันสำหรับการแสดง Modal
+  const showModal = () => {
+    if (formData.selectedTime.length === 0) {
+      alert('กรุณาเลือกเวลาจองก่อน!');
+    } else {
+      setIsModalVisible(true);
+    }
+  };
+
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -95,7 +140,7 @@ function BookingDetails() {
                         marginBottom: '16px',
                       }}
                     >
-                    {formData.roomName}
+                      {formData.roomName}
                     </Text>
                     <div
                       style={{
@@ -121,93 +166,189 @@ function BookingDetails() {
 
               <Divider />
 
+              {/* ส่วนเลือกเวลาที่ต้องการ */}
+              <div style={{ padding: '20px' }}>
+                <h2
+                  style={{
+                    marginBottom: '16px',
+                    fontWeight: 'bold',
+                    fontSize: '20px',
+                    color: '#4D4D4D',
+                  }}
+                >
+                  เลือกเวลาที่ต้องการจอง
+                </h2>
+
+                {[
+                  { label: 'ก่อนเที่ยง', times: ['07:00-08:00', '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00'] },
+                  { label: 'หลังเที่ยง', times: ['12:00-13:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00'] }
+                ].map((section, sectionIndex) => (
+                  <div key={sectionIndex} style={{ marginBottom: '20px' }}>
+                    <p
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        marginBottom: '12px',
+                        color: '#4D4D4D',
+                        fontFamily: 'Arial, sans-serif',
+                        textTransform: 'uppercase',
+                        margin: '20px 50px'
+                      }}
+                    >
+                      {section.label}
+                    </p>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                      {section.times.map((time, index) => (
+                        <Button
+                          key={index}
+                          type={formData.selectedTime.includes(time) ? 'primary' : 'default'}
+                          style={{
+                            borderRadius: '10px',
+                            width: '101px',
+                            height: '30px',
+                            fontWeight: 'bold',
+                            padding: '8px 18px',
+                            border: formData.selectedTime.includes(time) ? '2px solid #478D00' : '2px solid #ccc',
+                            backgroundColor: formData.selectedTime.includes(time) ? '#478D00' : '#ffffff',
+                            color: formData.selectedTime.includes(time) ? '#fff' : '#333',
+                            transition: 'all 0.3s ease',
+                          }}
+                          onClick={() => handleTimeSelect(time)}
+                        >
+                          {time}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                <div style={{ textAlign: 'end', marginTop: '20px' }}>
+                  <Button
+                    type="primary"
+                    onClick={handleTimeConfirm}
+                    style={{
+                      backgroundColor: '#478D00',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                      padding: '10px 24px',
+                      fontSize: '16px',
+                      border: 'none',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0px 4px 12px rgba(0, 123, 62, 0.3)',
+                    }}
+                  >
+                    ถัดไป
+                  </Button>
+                </div>
+              </div>
+
               {/* ฟอร์มการจอง */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                <div>
-                  <label style={{ fontWeight: 'bold' }}>
-                    <FileTextOutlined style={{ marginRight: '8px' }} />
-                    เลขที่ใบจอง
-                  </label>
-                  <Input value={formData.bookingNumber} disabled />
+              {isTimeConfirmed && (
+                <div> <Divider />
+                  <div>
+                    <h2 style={{
+                      fontWeight: 'bold',
+                      fontSize: '15px',
+                      marginBottom: '12px',
+                      color: '#4D4D4D',
+                      fontFamily: 'Arial, sans-serif',
+                      textTransform: 'uppercase',
+                    }}>
+                      ข้อมูลของผู้จอง
+                    </h2>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px', margin: '20px 50px' }}>
+                    <div>
+                      <label style={{ fontWeight: 'bold' }}>
+                        วันที่จอง
+                      </label>
+                      <Input name="bookingDate" value={formData.bookingDate} disabled />
+                    </div>
+
+                    <div>
+                      <label style={{ fontWeight: 'bold' }}>
+                        วันที่-เวลา
+                      </label>
+                      <Input value={formData.selectedTime.join(', ')} disabled />
+                    </div>
+
+                    <div>
+                      <label style={{ fontWeight: 'bold' }}>
+                        หัวข้อการประชุม
+                      </label>
+                      <Input name="objective" value={formData.objective} onChange={handleChange} />
+                    </div>
+
+                    <div>
+                      <label style={{ fontWeight: 'bold' }}>
+                        จำนวนผู้เข้าร่วม
+                      </label>
+                      <Input
+                        type="number"
+                        name="capacity"
+                        placeholder="จำนวนผู้โดยสาร"
+                        onChange={handleChange} />
+                    </div>
+
+                    <div>
+                      <label
+                        style={{
+                          fontWeight: 'bold',
+                          fontSize: '16px',
+                          marginBottom: '8px',
+                          color: '#4D4D4D',
+                        }}
+                      >
+                        อุปกรณ์เสริม
+                      </label>
+                      <Checkbox.Group
+                        name="additionalEquipment"
+                        value={formData.additionalEquipment}
+                        onChange={handleEquipmentChange}
+                        style={{ display: 'flex', gap: '8px', margin:'6px 15px'}} // จัดเรียงให้ checkbox อยู่ด้านล่าง label
+                      >
+                        <Checkbox value="โปรเจคเตอร์">โปรเจคเตอร์</Checkbox>
+                        <Checkbox value="กระดานไวท์บอร์ด">กระดานไวท์บอร์ด</Checkbox>
+                      </Checkbox.Group>
+                    </div>
+
+                    <div>
+                      <label style={{ fontWeight: 'bold' }}>
+                        ชื่อผู้จอง
+                      </label>
+                      <Input name="username" value={formData.username} onChange={handleChange} />
+                    </div>
+
+                    <div>
+                      <label style={{ fontWeight: 'bold' }}>
+                        อีเมล
+                      </label>
+                      <Input name="email" value={formData.email} onChange={handleChange} />
+                    </div>
+
+                    <div>
+                      <label style={{ fontWeight: 'bold' }}>
+                        เบอร์โทรศัพท์
+                      </label>
+                      <Input name="contactName" value={formData.contactNumber} onChange={handleChange} />
+                    </div>
+
+                    <div style={{ textAlign: 'right', marginTop: '24px' }}>
+                      <Button type="primary" onClick={() => setIsModalVisible(true)}>
+                        ถัดไป
+                      </Button>
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                  <label style={{ fontWeight: 'bold' }}>
-                    <CalendarOutlined style={{ marginRight: '8px' }} />
-                    วันที่-เวลา
-                  </label>
-                  <Input value={formData.bookingDate} disabled />
-                </div>
-
-                <div>
-                  <label style={{ fontWeight: 'bold' }}>
-                    <FileTextOutlined style={{ marginRight: '8px' }} />
-                    จุดประสงค์การใช้งาน
-                  </label>
-                  <TextArea
-                    name="purpose"
-                    rows={2}
-                    placeholder="กรุณาระบุจุดประสงค์"
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontWeight: 'bold' }}>
-                    <UserOutlined style={{ marginRight: '8px' }} />
-                    แผนก/ฝ่าย
-                  </label>
-                  <Input
-                    name="department"
-                    placeholder="กรุณาป้อนแผนกหรือฝ่าย"
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontWeight: 'bold' }}>
-                    <PhoneOutlined style={{ marginRight: '8px' }} />
-                    เบอร์ติดต่อ
-                  </label>
-                  <Input
-                    name="contactNumber"
-                    placeholder="กรุณาป้อนเบอร์ติดต่อ"
-                    onChange={handleChange}
-                  />
-                </div>
-
-                {/* ส่วนของการเลือกอุปกรณ์เสริม ในคอลัมน์เดียวกับเบอร์ติดต่อ */}
-                <div style={{ gridColumn: 'span 1', display: 'flex', flexDirection: 'column' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                    <TeamOutlined style={{ marginRight: '8px' }} />
-                    อุปกรณ์เสริมที่ต้องการ
-                  </label>
-                  <Checkbox.Group
-                    options={[
-                      { label: 'โปรเจคเตอร์', value: 'projector' },
-                      { label: 'จอภาพ', value: 'screen' },
-                      { label: 'ไมโครโฟน', value: 'microphone' },
-                    ]}
-                    onChange={(checkedValues) => setFormData({ ...formData, additionalEquipment: checkedValues })}
-                  />
-                </div>
-              </div>
-
-              <Divider />
-              <div style={{ textAlign: 'right', marginTop: '24px' }}>
-                <Button type="primary" onClick={() => setIsModalVisible(true)}>
-                  ถัดไป
-                </Button>
-              </div>
+              )}
             </div>
 
             {/* Modal สำหรับยืนยันการจอง */}
             <Modal
               title={
                 <div style={{ textAlign: 'center', color: '#029B36', fontWeight: 'bold', fontSize: '24px' }}>
-                  <CheckOutlined
-                    style={{ fontSize: '28px', color: '#029B36', marginRight: '8px' }}
-                  />
+                  <CheckOutlined style={{ fontSize: '28px', color: '#029B36', marginRight: '8px' }} />
                   ยืนยันการจอง
                 </div>
               }
@@ -215,54 +356,22 @@ function BookingDetails() {
               onOk={handleConfirm}
               onCancel={() => setIsModalVisible(false)}
               centered
-              okText="ยืนยัน"
+              okText="ยืนยันการจอง"
               cancelText="ยกเลิก"
               width={600}
-              bodyStyle={{
-                padding: '16px',
-                backgroundColor: '#fff', // เปลี่ยนพื้นหลังเป็นสีขาว
-                fontFamily: 'Arial, sans-serif',
-                color: '#333',
-              }}
             >
-              <div style={{ fontSize: '16px', lineHeight: '1.5' }}> {/* ปรับระยะห่างบรรทัดให้ใกล้กัน */}
-                {/* แสดงข้อมูลการจอง */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}> {/* ลด gap ระหว่างรายการ */}
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-                    <p style={{ fontWeight: 'bold', color: '#029B36' }}>เลขที่ใบจอง:</p>
-                    <p>{formData.bookingNumber}</p>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-                    <p style={{ fontWeight: 'bold', color: '#029B36' }}>วันที่-เวลา:</p>
-                    <p>{formData.bookingDate}</p>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-                    <p style={{ fontWeight: 'bold', color: '#029B36' }}>จุดประสงค์การใช้งาน:</p>
-                    <p>{formData.purpose || 'ไม่มีการระบุ'}</p>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-                    <p style={{ fontWeight: 'bold', color: '#029B36' }}>แผนก/ฝ่าย:</p>
-                    <p>{formData.department || 'ไม่มีการระบุ'}</p>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-                    <p style={{ fontWeight: 'bold', color: '#029B36' }}>เบอร์ติดต่อ:</p>
-                    <p>{formData.contactNumber || 'ไม่มีการระบุ'}</p>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-                    <p style={{ fontWeight: 'bold', color: '#029B36' }}>อุปกรณ์เสริมที่เลือก:</p>
-                    <p>{formData.additionalEquipment.length > 0 ? formData.additionalEquipment.join(', ') : 'ไม่มีการเลือกอุปกรณ์เสริม'}</p>
-                  </div>
-
-                </div>
+              <div style={{ fontSize: '16px', lineHeight: '1.5' }}>
+                {/* แสดงข้อมูลจาก formData */}
+                <p><strong>รหัสการจอง:</strong> {formData.bookingNumber}</p>
+                <p><strong>ช่วงเวลาที่จอง:</strong> {formData.selectedTime.join(', ')}</p>
+                <p><strong>หัวข้อการประชุม:</strong> {formData.objective}</p>
+                <p><strong>จำนวนผู้เข้าร่วม:</strong> {formData.capacity}</p>
+                <p><strong>อุปกรณ์เสริม:</strong> {formData.additionalEquipment.join(', ')}</p>
+                <p><strong>ชื่อผู้จอง:</strong> {formData.username}</p>
+                <p><strong>อีเมล:</strong> {formData.email}</p>
+                <p><strong>เบอร์โทรศัพท์:</strong> {formData.contactNumber}</p>
               </div>
             </Modal>
-
           </Content>
         </Layout>
       </Layout>

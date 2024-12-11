@@ -29,15 +29,11 @@ function details() {
       key: 'details',
     },
     {
-      title: 'วันหมดอายุ พรบ.',
-      dataIndex: 'insurance',
-      key: 'insurance',
+      title: 'สถานะการใช้งาน',
+      dataIndex: 'status',
+      key: 'status',
     },
-    {
-      title: 'วันหมดอายุประกันภัย',
-      dataIndex: 'expiration',
-      key: 'expiration',
-    },
+
   ];
 
   const data = [
@@ -53,8 +49,10 @@ function details() {
           <p>จำนวนที่นั่ง: 5 ที่นั่ง</p>
           <p>เชื้อเพลิง: ดีเซล</p>
           <p>ผู้รับผิดชอบ: นายวันอัสรี เจ๊ะหะ</p>
-          <p>สถานะ: <Tag color="green">ใช้งานปกติ</Tag></p>
         </div>
+      ),
+      status: (
+        <Tag color="green">ใช้งานปกติ</Tag>
       ),
       insurance: '1 ต.ค. 2578',
       expiration: '15 ธ.ค. 2580',
@@ -71,8 +69,10 @@ function details() {
           <p>จำนวนที่นั่ง: 16 ที่นั่ง</p>
           <p>เชื้อเพลิง: ดีเซล</p>
           <p>ผู้รับผิดชอบ: อัครชัย ใจตรง</p>
-          <p>สถานะ: <Tag color="green">ใช้งานปกติ</Tag></p>
         </div>
+      ),
+      status: (
+        <Tag color="green">ใช้งานปกติ</Tag>
       ),
       insurance: '01 ก.ค. 2590',
       expiration: '01 มี.ค. 2600',
@@ -89,8 +89,10 @@ function details() {
           <p>จำนวนที่นั่ง: 16 ที่นั่ง</p>
           <p>เชื้อเพลิง: ดีเซล</p>
           <p>ผู้รับผิดชอบ: นายอารีฟ นิมะ</p>
-          <p>สถานะ: <Tag color="red">ใช้งานไม่ได้</Tag></p>
         </div>
+      ),
+      status: (
+        <Tag color="red">ใช้งานปกติ</Tag>
       ),
       insurance: '01 ก.ค. 2590',
       expiration: '01 มี.ค. 2600',
@@ -104,9 +106,9 @@ function details() {
         <Layout style={{ padding: '0px 20px' }}>
           <Content style={{ padding: '24px', backgroundColor: '#ffff' }}>
             <div style={{ maxWidth: '920px', margin: '0 auto', marginTop: '10px' }}>
-              <Title  level={2} style={{ textAlign: 'center', marginBottom: '24px', color: 'black' }}>รายละเเอียดรถ</Title>
-              
-              <Divider/>
+              <Title level={2} style={{ textAlign: 'center', marginBottom: '24px', color: 'black' }}>รายละเเอียดรถ</Title>
+
+              <Divider />
 
               <div style={{
                 backgroundColor: '#fff',

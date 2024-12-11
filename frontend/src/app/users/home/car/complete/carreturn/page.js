@@ -1,23 +1,22 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation'; // เพิ่ม useRouter
-import { Layout, Typography, Card, Space, Button, Divider, Alert, Spin } from 'antd';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Layout, Typography, Card, Space, Button, Divider, Alert, Modal, Form, Input, Row, Col } from 'antd';
 import Sidebar from '../../components/sidebar';
 import Navbar from '../../components/navbar';
 import { Content } from 'antd/lib/layout/layout';
 
-
 const { Title, Text } = Typography;
-
-
 
 function CarReturn() {
     const searchParams = useSearchParams();
-    const router = useRouter(); // เรียกใช้ useRouter
+    const router = useRouter();
     const [bookingData, setBookingData] = useState(null);
-    const [status, setStatus] = useState(null); // สถานะของการคืนรถ
-    const [loading, setLoading] = useState(false); // สถานะ Loading
+    const [status, setStatus] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [form] = Form.useForm();
 
     useEffect(() => {
         const bookingDataParam = searchParams.get('bookingData');
@@ -30,26 +29,38 @@ function CarReturn() {
         }
     }, [searchParams]);
 
-    const handleSubmitReturn = () => {
-        setLoading(true); // เริ่มการโหลด
-        setStatus('กำลังดำเนินการคืนรถ...'); // อัปเดตสถานะเบื้องต้น
-
-        // จำลองสถานการณ์ที่แอดมินต้องกดยืนยัน
-        // สถานะจะไม่เปลี่ยนจนกว่าแอดมินจะทำการยืนยันการคืนรถ
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
     };
 
-    // จำลองการคลิกของแอดมินเพื่อเปลี่ยนสถานะ
+    const handleModalOk = () => {
+        form.validateFields()
+            .then((values) => {
+                setLoading(true);
+                setStatus('กำลังดำเนินการคืนรถ...');
+                console.log('ข้อมูลที่กรอกในฟอร์ม:', values);
+
+                setIsModalOpen(false); // ปิด Modal
+            })
+            .catch((info) => {
+                console.error('ฟอร์มไม่สมบูรณ์:', info);
+            });
+    };
+
+    const handleModalCancel = () => {
+        setIsModalOpen(false);
+    };
+
     const handleAdminComplete = () => {
-        setLoading(false); // หยุดการโหลด
-        setStatus('การคืนรถสำเร็จ! ขอบคุณที่ใช้บริการ'); // แสดงสถานะการคืนรถสำเร็จ
+        setLoading(false);
+        setStatus('การคืนรถสำเร็จ! ขอบคุณที่ใช้บริการ');
     };
 
     const handleBackToStart = () => {
-        router.push('/users/home/car/complete'); // เปลี่ยนเส้นทางกลับไปหน้าเริ่มต้นการจอง
+        router.push('/users/home/car/complete');
     };
 
     return (
-        
         <Layout style={{ minHeight: '100vh' }}>
             <Navbar />
             <Layout style={{ padding: '0px 20px', marginTop: '20px' }}>
@@ -66,11 +77,10 @@ function CarReturn() {
                         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
                             <Title level={3}>หน้าคืนรถ</Title>
                             <Divider style={{ margin: '10px 0' }} />
-                            {/* ย้ายแถบสถานะไปข้างบน */}
                             {status && (
                                 <Alert
                                     message={status}
-                                    type={loading ? 'info' : 'success'} // ใช้ 'info' ระหว่างที่โหลด
+                                    type={loading ? 'info' : 'success'}
                                     showIcon
                                     style={{ marginBottom: '15px' }}
                                 />
@@ -124,19 +134,18 @@ function CarReturn() {
                                 <p>ไม่พบข้อมูลการจอง</p>
                             )}
                             <Divider style={{ margin: '10px 0' }} />
-                            <div style={{ textAlign: 'center'}}>
+                            <div style={{ textAlign: 'center' }}>
                                 <Button
                                     type="primary"
-                                    onClick={handleSubmitReturn}
-                                    loading={loading} // ปุ่มจะมีสถานะ Loading ระหว่างดำเนินการ
-                                    style={{ borderRadius: '8px',marginRight: '10px' }}
+                                    onClick={handleOpenModal}
+                                    style={{ borderRadius: '8px', marginRight: '10px' }}
                                 >
                                     ยืนยันการคืนรถ
                                 </Button>
                                 <Button
                                     type="dashed"
                                     onClick={handleBackToStart}
-                                    style={{ borderRadius: '8px',  }}
+                                    style={{ borderRadius: '8px' }}
                                 >
                                     ย้อนกลับไปหน้าเริ่มต้นการจอง
                                 </Button>
@@ -146,12 +155,106 @@ function CarReturn() {
                                 <Button
                                     type="default"
                                     onClick={handleAdminComplete}
-                                    style={{ marginTop: '10px', borderRadius: '8px'}}
+                                    style={{ marginTop: '10px', borderRadius: '8px' }}
+                                    disabled={!loading} // ปุ่มนี้จะใช้งานได้เฉพาะเมื่อกำลังโหลด
                                 >
                                     แอดมินยืนยันการคืนรถ
                                 </Button>
                             </div>
 
+                            {/* Modal สำหรับการคืนรถ */}
+                            <Modal
+                                title={<Title level={4}>แบบฟอร์มการคืนรถ</Title>}
+                                open={isModalOpen}
+                                onOk={handleModalOk}
+                                onCancel={handleModalCancel}
+                                okText="ยืนยัน"
+                                cancelText="ยกเลิก"
+                                confirmLoading={loading}
+                                centered
+                                bodyStyle={{ padding: '20px 30px' }}
+                                width={600}
+                            >
+                                <Form
+                                    form={form}
+                                    layout="vertical"
+                                    style={{ rowGap: '10px' }} // ลดระยะห่างระหว่าง Form.Item
+                                >
+                                    {/* วันที่และเวลาคืนรถ */}
+                                    <Row gutter={[12, 12]}> {/* ลดค่า gutter */}
+                                        <Col span={12}>
+                                            <Form.Item
+                                                name="returnDate"
+                                                label="วันที่คืนรถ"
+                                                rules={[{ required: true, message: 'กรุณาระบุวันที่คืนรถ' }]}
+                                                style={{ marginBottom: '10px' }} // ลด margin-bottom
+                                            >
+                                                <Input type="date" />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={12}>
+                                            <Form.Item
+                                                name="returnTime"
+                                                label="เวลาคืนรถ"
+                                                rules={[{ required: true, message: 'กรุณาระบุเวลาคืนรถ' }]}
+                                                style={{ marginBottom: '10px' }}
+                                            >
+                                                <Input type="time" />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+
+                                    {/* สภาพรถและเลขไมล์ */}
+                                    <Row gutter={[12, 12]}>
+                                        <Col span={12}>
+                                            <Form.Item
+                                                name="carCondition"
+                                                label="สภาพรถ"
+                                                rules={[{ required: true, message: 'กรุณาระบุสภาพรถ' }]}
+                                                style={{ marginBottom: '10px' }}
+                                            >
+                                                <Input placeholder="กรุณาระบุสภาพรถ" />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={12}>
+                                            <Form.Item
+                                                name="mileage"
+                                                label="เลขไมล์"
+                                                rules={[{ required: true, message: 'กรุณาระบุเลขไมล์' }]}
+                                                style={{ marginBottom: '10px' }}
+                                            >
+                                                <Input type="number" placeholder="กรุณาระบุเลขไมล์" />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    {/* ระดับน้ำมัน */}
+                                    <Row gutter={[12, 12]}>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                name="fuelLevel"
+                                                label="ระดับน้ำมัน"
+                                                rules={[{ required: true, message: 'กรุณาระบุระดับน้ำมัน' }]}
+                                                style={{ marginBottom: '10px' }}
+                                            >
+                                                <Input placeholder="กรุณาระบุระดับน้ำมัน เช่น 50%" />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    
+                                    {/* หมายเหตุเพิ่มเติม */}
+                                    <Row>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                name="remarks"
+                                                label="หมายเหตุเพิ่มเติม"
+                                                style={{ marginBottom: '10px' }}
+                                            >
+                                                <Input.TextArea rows={3} placeholder="ระบุหมายเหตุเพิ่มเติม (ถ้ามี)" />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                </Form>
+                            </Modal>
                         </div>
                     </Content>
                 </Layout>
