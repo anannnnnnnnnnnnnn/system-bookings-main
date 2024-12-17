@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Layout, Calendar, Badge, Divider, Tag, Typography, Modal, List } from 'antd';
 import Navbar from './components/navbar';
 import Sidebar from './components/sidebar';
+import Navigation from './components/navigation';
 import { Content } from 'antd/lib/layout/layout';
 
 const { Header } = Layout;
@@ -82,22 +83,30 @@ function Home() {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
       {/* Navbar */}
       <Navbar />
 
-      <Layout style={{ padding: '0px 20px', marginTop: '20px' }}>
+      <Layout style={{ padding: '0px 49px', marginTop: '20px', backgroundColor: '#fff' }}>
         {/* Sidebar */}
         <Sidebar />
 
-        {/* เนื้อหาหลักของหน้า */}
-        <Layout style={{ padding: '0px 20px' }}>
-          <Content style={{ padding: '24px', backgroundColor: '#ffff' }}>
-            <div style={{ maxWidth: '920px', margin: '0 auto' }}>
-              <Title level={2} style={{ textAlign: 'center', marginBottom: '24px', color: 'black' }}>ปฎิทินห้องประชุม</Title>
+        {/* เนื้อหาหลัก */}
+        <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
+          <Navigation />
+          <Content style={{
+            marginTop: '21px',
+            padding: '24px',
+            backgroundColor: '#fff',
+            borderRadius: '8px',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+
+          }}>
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+              <Title level={2} style={{ textAlign: 'start', marginBottom: '24px', color: 'black' }}>หน้าหลัก</Title>
 
               <Divider />
-              
+
               {/* ปฏิทิน */}
               <div style={{ marginTop: '20px', maxWidth: '900px', margin: '0 auto' }}>
                 <h3 style={{ marginBottom: '20px' }}>ปฏิทินการจองห้องประชุม</h3>
@@ -119,18 +128,18 @@ function Home() {
                     }}
                   />
                 </div>
-              <Divider />
+                <Divider />
 
-              {/* รายการจองห้องประชุมใต้ปฏิทิน */}
-              <div style={{ marginTop: '10px' }}>
-                <h3>สีประจำห้องประชุม</h3>
-                {Object.entries(roomColors).map(([room, color]) => (
-                  <Tag key={room} color={color} style={{ marginBottom: '5px', display: 'flex' }}>
-                    {room}
-                  </Tag>
-                ))}
+                {/* รายการจองห้องประชุมใต้ปฏิทิน */}
+                <div style={{ marginTop: '10px' }}>
+                  <h3>สีประจำห้องประชุม</h3>
+                  {Object.entries(roomColors).map(([room, color]) => (
+                    <Tag key={room} color={color} style={{ marginBottom: '5px', display: 'flex' }}>
+                      {room}
+                    </Tag>
+                  ))}
+                </div>
               </div>
-            </div>
             </div>
 
             {/* Modal สำหรับแสดงข้อมูลการจอง */}

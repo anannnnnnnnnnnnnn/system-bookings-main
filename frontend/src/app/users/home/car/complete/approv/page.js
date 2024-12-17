@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { Content } from 'antd/es/layout/layout';
 import Navbar from '../../components/navbar';
 import Sidebar from '../../components/sidebar';
+import Navigation from '../../components/navigation';
 import { CheckCircleOutlined, WarningOutlined, PrinterOutlined, CheckOutlined, QrcodeOutlined } from '@ant-design/icons';
-import { jsPDF } from 'jspdf';
-import QRCode from 'qrcode.react';
+
 
 const { Title, Text } = Typography;
 
@@ -28,13 +28,6 @@ function ApprovalPending() {
         }
     }, []);
 
-    useEffect(() => {
-        if (bookingData) {
-            const qrData = JSON.stringify(bookingData); // แปลงข้อมูลการจองเป็น JSON string สำหรับ QR Code
-            setQrCodeData(qrData);
-        }
-    }, [bookingData]);
-
     const handleApprove = () => {
         setIsApproved(true);
         message.success('อนุมัติเรียบร้อยแล้ว');
@@ -42,40 +35,10 @@ function ApprovalPending() {
 
     const handlePrint = () => {
         if (!isApproved) {
-            message.warning('กรุณาอนุมัติก่อนพิมพ์ใบจอง');
+            message.warning('รออนุมัติก่อนพิมพ์ใบจอง');
             return;
         }
 
-        // สร้าง PDF ด้วย jsPDF
-        const doc = new jsPDF();
-
-        // เพิ่มข้อมูลการจองใน PDF
-        doc.setFontSize(16);
-        doc.text('ใบจองรถ', 20, 20);
-
-        doc.setFontSize(12);
-        doc.text(`เลขที่ใบจอง: ${bookingData.bookingNumber || 'N/A'}`, 20, 30);
-        doc.text(`ทะเบียนรถ: ${bookingData.licensePlate || 'N/A'}`, 20, 40);
-        doc.text(`ประเภท: ${bookingData.carType || 'N/A'}`, 20, 50);
-        doc.text(`วันที่ใช้รถ: ${bookingData.startDate || 'N/A'}`, 20, 60);
-        doc.text(`ถึงวันที่: ${bookingData.endDate || 'N/A'}`, 20, 70);
-        doc.text(`จุดประสงค์: ${bookingData.purpose || 'ไม่ได้ระบุ'}`, 20, 80);
-        doc.text(`ปลายทาง: ${bookingData.destination || 'ไม่ได้ระบุ'}`, 20, 90);
-        doc.text(`จำนวนผู้โดยสาร: ${bookingData.passengers || 'ไม่ได้ระบุ'}`, 20, 100);
-
-        // สร้าง QR Code ใน PDF
-        if (qrCodeData) {
-            const canvas = document.createElement('canvas');
-            QRCode.toCanvas(canvas, qrCodeData, (error) => {
-                if (error) {
-                    console.error(error);
-                } else {
-                    const qrImage = canvas.toDataURL('image/png');
-                    doc.addImage(qrImage, 'PNG', 20, 110, 50, 50); // วาง QR Code ที่จุด (20, 110) ขนาด 50x50
-                    doc.save('booking_confirmation.pdf');
-                }
-            });
-        }
     };
 
     const handleScanQRCode = () => {
@@ -87,20 +50,22 @@ function ApprovalPending() {
     };
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
+        <Layout style={{ minHeight: '100vh',backgroundColor:'#ffff' }}>
             <Navbar />
-            <Layout style={{ padding: '0px 20px', marginTop: '20px' }}>
+            <Layout style={{ padding: '0px 50px', marginTop: '20px',backgroundColor:'#ffff' }}>
                 <Sidebar />
-                <Layout style={{ padding: '0px 20px' }}>
+                <Layout style={{ padding: '0px 30px' ,backgroundColor:'#ffff'}}>
+                    <Navigation />
                     <Content
                         style={{
-                            padding: '30px',
-                            backgroundColor: '#f9f9f9',
-                            borderRadius: '12px',
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                            marginTop: '21px',
+                            padding: '24px',
+                            backgroundColor: '#fff',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
                         }}
                     >
-                        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+                        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                             <Title level={3} style={{ textAlign: 'left', color: '#333' }}>
                                 รออนุมัติ
                             </Title>
@@ -145,7 +110,7 @@ function ApprovalPending() {
                                     <Space direction="vertical" size="small" style={{ width: '100%' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                                             <img
-                                                src={bookingData.carImage || '/default-car-image.jpg'}
+                                                src="/assets/car1.jpg"
                                                 alt="Car"
                                                 style={{
                                                     width: '200px',
@@ -185,7 +150,7 @@ function ApprovalPending() {
                                     type="default"
                                     icon={<PrinterOutlined />}
                                     onClick={handlePrint}
-                                    
+
                                 >
                                     พิมพ์ใบจอง
                                 </Button>
@@ -236,7 +201,6 @@ function ApprovalPending() {
                                     alignItems: 'center',
                                 }}
                             >
-                                
                             </div>
                         </Modal>
                     </Content>
@@ -245,5 +209,4 @@ function ApprovalPending() {
         </Layout>
     );
 }
-
 export default ApprovalPending;

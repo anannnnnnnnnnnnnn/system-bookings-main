@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Layout, Menu, Dropdown, Space, Grid } from 'antd';
+import { Layout, Menu, Dropdown, Space, Grid, Popover, Button } from 'antd';
 import { GlobalOutlined, UserOutlined, MenuOutlined } from '@ant-design/icons';
 
 const { Header } = Layout;
@@ -15,16 +15,32 @@ function Navbar() {
       items={[
         { key: 'th', label: 'TH' },
         { key: 'en', label: 'EN' },
-        { key: 'my', label: 'melayu' },
+        { key: 'my', label: 'Melayu' },
       ]}
     />
+  );
+
+  // ฟังก์ชันที่ใช้สำหรับออกจากระบบ
+  const handleLogout = () => {
+    console.log("ออกจากระบบ");
+    window.location.href = '/';
+    // ที่นี่คุณสามารถเพิ่มฟังก์ชันสำหรับออกจากระบบ เช่น การลบ token หรือ redirect
+  };
+
+  // เนื้อหาภายใน Popover
+  const userMenuContent = (
+    <div style={{ padding: '10px' }}>
+      <Button type="link" onClick={handleLogout} style={{ color: '#029B36' }}>
+        ออกจากระบบ
+      </Button>
+    </div>
   );
 
   return (
     <Layout>
       <Header
         style={{
-          backgroundColor: '#fff',
+          backgroundColor: '#ffff',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -77,7 +93,14 @@ function Navbar() {
                   นายอนันต์ โต๊ะเตียะ
                 </div>
               </div>
-              <UserOutlined style={{ fontSize: '20px', color: 'black' }} />
+              <Popover
+                content={userMenuContent}
+                trigger="click"
+                placement="bottomRight"
+                arrowPointAtCenter
+              >
+                <UserOutlined style={{ fontSize: '20px', color: 'black', cursor: 'pointer' }} />
+              </Popover>
             </div>
           ) : (
             <MenuOutlined style={{ fontSize: '20px', color: 'black', cursor: 'pointer' }} />

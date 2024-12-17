@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';  // ใช้ useRouter จาก next/
 import { Result, Button, Layout, Modal, message } from 'antd';
 import Sidebar from '../../components/sidebar';
 import Navbar from '../../components/navbar';
+import Navigation from '../../components/navigation';
 
 const { Content } = Layout;
 
@@ -20,20 +21,26 @@ function BookingSuccess() {
     };
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
+        <Layout style={{ minHeight: '100vh', backgroundColor:'#ffff'}}>
+            {/* Navbar */}
             <Navbar />
-            <Layout style={{ padding: '0px 20px', marginTop: '20px' }}>
+
+            <Layout style={{ padding: '0px 49px', marginTop: '20px', backgroundColor: '#ffff' }}>
+                {/* Sidebar */}
                 <Sidebar />
-                <Layout style={{ padding: '0px 20px' }}>
-                    <Content
-                        style={{
-                            padding: '24px',
-                            backgroundColor: '#fff',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                        }}
-                    >
-                        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+
+                {/* เนื้อหาหลัก */}
+                <Layout style={{ padding: '0px 30px', backgroundColor:'#ffff'}}>
+                    <Navigation />
+                    <Content style={{
+                        marginTop: '21px',
+                        padding: '24px',
+                        backgroundColor: '#fff',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+
+                    }}>
+                        <div style={{ maxWidth: '800px', margin: '0 auto',  backgroundColor:'#fffff'}}>
                             <div style={{ padding: '50px' }}>
                                 <Result
                                     status="success"

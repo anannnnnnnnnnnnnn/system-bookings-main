@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Layout, Table, Tag, Divider, Typography,Image } from 'antd';
+import { Layout, Table, Tag, Divider, Typography, Image } from 'antd';
 import Sidebar from '../components/sidebar';
 import Navbar from '../components/navbar';
+import Navigation from '../components/navigation';
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -42,12 +43,13 @@ function Details() {
     {
       key: '1',
       no: '1',
+      image: '/assets/pg1.jpg', // URL รูปภาพ
       room: 'ห้องประชุม A',
       details: (
         <div>
           <p>ขนาด: 20 ที่นั่ง</p>
           <p>อุปกรณ์: โปรเจคเตอร์, ไมโครโฟน</p>
-          <p>สถานที่: ชั้น 3 อาคาร A</p>  
+          <p>สถานที่: ชั้น 3 อาคาร A</p>
         </div>
       ),
       status: (
@@ -57,6 +59,7 @@ function Details() {
     {
       key: '2',
       no: '2',
+      image: '/assets/pg2.jpg', // URL รูปภาพ
       room: 'ห้องประชุม B',
       details: (
         <div>
@@ -72,6 +75,7 @@ function Details() {
     {
       key: '3',
       no: '3',
+      image: '/assets/pg3.jpg', // URL รูปภาพ
       room: 'ห้องประชุม C',
       details: (
         <div>
@@ -87,14 +91,26 @@ function Details() {
   ];
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
+      {/* Navbar */}
       <Navbar />
-      <Layout style={{ padding: '0px 20px', marginTop: '20px' }}>
+
+      <Layout style={{ padding: '0px 49px', marginTop: '20px', backgroundColor: '#fff' }}>
+        {/* Sidebar */}
         <Sidebar />
-        <Layout style={{ padding: '0px 20px' }}>
-          <Content style={{ padding: '24px', backgroundColor: '#ffff' }}>
-            <div style={{ maxWidth: '920px', margin: '0 auto', marginTop: '10px' }}>
-              <Title level={2} style={{ textAlign: 'center', marginBottom: '24px', color: 'black' }}>
+
+        {/* เนื้อหาหลัก */}
+        <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
+          <Navigation />
+          <Content style={{
+            marginTop: '21px',
+            padding: '24px',
+            backgroundColor: '#fff',
+            borderRadius: '8px',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+          }}>
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+              <Title level={2} style={{ textAlign: 'start', marginBottom: '24px', color: '444050' }}>
                 รายละเอียดห้องประชุม
               </Title>
 

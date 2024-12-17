@@ -8,6 +8,8 @@ import {
   RollbackOutlined,
   LogoutOutlined,
   MenuOutlined,
+  FilePdfOutlined,
+  
 } from '@ant-design/icons';
 import Link from 'next/link';
 
@@ -38,7 +40,15 @@ function Sidebar() {
       >
         ระบบจองรถ
       </div>
-      <Menu theme="light" mode="inline" defaultSelectedKeys={['1']}>
+      <Menu
+        theme="light"
+        mode="inline"
+        defaultSelectedKeys={['1']}
+        style={{
+          background: '#fff',
+          borderRight: 'none',
+        }}
+      >
         <Menu.Item key="1" icon={<HomeOutlined />}>
           <Link href="/users/home/car">หน้าหลัก</Link>
         </Menu.Item>
@@ -48,11 +58,11 @@ function Sidebar() {
         <Menu.Item key="3" icon={<CarOutlined />}>
           <Link href="/users/home/car/complete">จองรถ</Link>
         </Menu.Item>
-        <Menu.Item key="4" icon={<RollbackOutlined />}>
-          <Link href="/users/home">ย้อนกลับ</Link>
+        <Menu.Item key="4" icon={<FilePdfOutlined/>}>
+          <Link href="/">คู่มือการใช้งาน</Link>
         </Menu.Item>
-        <Menu.Item key="5" icon={<LogoutOutlined />}>
-          <Link href="/">ออกจากระบบ</Link>
+        <Menu.Item key="5" icon={<InfoCircleOutlined/>}>
+          <Link href="/">แจ้งปัญหา/ข้อเสนอแนะ</Link>
         </Menu.Item>
       </Menu>
     </>
@@ -104,6 +114,22 @@ function Sidebar() {
           </Drawer>
         </>
       )}
+      <style jsx global>{`
+        .ant-menu-item-selected {
+          background-color: #478D00 !important; /* สีเขียวเมื่อ active */
+          color: #ffffff !important; /* ตัวอักษรสีขาว */
+        }
+        .ant-menu-item:hover {
+          background-color: #6abf40 !important; /* สีเขียวอ่อนเมื่อ hover */
+          color: #ffffff !important; /* ตัวอักษรสีขาว */
+        }
+        .ant-menu-item a {
+          color: #000000; /* ตัวอักษรสีดำเมื่อไม่ได้เลือก */
+        }
+        .ant-drawer-title {
+          color: #478D00 !important; /* เปลี่ยนสีข้อความ title ใน Drawer */
+        }
+      `}</style>
     </>
   );
 }

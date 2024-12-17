@@ -5,6 +5,7 @@ import { Layout, Calendar, Badge, Divider, Tag,Typography } from 'antd';
 import Navbar from './components/navbar';
 import Sidebar from './components/sidebar';
 import { Content } from 'antd/lib/layout/layout';
+import Navigation from './components/navigation';
 
 const { Header } = Layout;
 const { Title } = Typography;
@@ -70,18 +71,27 @@ function Home() {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
       {/* Navbar */}
       <Navbar />
 
-      <Layout style={{ padding: '0px 20px', marginTop: '20px' }}>
+      <Layout style={{ padding: '0px 50px', marginTop: '20px', backgroundColor: '#fff' }}>
         {/* Sidebar */}
         <Sidebar />
 
-        {/* เนื้อหาหลักของหน้า */}
-        <Layout style={{ padding: '0px 20px' }}>
-          <Content style={{ padding: '24px', backgroundColor: '#ffff' }}>
-            <div style={{ maxWidth: '920px', margin: '0 auto' }}>
+        {/* เนื้อหาหลัก */}
+        <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
+          <Navigation/>
+          <Content
+            style={{
+              marginTop: '21px',
+              padding: '24px',
+              backgroundColor: '#fff',
+              borderRadius: '8px',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+            }}
+          >
+            <div style={{ maxWidth: '800  px', margin: '0 auto' }}>
               <Title level={2} style={{ textAlign: 'center', marginBottom: '24px', color: 'black' }}>ปฎิทิน</Title>
 
               <Divider />
