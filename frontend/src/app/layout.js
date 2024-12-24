@@ -1,6 +1,7 @@
 import localFont from "next/font/local";
 import "./globals.css";
 import { ConfigProvider } from "antd";
+import 'antd/dist/reset.css';
 
 const geistSans = localFont({
   src: "/fonts/GeistVF.woff",

@@ -115,21 +115,47 @@ function MeetingRoomManagement() {
             title: 'การกระทำ',
             key: 'action',
             render: (_, record) => (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <Button
-                        type="primary"
-                        onClick={() => handleEdit(record)}
-                        size="small"
-                        style={{ background: '#029B36', border: 'none' }}
-                    >
-                        แก้ไข
-                    </Button>
-                    <Button danger onClick={() => handleDelete(record)} size="small">
-                        ลบ
-                    </Button>
-                </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <Button
+                  type="primary"
+                  onClick={() => handleEdit(record)} // ฟังก์ชันแก้ไข
+                  size="small"
+                  style={{
+                    background: '#029B36',
+                    border: 'none',
+                    transition: "all 0.3s ease", // เพิ่ม transition สำหรับการเปลี่ยนแปลง
+                    transform: "scale(1)", // ขนาดปกติ
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = "scale(1.1)"; // ขยายขนาดเมื่อเมาส์ไปวาง
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = "scale(1)"; // ย่อขนาดกลับเมื่อเมาส์ออก
+                  }}
+                >
+                  แก้ไข
+                </Button>
+                <Button
+                  danger
+                  onClick={() => handleDelete(record)} // ฟังก์ชันลบ
+                  size="small"
+                  style={{
+                    transition: 'all 0.3s ease',
+                    transform: 'scale(1)', // ขนาดปกติ
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.2)'; // ขยายขนาดมากขึ้นเมื่อเมาส์ไปวาง
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)'; // ย่อขนาดกลับเมื่อเมาส์ออก
+                  }}
+                >
+                  ลบ
+                </Button>
+              </div>
             ),
-        },
+          }
+             
     ];
 
     return (

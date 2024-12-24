@@ -1,91 +1,91 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { Input, Button, Form, Divider, Typography } from 'antd'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
-import Link from 'next/link'
+import React from 'react';
+import { Layout, Form, Input, Button, Typography } from 'antd';
 
-const { Title } = Typography
+const { Content } = Layout;
+const { Title, Text } = Typography;
 
 function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-
-  const handleSubmit = (values) => {
-    console.log('Logging in with:', values)
-    // Handle login logic here
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-100 to-white flex justify-center items-center">
-      <div className="bg-white p-6 rounded-xl shadow-lg w-full sm:w-96">
-        <Title level={2} className="text-center text-gray-800 mb-6">
-          Welcome Back!
-        </Title>
-
-        <Form
-          name="login"
-          initialValues={{ remember: true }}
-          onFinish={handleSubmit}
+    <Layout style={{ minHeight: '100vh', backgroundColor: '#ffff' }}>
+      <Content style={{ display: 'flex', flexDirection: 'row' }}>
+        {/* กล่องฝั่งซ้าย */}
+        <div
+          style={{
+            flex: 1,
+            backgroundColor: '#236927',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px',
+            height: '620px',
+            maxWidth: '528px',
+            margin: '20px auto',  // จัดให้อยู่ตรงกลาง
+            marginLeft: '40px',
+            borderRadius: '5px', // เพิ่มความโค้งมนให้กล่อง
+          }}
         >
-          <Form.Item
-            name="email"
-            rules={[{ required: true, message: 'Please input your Email!' }]}
-          >
-            <Input
-              prefix={<UserOutlined />}
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="rounded-lg"
-              size="large"
-              autoComplete="email"
-              style={{ borderRadius: '10px', padding: '10px' }}
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: 'Please input your Password!' }]}
-          >
-            <Input.Password
-              prefix={<LockOutlined />}
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="rounded-lg"
-              size="large"
-              style={{ borderRadius: '10px', padding: '10px' }}
-            />
-          </Form.Item>
-
-          <Form.Item>
-            <Link href="/users/home">
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="w-full rounded-lg py-3 bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-300 font-semibold"
-                size="large"
-              >
-                Log In
-              </Button>
-            </Link>
-          </Form.Item>
-
-          <Divider />
-          
-          {/* Additional style for forgot password or signup link */}
-          <div className="text-center text-sm text-gray-500">
-            <Link href="/forgot-password" className="hover:text-blue-500">
-              Forgot password?
-            </Link>
+          <div style={{ textAlign: 'center' }}>
+            <Title level={2} style={{ color: '#ffff' }}>LOGO</Title>
+            <Title level={3} style={{ color: '#ffff' }}>จองรถสำนักและห้องประชุม</Title>
+            <Text
+              type="secondary"
+              style={{ color: '#ffff' }}>
+              Book office cars and
+              Conference rooms
+            </Text>
           </div>
-        </Form>
-      </div>
-    </div>
-  )
+        </div>
+
+        {/* กล่องฝั่งขวา */}
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '20px',
+          }}
+        >
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <Title level={3} style={{ margin: 0 }}>
+              เข้าสู่ระบบ
+            </Title>
+            <Text type="secondary">กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ</Text>
+          </div>
+          <Form
+            name="login"
+            layout="vertical"
+            style={{ width: '50%', maxWidth: '400px' }}
+            onFinish={(values) => console.log('Form values:', values)}
+          >
+            <Form.Item
+              label="อีเมล"
+              name="email"
+              rules={[{ required: true, message: 'Please input your email!' }]}
+            >
+              <Input placeholder="Enter your email" />
+            </Form.Item>
+            <Form.Item
+              label="รหัสผ่าน"
+              name="password"
+              rules={[{ required: true, message: 'Please input your password!' }]}
+            >
+              <Input.Password placeholder="Enter your password" />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" block style={{backgroundColor:'#236927', color:'#ffff'}}>
+                Login
+              </Button>
+            </Form.Item>
+          </Form>
+        </div>
+      </Content>
+    </Layout>
+  );
 }
 
-export default Login
+export default Login;

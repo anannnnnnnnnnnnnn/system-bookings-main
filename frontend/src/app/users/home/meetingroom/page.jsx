@@ -94,7 +94,8 @@ function Home() {
         {/* เนื้อหาหลัก */}
         <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
           <Navigation />
-          <Content style={{
+          <Content
+           style={{
             marginTop: '21px',
             padding: '24px',
             backgroundColor: '#fff',

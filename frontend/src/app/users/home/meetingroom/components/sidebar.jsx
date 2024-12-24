@@ -1,6 +1,6 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
-import { HomeOutlined, InfoCircleOutlined,  RollbackOutlined, LogoutOutlined,BankOutlined } from '@ant-design/icons';
+import { HomeOutlined, InfoCircleOutlined,  FilePdfOutlined,BankOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 
 const { Sider } = Layout;
@@ -56,13 +56,13 @@ function Sidebar() {
           },
           {
             key: '4',
-            icon: <RollbackOutlined />,
-            label: <Link href="/users/home">ย้อนกลับ</Link>,
+            icon: <FilePdfOutlined />,
+            label: <Link href="">คู่มือการใช้งาน</Link>,
           },
           {
             key: '5',
-            icon: <LogoutOutlined />,
-            label: <Link href="/">ออกจากระบบ</Link>,
+            icon: <InfoCircleOutlined />,
+            label: <Link href="/">แจ้งปัญหา/ข้อเสนอแนะ</Link>,
           },
         ]}
       />

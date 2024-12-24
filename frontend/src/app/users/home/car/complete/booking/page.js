@@ -21,7 +21,7 @@ function BookingDetails() {
         endDate: '2024-12-05',
         bookingNumber: 'AAA0001',
         bookingDate: '2024-12-05',
-        purpose: ' ',
+        purpose: '',
         destination: '',
         passengers: '',
         department: 'โปรแกรมเมอร์',
@@ -74,34 +74,89 @@ function BookingDetails() {
                             <Divider />
 
                             {/* ข้อมูลรถและรูปภาพ */}
-                            <div style={{ padding: '16px' }}>
-                                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', borderRadius: '12px', padding: '16px' }}>
+                            <div style={{ padding: '5px' }}>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        border: '1px solid #E0E0E0', // เส้นขอบสีเทาอ่อน
+                                        borderRadius: '12px',
+                                        padding: '16px',
+                                        backgroundColor: '#fff',
+                                        marginBottom: '16px',
+                                        transition: 'border 0.3s ease', // เพิ่มการเปลี่ยนแปลงของขอบอย่างนุ่มนวล
+                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', // ทำให้กรอบมีเงาเล็กน้อยเพื่อเพิ่มมิติ
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.border = '1px solid #B0B0B0'} // ขอบที่เข้มขึ้นเมื่อเมาส์ชี้
+                                    onMouseLeave={(e) => e.currentTarget.style.border = '1px solid #E0E0E0'} // คืนค่าขอบที่อ่อนลงเมื่อเมาส์ออก
+                                >
                                     <img
                                         src="/assets/car1.jpg"
                                         alt="Car"
                                         style={{
-                                            width: '25%',
-                                            height: '150px',
-                                            borderRadius: '12px',
-                                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                            marginRight: '16px'
+                                            width: '120px',
+                                            height: 'auto',
+                                            borderRadius: '8px',
+                                            border: '1px solid #E0E0E0', // เส้นขอบรูป
+                                            marginRight: '16px',
+                                            objectFit: 'cover', // ทำให้ภาพไม่เบี้ยว
                                         }}
                                     />
                                     <div style={{ flex: 1, textAlign: 'left', fontFamily: 'Arial, sans-serif' }}>
-                                        <Text style={{ fontSize: '18px', fontWeight: 'bold', color: '#333', marginBottom: '16px' }}>1234-XYZ</Text><br />
+                                        <Text
+                                            style={{
+                                                fontSize: '18px',
+                                                fontWeight: '600',
+                                                color: '#333',
+                                                marginBottom: '8px',
+                                            }}
+                                        >
+                                            1234-XYZ
+                                        </Text>
 
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '12px', color: '#555' }}>
-                                            <p style={{ margin: '8px 0' }}><strong>ประเภทรถ:</strong> Sedan</p>
-                                            <p style={{ margin: '8px 0' }}><strong>ยี่ห้อ:</strong> Toyota</p>
-                                            <p style={{ margin: '8px 0' }}><strong>ประเภทเชื้อเพลิง:</strong> เบนซิน</p>
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexWrap: 'wrap',
+                                                gap: '16px',
+                                                fontSize: '14px',
+                                                color: '#666',
+                                                marginBottom: '8px',
+                                            }}
+                                        >
+                                            <p style={{ margin: '0' }}>
+                                                <strong>ประเภทรถ:</strong> Sedan
+                                            </p>
+                                            <p style={{ margin: '0' }}>
+                                                <strong>ยี่ห้อ:</strong> Toyota
+                                            </p>
+                                            <p style={{ margin: '0' }}>
+                                                <strong>ประเภทเชื้อเพลิง:</strong> เบนซิน
+                                            </p>
                                         </div>
 
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '12px', color: '#555' }}>
-                                            <p ><strong>วันที่ใช้รถ:</strong> 1 มกราคม 2024</p>
-                                            <p><strong>ถึงวันที่ใช้รถ:</strong> 10 มกราคม 2024</p>
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexWrap: 'wrap',
+                                                gap: '16px',
+                                                fontSize: '14px',
+                                                color: '#666',
+                                            }}
+                                        >
+                                            <p style={{ margin: '0' }}>
+                                                <strong>วันที่ใช้รถ:</strong> 1 มกราคม 2024
+                                            </p>
+                                            <p style={{ margin: '0' }}>
+                                                <strong>ถึงวันที่ใช้รถ:</strong> 10 มกราคม 2024
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
+
+
                             </div>
 
                             {/* ฟอร์มการจอง */}
@@ -279,9 +334,9 @@ function BookingDetails() {
                                     { label: 'ชื่อ-สกุล', value: formData.username || '-' },
                                     { label: 'ประเภทของรถ', value: formData.carType || '-' },
                                     { label: 'วันที่จอง', value: formData.bookingDate || '-' },
-                                    { label: 'จุดประสงค์การใช้', value: formData.purpose || '-' },
-                                    { label: 'ปลายทาง', value: formData.destination || '-' },
-                                    { label: 'จำนวนผู้โดยสาร', value: formData.passengers || '-' },
+                                    { label: 'จุดประสงค์การใช้', value: formData.purpose || 'ไม่ได้ระบุ' },
+                                    { label: 'ปลายทาง', value: formData.destination || 'ไม่ได้ระบุ' },
+                                    { label: 'จำนวนผู้โดยสาร', value: formData.passengers || 'ไม่ได้ระบุ' },
                                     { label: 'แผนก/ฝ่าย', value: formData.department || '-' },
                                     {
                                         label: 'ต้องการพนักงานขับ',
@@ -311,7 +366,6 @@ function BookingDetails() {
                                 ))}
                             </div>
                         </Modal>
-
                     </Content>
                 </Layout>
             </Layout>

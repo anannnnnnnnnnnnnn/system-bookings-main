@@ -1,11 +1,11 @@
 'use client';
-import React, { useState } from 'react';
-import { Layout, Typography, Input, Button, Divider, Modal, Checkbox, Form, Row, Col, Radio, Image, Select } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Layout, Typography, Input, Button, Divider, Modal, Image, Select, List, Card, Space } from 'antd';
 import Sidebar from '../../components/sidebar';
 import Navbar from '../../components/navbar';
 import Navigation from '../../components/navigation';
 import { Content } from 'antd/lib/layout/layout';
-import { CheckOutlined, FileTextOutlined, CalendarOutlined, TeamOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons';
+import { FileTextOutlined, } from '@ant-design/icons';
 import Swal from 'sweetalert2';
 import { useRouter } from 'next/navigation';
 const { TextArea } = Input;
@@ -35,6 +35,15 @@ function BookingDetails() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isTimeConfirmed, setIsTimeConfirmed] = useState(false); // สถานะยืนยันเวลา
   const [unavailableTimes, setUnavailableTimes] = useState(['08:00-09:00', '14:00-15:00']); // เวลาที่ไม่ว่าง
+  const [selectedRooms, setSelectedRooms] = useState([]);
+
+  useEffect(() => {
+    // ดึงข้อมูลห้องประชุมที่เลือกจาก Session Storage
+    const storedRooms = sessionStorage.getItem('selectedRooms');
+    if (storedRooms) {
+      setSelectedRooms(JSON.parse(storedRooms));
+    }
+  }, []);
 
   const handleTimeSelect = (time) => {
     if (!unavailableTimes.includes(time)) {
@@ -64,8 +73,16 @@ function BookingDetails() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleConfirmBooking = () => {
+    // เก็บข้อมูลใน sessionStorage
+    sessionStorage.setItem('bookingData', JSON.stringify(formData));
+    // สามารถทำการเปลี่ยนเส้นทางไปยังหน้าจองรายละเอียด
+    window.location.href = '/users/home/meetingroom/complete/approv'; // หรือใช้ router.push() ใน Next.js
+  };
 
   const handleConfirm = () => {
+    // setBookingData(formData);
+    // setIsModalVisible(false);
     // แสดง SweetAlert เมื่อการจองสำเร็จ
     Swal.fire({
       title: 'จองสำเร็จ!',
@@ -74,6 +91,7 @@ function BookingDetails() {
       showConfirmButton: false, // ไม่แสดงปุ่มตกลง
       timer: 1500, // ตั้งเวลาให้แสดง 1.5 วินาที
       timerProgressBar: true, // แสดงแถบความคืบหน้าของเวลา
+
     }).then(() => {
       // หลังจาก SweetAlert ปิดเองแล้ว ให้เปลี่ยนหน้า
       router.push('/users/home/meetingroom/complete/approv'); // เปลี่ยนไปที่หน้าใหม่ (เช่น หน้า Home หรือ หน้าอื่น)
@@ -136,68 +154,100 @@ function BookingDetails() {
               <Divider />
 
               {/* ข้อมูลห้องประชุมและรูปภาพ */}
-              <div style={{ maxWidth: '800px', margin: '0 auto', padding: '16px' }}>
-                <div
+              <div style={{ maxWidth: '800px', padding: '0 30px' }}>
+                <h2
                   style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    backgroundColor: '#fff',
-                    marginBottom: '20px', // เพิ่มการเว้นระยะระหว่างรายการ
+                    marginBottom: '16px',
+                    fontWeight: 'bold',
+                    fontSize: '20px',
+                    color: '#4D4D4D',
                   }}
                 >
-                  <Image
-                    src="/assets/pg1.jpg"
-                    alt="Meeting Room"
-                    width={140} // ขนาดรูปภาพที่เหมาะสม
-                    style={{
-                      borderRadius: '8px', // มุมที่โค้งมนขึ้น
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', // เพิ่มเงาที่นุ่มนวลขึ้น
-                      marginRight: '20px', // เว้นระยะจากข้อความ
-                    }}
-                  />
-                  <div style={{ flex: 1, textAlign: 'left', fontFamily: 'Arial, sans-serif', marginLeft: '30px' }}>
-                    <Text
-                      style={{
-                        fontSize: '20px', // ขนาดตัวอักษรที่ใหญ่ขึ้นเล็กน้อย
-                        fontWeight: '600', // ทำให้ตัวหนามากขึ้น
-                        color: '#333',
-                        marginBottom: '10px', // ลดระยะห่างจากเนื้อหาตามลำดับ
-                        lineHeight: '1.4',
-                      }}
-                    >
-                      {formData.roomName}
-                    </Text>
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        gap: '24px', // เพิ่มระยะห่างระหว่างข้อความ
-                        fontSize: '14px', // ขนาดตัวอักษรที่เล็กลงเล็กน้อยเพื่อให้ดูทันสมัย
-                        color: '#777', // เปลี่ยนสีให้ดูนุ่มนวล
-                        flexWrap: 'wrap', // ทำให้ไม่ติดกัน
-                      }}
-                    >
-                      <p style={{ margin: '4px 0' }}>
-                        <strong>ความจุ:</strong> {formData.capacity}
-                      </p>
-                      <p style={{ margin: '4px 0' }}>
-                        <strong>อุปกรณ์:</strong> {formData.amenities}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                  ห้องประชุมที่เลือกจอง
+                </h2>
+                <List
+                  grid={{ gutter: 24, column: 1 }}
+                  dataSource={selectedRooms}
+                  renderItem={(room) => (
+                    <List.Item>
+                      <Card
+                        hoverable
+                        style={{
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                          padding: '12px',
+                          backgroundColor: '#f9f9f9',
+                          transition: 'transform 0.3s, box-shadow 0.3s',
+                        }}
+                        bodyStyle={{ padding: 0 }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'scale(1.02)';
+                          e.currentTarget.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.15)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'scale(1)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          {/* Room Image */}
+                          <Image
+                            src={room.image}
+                            alt={room.name}
+                            width={100} // ลดขนาดความกว้างของภาพ
+                            height={80} // ลดความสูงของภาพ
+                            style={{
+                              borderRadius: '8px',
+                              objectFit: 'cover',
+                              marginRight: '16px',
+                            }}
+                          />
 
+                          {/* Room Details */}
+                          <div style={{ flex: 1, margin: '0 20px' }}>
+                            <Text
+                              style={{
+                                width: '100px',
+                                fontSize: '16px', // ขนาดตัวอักษร
+                                fontWeight: 'bold',
+                                color: '#333',
+                                marginBottom: '4px',
+                                display: 'block',
+                                backgroundColor: '#66CDAA', // ไฮไลต์ด้วยแถบสีเหลืองอ่อน
+                                padding: '5px 7px', // เพิ่มระยะห่างรอบข้อความให้ดูชัดเจน
+                                borderRadius: '4px', // ทำมุมมน
+                              }}
+                            >
+                              {room.name}
+                            </Text>
+
+                            <div
+                              style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                fontSize: '12px', // ลดขนาดตัวอักษร
+                                color: '#666',
+                              }}
+                            >
+                              <Text>
+                                <strong style={{ color: '#444' }}>จำนวนที่นั่ง:</strong> {room.capacity} คน
+                              </Text>
+                              <Text>
+                                <strong style={{ color: '#444' }}>หมายเลขห้อง:</strong> {room.roomNumber}
+                              </Text>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    </List.Item>
+                  )}
+                />
               </div>
-
               <Divider />
 
               {/* ส่วนเลือกเวลาที่ต้องการ */}
-              <div style={{ padding: '20px' }}>
+              <div style={{ padding: '0 30px' }}>
                 <h2
                   style={{
                     marginBottom: '16px',
@@ -462,6 +512,7 @@ function BookingDetails() {
                 }}
               >
                 {[
+                  { label: 'ชื่อห้อง', value: selectedRooms.length > 0 ? selectedRooms.map(room => room.name).join(', ') : '-' },
                   { label: 'รหัสการจอง', value: formData.bookingNumber || '-' },
                   { label: 'ช่วงเวลาที่จอง', value: formData.selectedTime?.join(', ') || '-' },
                   { label: 'หัวข้อการประชุม', value: formData.objective || '-' },

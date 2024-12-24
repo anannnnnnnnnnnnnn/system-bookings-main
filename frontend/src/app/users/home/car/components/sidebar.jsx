@@ -59,10 +59,10 @@ function Sidebar() {
           <Link href="/users/home/car/complete">จองรถ</Link>
         </Menu.Item>
         <Menu.Item key="4" icon={<FilePdfOutlined/>}>
-          <Link href="/">คู่มือการใช้งาน</Link>
+          <Link href="">คู่มือการใช้งาน</Link>
         </Menu.Item>
         <Menu.Item key="5" icon={<InfoCircleOutlined/>}>
-          <Link href="/">แจ้งปัญหา/ข้อเสนอแนะ</Link>
+          <Link href="">แจ้งปัญหา/ข้อเสนอแนะ</Link>
         </Menu.Item>
       </Menu>
     </>

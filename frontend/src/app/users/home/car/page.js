@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
-import { Layout, Calendar, Badge, Divider, Tag,Typography } from 'antd';
+import React, {useState} from 'react';
+import { Layout, Calendar, Badge, Divider, Tag, Typography,Modal,List } from 'antd';
 import Navbar from './components/navbar';
 import Sidebar from './components/sidebar';
 import { Content } from 'antd/lib/layout/layout';
 import Navigation from './components/navigation';
+
 
 const { Header } = Layout;
 const { Title } = Typography;
@@ -39,6 +40,9 @@ function Home() {
     },
   ];
 
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedBookings, setSelectedBookings] = useState([]);
+
   // สีประจำรถ
   const carColors = {
     รถเก๋ง: '#ff5733', // สีแดง
@@ -69,6 +73,11 @@ function Home() {
       </ul>
     );
   };
+  const onSelectDate = (value) => {
+    const listData = getListData(value);
+    setSelectedBookings(listData);  // เก็บข้อมูลการจองที่เลือก
+    setIsModalVisible(true);  // เปิด Modal
+  };
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
@@ -81,7 +90,7 @@ function Home() {
 
         {/* เนื้อหาหลัก */}
         <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
-          <Navigation/>
+          <Navigation />
           <Content
             style={{
               marginTop: '21px',
@@ -91,14 +100,33 @@ function Home() {
               boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
             }}
           >
-            <div style={{ maxWidth: '800  px', margin: '0 auto' }}>
-              <Title level={2} style={{ textAlign: 'center', marginBottom: '24px', color: 'black' }}>ปฎิทิน</Title>
+            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+              <Title level={2} style={{ textAlign: 'start', marginBottom: '24px', color: 'black' }}>ปฎิทิน</Title>
 
               <Divider />
-              
+
               {/* ปฏิทิน */}
-              <Calendar dateCellRender={dateCellRender} />
-              <Divider />
+              <div style={{ marginTop: '20px', maxWidth: '900px', margin: '0 auto' }}>
+                <h3 style={{ marginBottom: '20px' }}>ปฏิทินการจองห้องประชุม</h3>
+                <div
+                  style={{
+                    overflow: 'hidden',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                    height: '500px', // กำหนดความสูงใหม่
+                  }}
+                >
+                  <Calendar
+                    dateCellRender={dateCellRender}
+                    onSelect={onSelectDate}  // เพิ่มฟังก์ชันนี้
+                    style={{
+                      width: '100%',
+                      transform: 'scale(0.8)', // ปรับให้เล็กลงอีก 
+                      transformOrigin: 'top center',
+                    }}
+                  />
+                </div>
+              </div>
 
               {/* รายการจองรถใต้ปฏิทิน */}
               <div style={{ marginTop: '10px' }}>
@@ -109,6 +137,32 @@ function Home() {
                   </Tag>
                 ))}
               </div>
+               {/* Modal สำหรับแสดงข้อมูลการจอง */}
+            <Modal
+              title={`รายละเอียดการจองห้องประชุม`}
+              visible={isModalVisible}
+              onCancel={() => setIsModalVisible(false)}
+              footer={null}
+              centered
+            >
+              <List
+                itemLayout="horizontal"
+                dataSource={selectedBookings}
+                renderItem={(item) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={
+                        <div>
+                          <Badge status={item.room} text={item.room} />
+                          <span style={{ marginLeft: '10px' }}>เวลา: {item.time}</span>
+                        </div>
+                      }
+                      description={`วัตถุประสงค์: ${item.destination}`}
+                    />
+                  </List.Item>
+                )}
+              />
+            </Modal>
             </div>
           </Content>
         </Layout>

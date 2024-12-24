@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Layout, Card, Row, Col, Statistic, Calendar, Modal, List } from 'antd';
+import { Layout, Card, Row, Col, Statistic, Calendar, Modal, List, Divider } from 'antd';
 import { CarFilled, UserOutlined, ToolOutlined, IdcardOutlined } from '@ant-design/icons';
 import Sidebar from './component/sidebar';
 import Navbar from './component/navbar';
+import Navigation from './component/navigation';
 
 const { Content } = Layout;
 
@@ -169,115 +170,133 @@ const App = () => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ minHeight: '100vh', backgroundColor: '#ffff' }}>
       <Navbar />
-      <Layout style={{ padding: "0px 20px", marginTop: "65px" }}>
+      <Layout style={{ padding: '0px 50px', marginTop: '80px', backgroundColor: '#ffff' }}>
         <Sidebar />
-        <Layout style={{ padding: "0px 20px" }}>
-          <Content
+        <Layout style={{ padding: '0px 20px', backgroundColor: '#ffff' }}>
+          <Navigation />
+          <div
             style={{
+              marginTop: '21px',
               padding: '24px',
               backgroundColor: '#fff',
-              borderRadius: '8px',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-              marginTop: '20px',
+              borderRadius: '12px',
+              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
             }}
           >
-            <div style={{ fontFamily: 'var(--font-kanit)', maxWidth: '900px', margin: '0 auto' }}>
-              {/* ข้อมูลสถิติ */}
-              <div style={{ marginBottom: '30px' }}>
-                <h3 style={{ marginBottom: '20px' }}>ข้อมูลสถิติ</h3>
-                <Row gutter={[24, 24]} style={{ justifyContent: 'center' }}>
-                  <Col xs={24} sm={12} md={6} lg={6} xl={6}>
-                    <Card bordered={false} style={{ backgroundColor: '#a5d6a7', borderRadius: '8px' }}>
-                      <Statistic
-                        title="จำนวนรถ"
-                        value={27}
-                        prefix={<CarFilled style={{ color: '#388e3c' }} />}
-                        valueStyle={{ color: '#1b5e20', fontWeight: 'bold' }}
-                      />
-                    </Card>
-                  </Col>
-                  <Col xs={24} sm={12} md={6} lg={6} xl={6}>
-                    <Card bordered={false} style={{ backgroundColor: '#c5e1a5', borderRadius: '8px' }}>
-                      <Statistic
-                        title="สมาชิก"
-                        value={114}
-                        prefix={<UserOutlined style={{ color: '#388e3c' }} />}
-                        valueStyle={{ color: '#2e7d32', fontWeight: 'bold' }}
-                      />
-                    </Card>
-                  </Col>
-                  <Col xs={24} sm={12} md={6} lg={6} xl={6}>
-                    <Card bordered={false} style={{ backgroundColor: '#aed581', borderRadius: '8px' }}>
-                      <Statistic
-                        title="Admin"
-                        value={2}
-                        prefix={<IdcardOutlined style={{ color: '#388e3c' }} />}
-                        valueStyle={{ color: '#4caf50', fontWeight: 'bold' }}
-                      />
-                    </Card>
-                  </Col>
-                  <Col xs={24} sm={12} md={6} lg={6} xl={6}>
-                    <Card bordered={false} style={{ backgroundColor: '#81c784', borderRadius: '8px' }}>
-                      <Statistic
-                        title="พนักงานขับรถ"
-                        value={11}
-                        prefix={<ToolOutlined style={{ color: '#388e3c' }} />}
-                        valueStyle={{ color: '#2e7d32', fontWeight: 'bold' }}
-                      />
-                    </Card>
-                  </Col>
-                </Row>
-              </div>
-
-              {/* ปฏิทิน */}
-              <h3 style={{ marginBottom: '20px' }}>ปฏิทินการจองรถ</h3>
-              <div
-                style={{
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                  height: '500px', // ขนาดเท่าเดิม
-                  overflow: 'hidden',
-
-                }}
-              >
-                <Calendar
-                  dateCellRender={dateCellRender}
-                  style={{
-                    width: '100%',
-                    transform: 'scale(0.8)', // ย่อให้ดูเหมือนก่อน
-                    transformOrigin: 'top center',
-                    fontFamily: 'var(--font-kanit)',
-                  }}
-                />
-              </div>
-
-              {/* Modal */}
-              <Modal
-                style={{ fontFamily: 'var(--font-kanit)' }}
-                title={`รายละเอียดการจองสำหรับวันที่ ${selectedDate}`}
-                visible={isModalVisible}
-                onCancel={() => setIsModalVisible(false)}
-                footer={null}
-                centered
-              >
-                <List
-                  style={{ fontFamily: 'var(--font-kanit)' }}
-                  itemLayout="horizontal"
-                  dataSource={selectedBookings}
-                  renderItem={(item) => (
-                    <List.Item>
-                      <List.Item.Meta
-                        title={`รถ: ${item.car} (เวลา: ${item.time})`}
-                        description={`ปลายทาง: ${item.destination}`}
-                      />
-                    </List.Item>
-                  )}
-                />
-              </Modal>
+            <div style={{ fontFamily: 'var(--font-kanit)', maxWidth: '900px', margin: '0 auto' }}></div>
+            {/* ข้อมูลสถิติ */}
+            <div style={{ marginBottom: '30px' }}>
+              <h3 style={{ marginBottom: '20px' }}>ข้อมูลสถิติ</h3>
+              <Row gutter={[24, 24]} style={{ justifyContent: 'center' }}>
+                <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                  <Card bordered={false} style={{ backgroundColor: '#a5d6a7', borderRadius: '8px' }}>
+                    <Statistic
+                      title="จำนวนรถ"
+                      value={27}
+                      prefix={<CarFilled style={{ color: '#388e3c' }} />}
+                      valueStyle={{ color: '#1b5e20', fontWeight: 'bold' }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                  <Card bordered={false} style={{ backgroundColor: '#c5e1a5', borderRadius: '8px' }}>
+                    <Statistic
+                      title="สมาชิก"
+                      value={114}
+                      prefix={<UserOutlined style={{ color: '#388e3c' }} />}
+                      valueStyle={{ color: '#2e7d32', fontWeight: 'bold' }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                  <Card bordered={false} style={{ backgroundColor: '#aed581', borderRadius: '8px' }}>
+                    <Statistic
+                      title="Admin"
+                      value={2}
+                      prefix={<IdcardOutlined style={{ color: '#388e3c' }} />}
+                      valueStyle={{ color: '#4caf50', fontWeight: 'bold' }}
+                    />
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                  <Card bordered={false} style={{ backgroundColor: '#81c784', borderRadius: '8px' }}>
+                    <Statistic
+                      title="พนักงานขับรถ"
+                      value={11}
+                      prefix={<ToolOutlined style={{ color: '#388e3c' }} />}
+                      valueStyle={{ color: '#2e7d32', fontWeight: 'bold' }}
+                    />
+                  </Card>
+                </Col>
+              </Row>
             </div>
-          </Content>
+          </div>
+
+          <div
+            style={{
+              borderRadius: '12px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)', // Slightly more pronounced shadow for a more modern look
+              height: '680px',
+              overflow: 'hidden',
+              margin: '30px 0',
+              backgroundColor: '#fff', // Set background to white for a clean look
+            }}
+          >
+            {/* Title Section */}
+            <div
+              style={{
+                margin: '30px 20px', // Adjust margins for better spacing
+                fontSize: '28px', // Smaller font size for a minimalist feel
+                fontWeight: '600', // Bold for emphasis
+                color: '#333', // Dark gray text for a neutral look
+                textAlign: 'center', // Center the title
+                letterSpacing: '1px', // Add slight letter spacing for a clean feel
+              }}
+            >
+              ปฏิทิน
+            </div>
+            <Divider
+              style={{
+                margin: '0', // Remove extra space around divider
+                borderColor: '#e0e0e0', // Lighter divider for a minimalist appearance
+              }} />
+            <Calendar
+              dateCellRender={dateCellRender}
+              style={{
+                width: '100%',
+                transform: 'scale(0.85)', // Slightly reduce the scale for compactness
+                transformOrigin: 'top center',
+                fontFamily: 'var(--font-kanit)', // Ensure font consistency
+                margin: '20px 0', // Add spacing around the calendar
+              }}
+            />
+          </div>
+
+          {/* Modal */}
+          <Modal
+            style={{ fontFamily: 'var(--font-kanit)' }}
+            title={`รายละเอียดการจองสำหรับวันที่ ${selectedDate}`}
+            visible={isModalVisible}
+            onCancel={() => setIsModalVisible(false)}
+            footer={null}
+            centered
+          >
+            <List
+              style={{ fontFamily: 'var(--font-kanit)' }}
+              itemLayout="horizontal"
+              dataSource={selectedBookings}
+              renderItem={(item) => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={`รถ: ${item.car} (เวลา: ${item.time})`}
+                    description={`ปลายทาง: ${item.destination}`}
+                  />
+                </List.Item>
+              )}
+            />
+          </Modal>
         </Layout>
       </Layout>
     </Layout>

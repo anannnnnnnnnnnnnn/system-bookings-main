@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../component/sidebar';
 import Navbar from '../component/navbar';
+import Navigation from '../component/navigation';
 import { Layout, Table, Button, Modal, Form, Input, Select, Tag, Image, previewImage, Upload } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
@@ -125,11 +126,33 @@ function ResourceManagement() {
                         type="primary"
                         onClick={() => handleEdit(record)}
                         size="small"
-                        style={{ background: '#029B36', border: 'none' }}
+                        style={{
+                            background: '#029B36',
+                            border: 'none',
+                            transition: "all 0.3s ease", // เพิ่ม transition สำหรับการเปลี่ยนแปลง
+                            transform: "scale(1)", // ขนาดปกติ
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.transform = "scale(1.1)"; // ขยายขนาดเมื่อเมาส์ไปวาง
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.transform = "scale(1)"; // ย่อขนาดกลับเมื่อเมาส์ออก
+                        }}
                     >
                         แก้ไข
                     </Button>
-                    <Button danger onClick={() => handleDelete(record)} size="small">
+                    <Button danger onClick={() => handleDelete(record)} size="small"
+                        style={{
+                            transition: 'all 0.3s ease',
+                            transform: 'scale(1)', // ขนาดปกติ
+                        }}
+                        onMouseEnter={(e) => {
+                            e.target.style.transform = 'scale(1.2)'; // ขยายขนาดมากขึ้นเมื่อเมาส์ไปวาง
+                        }}
+                        onMouseLeave={(e) => {
+                            e.target.style.transform = 'scale(1)'; // ย่อขนาดกลับเมื่อเมาส์ออก
+                        }}
+                    >
                         ลบ
                     </Button>
                 </div>
@@ -138,19 +161,22 @@ function ResourceManagement() {
     ];
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
-            <Navbar />
-            <Layout style={{ padding: '0px 20px', marginTop: '20px' }}>
-                <Sidebar />
-                <Layout style={{ padding: '0px 20px' }}>
-                    <Content
-                        style={{
-                            padding: '24px',
-                            backgroundColor: '#f9f9f9',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                        }}
-                    >
+        <Layout style={{ minHeight: '100vh', backgroundColor: '#ffff' }}>
+        <Navbar/>
+        <Layout style={{ padding: '0px 50px', marginTop: '80px', backgroundColor: '#ffff' }}>
+            <Sidebar />
+            <Layout style={{ padding: '0px 20px', backgroundColor: '#ffff' }}>
+                <Navigation />
+                <Content
+                    style={{
+                        marginTop: '21px',
+                        padding: '24px',
+                        backgroundColor: '#fff',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                        backgroundColor: '#ffff'
+                    }}
+                >
                         <div style={{ maxWidth: '900px', margin: '40px auto' }}>
                             <div
                                 style={{
@@ -162,8 +188,18 @@ function ResourceManagement() {
                                 <h2 style={{ margin: 0 }}>การจัดการทรัพยากร</h2>
                                 <Button
                                     type="primary"
-                                    style={{ background: '#029B36', border: 'none' }}
                                     onClick={handleAdd}
+                                    style={{
+                                        background: '#029B36', border: 'none',
+                                        transition: "all 0.3s ease", // เพิ่ม transition สำหรับการเปลี่ยนแปลง
+                                        transform: "scale(1)", // ขนาดปกติ
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.target.style.transform = "scale(1.1)"; // ขยายขนาดเมื่อเมาส์ไปวาง
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.transform = "scale(1)"; // ย่อขนาดกลับเมื่อเมาส์ออก
+                                    }}
                                 >
                                     เพิ่มข้อมูลรถ
                                 </Button>

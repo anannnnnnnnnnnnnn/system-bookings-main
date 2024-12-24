@@ -101,33 +101,34 @@ function CarBooking() {
                 {/* Section: ค้นหารถ */}
                 <div style={{ maxWidth: '700px', marginBottom: '32px', }}>
                   <Space size="large" direction="vertical" style={{ width: '100%', maxWidth: '800px' }}>
-                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                      <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label style={{ fontWeight: 'bold' }}>วันเวลาที่ต้องการ</label>
-                        <DatePicker placeholder="วัน/เดือน/ปี" style={{ width: '100%' }} />
+                    <div style={{marginLeft:'40px'}}>
+                      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap',marginTop:'10px' }}>
+                        <div style={{ flex: 1, minWidth: '200px' }}>
+                          <label style={{ fontWeight: 'bold' }}>วันเวลาที่ต้องการ</label>
+                          <DatePicker placeholder="วัน/เดือน/ปี" style={{ width: '100%' }} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: '200px' }}>
+                          <label style={{ fontWeight: 'bold' }}>เวลาเดินทาง</label>
+                          <TimePicker
+                            format="HH:mm"  // กำหนดให้แสดงเป็นเวลา (ชั่วโมง:นาที)
+                            placeholder="เลือกเวลา"
+                            style={{ width: '100%' }}
+                          />
+                        </div>
                       </div>
-                      <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label style={{ fontWeight: 'bold' }}>เวลาเดินทาง</label>
-                        <TimePicker
-                          format="HH:mm"  // กำหนดให้แสดงเป็นเวลา (ชั่วโมง:นาที)
-                          placeholder="เลือกเวลา"
-                          style={{ width: '100%' }}
-                        />
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                      <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label style={{ fontWeight: 'bold' }}>วันเวลาที่ต้องคืน</label>
-                        <DatePicker placeholder="วัน/เดือน/ปี" style={{ width: '100%' }} />
-                      </div>
-                      <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label style={{ fontWeight: 'bold' }}>เวลาคืนรถ</label>
-                        <TimePicker
-                          format="HH:mm"  // กำหนดให้แสดงเป็นเวลา (ชั่วโมง:นาที)
-                          placeholder="เลือกเวลา"
-                          style={{ width: '100%' }}
-                        />
+                      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap',marginTop:'15px' }}>
+                        <div style={{ flex: 1, minWidth: '200px' }}>
+                          <label style={{ fontWeight: 'bold' }}>วันเวลาที่ต้องคืน</label>
+                          <DatePicker placeholder="วัน/เดือน/ปี" style={{ width: '100%' }} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: '200px' }}>
+                          <label style={{ fontWeight: 'bold' }}>เวลาคืนรถ</label>
+                          <TimePicker
+                            format="HH:mm"  // กำหนดให้แสดงเป็นเวลา (ชั่วโมง:นาที)
+                            placeholder="เลือกเวลา"
+                            style={{ width: '100%' }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </Space>
@@ -156,72 +157,72 @@ function CarBooking() {
                 {/* ตัวเลือกสถานะ */}
                 {cars.length > 0 && (
                   <>
-                   <Title
-                    level={2}
-                    style={{
-                      color: '#2C3E50',
-                      fontWeight: '600',
-                      marginBottom: '20px',
-                      textAlign: 'start',
-                      fontSize: '24px'
-                    }}
-                  >
-                    เลือกรถที่ต้องการจอง
-                  </Title>
-                  <Button.Group
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'start',
-                    gap: '12px',
-                    margin: '20px 0px',
-                  }}
-                >
-                  <Button
-                    type={filter === 'available' ? 'primary' : 'default'}
-                    onClick={() => setFilter('available')}
-                    style={{
-                      borderRadius: '6px',
-                        padding: '8px 20px',
-                        fontSize: '14px',
-                        fontWeight: filter === 'available' ? '600' : '400',
-                        backgroundColor: filter === 'available' ? '#4CAF50' : '#FFFFFF',
-                        color: filter === 'available' ? '#FFFFFF' : '#2C3E50',
-                        border: 'none',
-                    }}
-                  >
-                    เฉพาะว่าง
-                  </Button>
-                  <Button
-                    type={filter === 'unavailable' ? 'primary' : 'default'}
-                    onClick={() => setFilter('unavailable')}
-                    style={{
-                      borderRadius: '6px',
-                        padding: '8px 20px',
-                        fontSize: '14px',
-                        fontWeight: filter === 'unavailable' ? '600' : '400',
-                        backgroundColor: filter === 'unavailable' ? '#FF7043' : '#FFFFFF',
-                        color: filter === 'unavailable' ? '#FFFFFF' : '#2C3E50',
-                        border: 'none',
-                    }}
-                  >
-                    ไม่ว่าง
-                  </Button>
-                  <Button
-                    type={filter === 'all' ? 'primary' : 'default'}
-                    onClick={() => setFilter('all')}
-                    style={{
-                      borderRadius: '6px',
-                      padding: '8px 20px',
-                      fontSize: '14px',
-                      fontWeight: filter === 'all' ? '600' : '400',
-                      backgroundColor: filter === 'all' ? '#2196F3' : '#FFFFFF',
-                      color: filter === 'all' ? '#FFFFFF' : '#2C3E50',
-                      border: 'none',
-                    }}
-                  >
-                    ทุกสถานะ
-                  </Button>
-                </Button.Group>
+                    <Title
+                      level={2}
+                      style={{
+                        color: '#2C3E50',
+                        fontWeight: '600',
+                        marginBottom: '20px',
+                        textAlign: 'start',
+                        fontSize: '24px'
+                      }}
+                    >
+                      เลือกรถที่ต้องการจอง
+                    </Title>
+                    <Button.Group
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'start',
+                        gap: '12px',
+                        margin: '20px 0px',
+                      }}
+                    >
+                      <Button
+                        type={filter === 'available' ? 'primary' : 'default'}
+                        onClick={() => setFilter('available')}
+                        style={{
+                          borderRadius: '6px',
+                          padding: '8px 20px',
+                          fontSize: '14px',
+                          fontWeight: filter === 'available' ? '600' : '400',
+                          backgroundColor: filter === 'available' ? '#4CAF50' : '#FFFFFF',
+                          color: filter === 'available' ? '#FFFFFF' : '#2C3E50',
+                          border: 'none',
+                        }}
+                      >
+                        เฉพาะว่าง
+                      </Button>
+                      <Button
+                        type={filter === 'unavailable' ? 'primary' : 'default'}
+                        onClick={() => setFilter('unavailable')}
+                        style={{
+                          borderRadius: '6px',
+                          padding: '8px 20px',
+                          fontSize: '14px',
+                          fontWeight: filter === 'unavailable' ? '600' : '400',
+                          backgroundColor: filter === 'unavailable' ? '#FF7043' : '#FFFFFF',
+                          color: filter === 'unavailable' ? '#FFFFFF' : '#2C3E50',
+                          border: 'none',
+                        }}
+                      >
+                        ไม่ว่าง
+                      </Button>
+                      <Button
+                        type={filter === 'all' ? 'primary' : 'default'}
+                        onClick={() => setFilter('all')}
+                        style={{
+                          borderRadius: '6px',
+                          padding: '8px 20px',
+                          fontSize: '14px',
+                          fontWeight: filter === 'all' ? '600' : '400',
+                          backgroundColor: filter === 'all' ? '#2196F3' : '#FFFFFF',
+                          color: filter === 'all' ? '#FFFFFF' : '#2C3E50',
+                          border: 'none',
+                        }}
+                      >
+                        ทุกสถานะ
+                      </Button>
+                    </Button.Group>
 
                     {/* แสดงรายการรถ */}
                     <List

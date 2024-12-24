@@ -97,7 +97,7 @@ function MeetingRoomBooking() {
                   </div>
                   <div style={{ display: 'flex',justifyContent:'space-between',  gap: '20px',}}>
                     <DatePicker.RangePicker
-                      format="YYYY-MM-DD" // ฟอร์แมตรวมวันที่และเวลา
+                      format="YYYY-MM-DD" // ฟอร์แมตรวมวันที่
                       placeholder={["วันที่ต้องการจอง", "วันที่สิ้นสุดการจอง"]} // ข้อความ placeholder
                       style={{ width: '90%' }} // กำหนดขนาดของ RangePicker
                     />
@@ -133,38 +133,6 @@ function MeetingRoomBooking() {
                   </div>
                 </div>
               </div>
-
-              {/* <div style={{ display: 'flex', justifyContent: 'end' }}>
-                <Button
-                  type="primary"
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: '#029B36', // สีพื้นฐาน
-                    borderColor: '#FFFFFF', // สีของขอบ
-                    height: '43px',
-                    fontSize: '16px',
-                    transition: 'background-color 0.3s ease, transform 0.2s ease',
-                  }}
-                  onClick={handleSearch}
-                  loading={loading}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = '#03A84E') // สีเมื่อ Hover (อ่อนขึ้น)
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = '#029B36') // กลับสู่สีพื้นฐาน
-                  }
-                  onMouseDown={(e) =>
-                    (e.currentTarget.style.backgroundColor = '#02802E') // สีเมื่อกด (เข้มขึ้นเล็กน้อย)
-                  }
-                  onMouseUp={(e) =>
-                    (e.currentTarget.style.backgroundColor = '#03A84E') // กลับสู่สี Hover
-                  }
-                >
-                  ค้นหาห้องประชุม
-                </Button>
-              </div> */}
 
               <Divider />
               {showRooms && (

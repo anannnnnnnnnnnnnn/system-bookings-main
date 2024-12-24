@@ -65,11 +65,11 @@ function ApprovalPending() {
                             boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
                         }}
                     >
-                        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                        <div style={{ maxWidth: '800px', margin: '0px auto' }}>
                             <Title level={3} style={{ textAlign: 'left', color: '#333' }}>
                                 รออนุมัติ
                             </Title>
-                            <Divider style={{ margin: '0 0 10px 0' }} />
+                            <Divider style={{ margin: '0 0 10px 0' }} />    
                             <Alert
                                 message={`สถานะ: ${isApproved ? 'อนุมัติแล้ว' : 'รออนุมัติ'}`}
                                 type={isApproved ? 'success' : 'warning'}
@@ -89,8 +89,8 @@ function ApprovalPending() {
                                             shape="circle"
                                             size="small"
                                             style={{
-                                                backgroundColor: '#4CAF50',
-                                                borderColor: '#4CAF50',
+                                                backgroundColor: '#FAD5A8',
+                                                borderColor: '#FAD5A8',
                                                 padding: '4px',
                                             }}
                                         />
