@@ -47,7 +47,6 @@ function Navbar() {
             flex: '1', // ให้โลโก้ขยายเพื่อไม่ให้ซ้อนกัน
             textAlign: 'left', // จัดให้โลโก้อยู่ทางซ้าย
             marginRight: '20px',
-            
           }}
         >
           สำนักงาน Anan
@@ -66,7 +65,7 @@ function Navbar() {
         >
           {/* Language Switcher */}
           <Dropdown overlay={languageMenu} trigger={['click']}>
-            <Space style={{fontFamily: 'var(--font-kanit)', color: 'black', cursor: 'pointer' }}>
+            <Space style={{ fontFamily: 'var(--font-kanit)', color: 'black', cursor: 'pointer' }}>
               <GlobalOutlined />
               <span>TH</span>
             </Space>
@@ -81,7 +80,7 @@ function Navbar() {
               gap: '10px',
             }}
           >
-            <div>
+            <div className="user-name">
               <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
                 นายอนันต์ โต๊ะเตียะ
               </div>
@@ -90,6 +89,27 @@ function Navbar() {
           </div>
         </div>
       </Header>
+
+      {/* Add responsive styles */}
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .logo {
+            font-size: 14px;
+          }
+
+          .ant-dropdown-trigger {
+            font-size: 14px;
+          }
+
+          .ant-space {
+            gap: 10px;
+          }
+
+          .user-name {
+            display: none; /* ซ่อนชื่อผู้ใช้บนหน้าจอขนาดเล็ก */
+          }
+        }
+      `}</style>
     </Layout>
   )
 }

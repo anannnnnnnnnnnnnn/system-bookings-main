@@ -189,7 +189,7 @@ const PickupScanPage = () => {
                         <p><strong>วันที่สิ้นสุด:</strong> {bookingDetails.endDate}</p>
                     </div>
                 ) : (
-                    <p>ไม่พบข้อมูลการจอง</p>
+                    <p>ไม่พบข้อมูลการจอง</p>   
                 )}
             </Modal>
         </div>

@@ -7,7 +7,7 @@ import Navbar from '../../components/navbar';
 import Sidebar from '../../components/sidebar';
 import Navigation from '../../components/navigation';
 import { CheckCircleOutlined, WarningOutlined, PrinterOutlined, CheckOutlined, QrcodeOutlined } from '@ant-design/icons';
-
+import { jsPDF } from 'jspdf'; // นำเข้า jsPDF
 
 const { Title, Text } = Typography;
 
@@ -38,7 +38,41 @@ function ApprovalPending() {
             message.warning('รออนุมัติก่อนพิมพ์ใบจอง');
             return;
         }
-
+    
+        // สร้างไฟล์ PDF
+        const doc = new jsPDF();
+        
+        // เพิ่มหัวข้อ
+        doc.setFontSize(20);
+        doc.text('รายละเอียดการจองรถ', 20, 20);
+    
+        // เพิ่มข้อมูลการจอง
+        const bookingDetails = bookingData || {}; // ใช้ข้อมูลการจองที่มีหรือเป็นอ็อบเจ็กต์ว่างถ้าไม่มีข้อมูล
+        const details = [
+            { label: 'ทะเบียนรถ:', value: bookingDetails.licensePlate || 'N/A' },
+            { label: 'ประเภทรถ:', value: bookingDetails.carType || 'N/A' },
+            { label: 'วันที่ใช้รถ:', value: bookingDetails.startDate || 'N/A' },
+            { label: 'ถึงวันที่:', value: bookingDetails.endDate || 'N/A' },
+            { label: 'เลขที่ใบจอง:', value: bookingDetails.bookingNumber || 'N/A' },
+            { label: 'วันที่-เวลา:', value: bookingDetails.bookingDate || 'N/A' },
+            { label: 'จุดประสงค์:', value: bookingDetails.purpose || 'ไม่ได้ระบุ' },
+            { label: 'ปลายทาง:', value: bookingDetails.destination || 'ไม่ได้ระบุ' },
+            { label: 'จำนวนผู้โดยสาร:', value: bookingDetails.passengers || 'ไม่ได้ระบุ' },
+            { label: 'แผนก:', value: bookingDetails.department || 'ไม่ได้ระบุ' },
+            { label: 'เบอร์ติดต่อ:', value: bookingDetails.contactNumber || 'ไม่ได้ระบุ' },
+            { label: 'พนักงานขับรถ:', value: bookingDetails.driverRequired === 'yes' ? 'ต้องการ' : 'ไม่ต้องการ' },
+        ];
+    
+        let yOffset = 30; // เริ่มต้นพิกัด y สำหรับการแสดงข้อความใน PDF
+    
+        details.forEach(item => {
+            doc.setFontSize(12);
+            doc.text(`${item.label} ${item.value}`, 20, yOffset);
+            yOffset += 10; // เพิ่มช่องว่างหลังแต่ละบรรทัด
+        });
+    
+        // ดาวน์โหลดไฟล์ PDF
+        doc.save('booking-details.pdf');
     };
 
     const handleScanQRCode = () => {

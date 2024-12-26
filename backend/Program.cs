@@ -1,32 +1,47 @@
-public class Program
+using Microsoft.EntityFrameworkCore;
+using YourNamespace.Data;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+
+builder.Services.AddCors(options =>
 {
-    public static void Main(string[] args)
+    options.AddPolicy("AllowAll", builder =>
     {
-        var builder = WebApplication.CreateBuilder(args);
+        builder.WithOrigins("http://localhost:3000", "https://localhost:3000")  
+            .AllowAnyMethod()  
+            .AllowAnyHeader();
+    });
+});
 
-        // Add services to the container.
-        builder.Services.AddControllers();
+// เชื่อมต่อกับฐานข้อมูล MySQL
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(
+        "server=localhost;database=systemcar_room;user=root;password='';",
+        new MySqlServerVersion(new Version(8, 0, 21))
+    ));
 
-        // Add CORS policy
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("AllowAllOrigins", policy =>
-            {
-                policy.AllowAnyOrigin() // อนุญาตให้ทุกโดเมนเข้าถึง
-                      .AllowAnyHeader()
-                      .AllowAnyMethod();
-            });
-        });
 
-        var app = builder.Build();
+builder.Services.AddControllers();
 
-        // Use CORS policy before UseRouting()
-        app.UseCors("AllowAllOrigins");
+var app = builder.Build();
 
-        app.UseRouting();  // เรียกใช้ routing หลังจาก CORS
+app.UseCors("AllowAll");  
 
-        app.MapControllers();
-
-        app.Run();
-    }
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.MapControllers();  
+
+app.Run();
