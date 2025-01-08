@@ -60,6 +60,27 @@ namespace YourNamespace.Controllers
 
             return Ok(users);
         }
+        
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UsersRequest request)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+
+            user.full_name = request.full_name ?? user.full_name;
+            user.email = request.email ?? user.email;
+            user.phone_number = request.phone_number ?? user.phone_number;
+            user.role = request.role ?? user.role;
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "User updated successfully", user });
+        }
+
     }
 
     // Model สำหรับรับคำขอ (Request)

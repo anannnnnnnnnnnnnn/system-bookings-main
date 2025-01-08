@@ -1,35 +1,36 @@
 'use client';
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Typography, Input, Radio, Button, Divider, Modal, Space } from 'antd';
 import Navbar from '../../components/navbar';
 import Sidebar from '../../components/sidebar';
 import Navigation from '../../components/navigation';
 import { Content } from 'antd/lib/layout/layout';
-import { CheckOutlined, FileTextOutlined, CarOutlined, CalendarOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons';
+import { FileTextOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
 
 function BookingDetails() {
     const [formData, setFormData] = useState({
-        carImage: 'url-to-car-image',  // ใส่ URL ของภาพรถ
-        licensePlate: 'XYZ-1234',
-        username: 'Anan Tohtia',
-        carType: 'Sedan',
-        startDate: '2024-12-01',
-        endDate: '2024-12-05',
-        bookingNumber: 'AAA0001',
-        bookingDate: '2024-12-05',
+        bookingNumber: '',
+        bookingDate: '',
+        username: '',
         purpose: '',
         destination: '',
         passengers: '',
-        department: 'โปรแกรมเมอร์',
-        contactNumber: '',
-        driverRequired: '',
+        driverRequired: 'no', // Default value
     });
+    const [carData, setCarData] = useState(null);
 
     const [isModalVisible, setIsModalVisible] = useState(false);
+
+    useEffect(() => {
+        // ดึงข้อมูลจาก sessionStorage
+        const carDetails = JSON.parse(sessionStorage.getItem('selectedCar'));
+        if (carDetails) {
+            setCarData(carDetails);
+        }
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -54,7 +55,7 @@ function BookingDetails() {
                 {/* Sidebar */}
                 <Sidebar />
 
-                {/* เนื้อหาหลัก */}
+                {/* Main Content */}
                 <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
                     <Navigation />
                     <Content
@@ -73,7 +74,7 @@ function BookingDetails() {
                             </Title>
                             <Divider />
 
-                            {/* ข้อมูลรถและรูปภาพ */}
+                            {/* Car Details Section */}
                             <div style={{ padding: '5px' }}>
                                 <div
                                     style={{
@@ -81,172 +82,88 @@ function BookingDetails() {
                                         flexDirection: 'row',
                                         alignItems: 'center',
                                         justifyContent: 'space-between',
-                                        border: '1px solid #E0E0E0', // เส้นขอบสีเทาอ่อน
+                                        border: '1px solid #E0E0E0',
                                         borderRadius: '12px',
                                         padding: '16px',
                                         backgroundColor: '#fff',
                                         marginBottom: '16px',
-                                        transition: 'border 0.3s ease', // เพิ่มการเปลี่ยนแปลงของขอบอย่างนุ่มนวล
-                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', // ทำให้กรอบมีเงาเล็กน้อยเพื่อเพิ่มมิติ
+                                        transition: 'border 0.3s ease',
+                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                                     }}
-                                    onMouseEnter={(e) => e.currentTarget.style.border = '1px solid #B0B0B0'} // ขอบที่เข้มขึ้นเมื่อเมาส์ชี้
-                                    onMouseLeave={(e) => e.currentTarget.style.border = '1px solid #E0E0E0'} // คืนค่าขอบที่อ่อนลงเมื่อเมาส์ออก
+                                    onMouseEnter={(e) => e.currentTarget.style.border = '1px solid #B0B0B0'}
+                                    onMouseLeave={(e) => e.currentTarget.style.border = '1px solid #E0E0E0'}
                                 >
                                     <img
-                                        src="/assets/car1.jpg"
+                                        src={carData ? carData.imageUrl : '/assets/car1.jpg'}
                                         alt="Car"
                                         style={{
                                             width: '120px',
                                             height: 'auto',
                                             borderRadius: '8px',
-                                            border: '1px solid #E0E0E0', // เส้นขอบรูป
+                                            border: '1px solid #E0E0E0',
                                             marginRight: '16px',
-                                            objectFit: 'cover', // ทำให้ภาพไม่เบี้ยว
+                                            objectFit: 'cover',
                                         }}
                                     />
                                     <div style={{ flex: 1, textAlign: 'left', fontFamily: 'Arial, sans-serif' }}>
-                                        <Text
-                                            style={{
-                                                fontSize: '18px',
-                                                fontWeight: '600',
-                                                color: '#333',
-                                                marginBottom: '8px',
-                                            }}
-                                        >
-                                            1234-XYZ
-                                        </Text>
-
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexWrap: 'wrap',
-                                                gap: '16px',
-                                                fontSize: '14px',
-                                                color: '#666',
-                                                marginBottom: '8px',
-                                            }}
-                                        >
-                                            <p style={{ margin: '0' }}>
-                                                <strong>ประเภทรถ:</strong> Sedan
-                                            </p>
-                                            <p style={{ margin: '0' }}>
-                                                <strong>ยี่ห้อ:</strong> Toyota
-                                            </p>
-                                            <p style={{ margin: '0' }}>
-                                                <strong>ประเภทเชื้อเพลิง:</strong> เบนซิน
-                                            </p>
-                                        </div>
-
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                flexWrap: 'wrap',
-                                                gap: '16px',
-                                                fontSize: '14px',
-                                                color: '#666',
-                                            }}
-                                        >
-                                            <p style={{ margin: '0' }}>
-                                                <strong>วันที่ใช้รถ:</strong> 1 มกราคม 2024
-                                            </p>
-                                            <p style={{ margin: '0' }}>
-                                                <strong>ถึงวันที่ใช้รถ:</strong> 10 มกราคม 2024
-                                            </p>
-                                        </div>
+                                        {carData ? (
+                                            <>
+                                                <Text style={{ fontSize: '18px', fontWeight: '600', color: '#333', marginBottom: '8px' }}>
+                                                    {carData.carId}
+                                                </Text>
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '14px', color: '#666', marginBottom: '8px' }}>
+                                                    <p><strong>ประเภทรถ:</strong> {carData.carType}</p>
+                                                    <p><strong>ยี่ห้อ:</strong> {carData.brand}</p>
+                                                    <p><strong>ประเภทเชื้อเพลิง:</strong> {carData.fuelType}</p>
+                                                </div>
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '14px', color: '#666' }}>
+                                                    <p><strong>วันที่ใช้รถ:</strong> {carData.startDate}</p>
+                                                    <p><strong>ถึงวันที่ใช้รถ:</strong> {carData.endDate}</p>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <Text>ข้อมูลรถไม่พบ</Text>
+                                        )}
                                     </div>
                                 </div>
-
-
                             </div>
 
-                            {/* ฟอร์มการจอง */}
-                            <Title
-                                level={2}
-                                style={{
-                                    color: '#2C3E50',
-                                    fontWeight: '600',
-                                    marginBottom: '20px',
-                                    textAlign: 'start',
-                                    fontSize: '24px'
-                                }}
-                            >
+                            {/* Booking Form */}
+                            <Title level={2} style={{ color: '#2C3E50', fontWeight: '600', marginBottom: '20px', fontSize: '24px' }}>
                                 เลือกรถที่ต้องการจอง
                             </Title>
-                            <div style={{
-                                maxWidth: '700px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px', justifyContent: 'center', // จัดตำแหน่งแนวนอน
-                                alignItems: 'center',     // จัดตำแหน่งแนวตั้ง
-                                margin: '0 auto',
-                            }}>
+                            <div style={{ maxWidth: '700px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px', justifyContent: 'center' }}>
                                 <div>
-                                    <label style={{ fontWeight: 'bold' }}>
-                                        เลขที่ใบจอง
-                                    </label>
+                                    <label style={{ fontWeight: 'bold' }}>เลขที่ใบจอง</label>
                                     <Input value={formData.bookingNumber} disabled />
                                 </div>
                                 <div>
-                                    <label style={{ fontWeight: 'bold' }}>
-                                        วันที่-เวลา
-                                    </label>
+                                    <label style={{ fontWeight: 'bold' }}>วันที่-เวลา</label>
                                     <Input value={formData.bookingDate} disabled />
                                 </div>
                                 <div>
-                                    <label style={{ fontWeight: 'bold' }}>
-                                        ชื่อ-สกุล
-                                    </label>
+                                    <label style={{ fontWeight: 'bold' }}>ชื่อ-สกุล</label>
                                     <Input value={formData.username} disabled />
                                 </div>
                                 <div>
-                                    <label style={{ fontWeight: 'bold' }}>
-                                        จุดประสงค์การใช้งาน
-                                    </label>
-                                    <TextArea
-                                        name="purpose"
-                                        rows={2}
-                                        placeholder="กรุณาระบุจุดประสงค์"
-                                        onChange={handleChange}
-                                        style={{ height: '10px' }}
-                                    />
+                                    <label style={{ fontWeight: 'bold' }}>จุดประสงค์การใช้งาน</label>
+                                    <TextArea name="purpose" rows={2} placeholder="กรุณาระบุจุดประสงค์" onChange={handleChange} />
                                 </div>
                                 <div>
-                                    <label style={{ fontWeight: 'bold' }}>
-                                        ปลายทาง
-                                    </label>
-                                    <TextArea
-                                        name="destination"
-                                        rows={2}
-                                        placeholder="กรุณาระบุปลายทาง"
-                                        onChange={handleChange}
-                                        style={{ height: '10px' }}
-                                    />
+                                    <label style={{ fontWeight: 'bold' }}>ปลายทาง</label>
+                                    <TextArea name="destination" rows={2} placeholder="กรุณาระบุปลายทาง" onChange={handleChange} />
                                 </div>
                                 <div>
-                                    <label style={{ fontWeight: 'bold' }}>
-                                        จำนวนผู้โดยสาร
-                                    </label>
-                                    <Input
-                                        type="number"
-                                        name="passengers"
-                                        placeholder="จำนวนผู้โดยสาร"
-                                        onChange={handleChange}
-                                    />
+                                    <label style={{ fontWeight: 'bold' }}>จำนวนผู้โดยสาร</label>
+                                    <Input type="number" name="passengers" placeholder="จำนวนผู้โดยสาร" onChange={handleChange} />
                                 </div>
-
                                 <div>
-                                    <label style={{ fontWeight: 'bold' }}>
-                                        ต้องการพนักงานขับรถ
-                                    </label>
-                                    <div style={{ display: 'flex', flexDirection: 'column-reverse', margin: '10px' }}>
-                                        <Radio.Group
-                                            name="driverRequired"
-                                            value={formData.driverRequired}
-                                            onChange={handleChange}
-                                        >
-                                            <Radio value="yes">ต้องการ</Radio>
-                                            <Radio value="no">ไม่ต้องการ</Radio>
-                                        </Radio.Group>
-                                    </div>
+                                    <label style={{ fontWeight: 'bold' }}>ต้องการพนักงานขับรถ</label>
+                                    <Radio.Group name="driverRequired" value={formData.driverRequired} onChange={handleChange}>
+                                        <Radio value="yes">ต้องการ</Radio>
+                                        <Radio value="no">ไม่ต้องการ</Radio>
+                                    </Radio.Group>
                                 </div>
-
                             </div>
 
                             <Divider />
@@ -255,115 +172,43 @@ function BookingDetails() {
                                     type="primary"
                                     onClick={() => setIsModalVisible(true)}
                                     style={{
-                                        backgroundColor: '#28a745', // สีเขียว
-                                        borderColor: '#28a745', // สีขอบปุ่ม
-
+                                        backgroundColor: '#28a745',
+                                        borderColor: '#28a745',
                                         fontWeight: 'bold',
                                         padding: '10px 20px',
-                                        borderRadius: '8px', // ให้ขอบปุ่มดูเรียบ
-                                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // เพิ่มเงาให้ปุ่มดูมีมิติ
-                                        transition: 'all 0.3s ease', // เพิ่มเอฟเฟกต์การเปลี่ยนแปลงเมื่อ hover
+                                        borderRadius: '8px',
                                     }}
-
                                 >
                                     ถัดไป
                                 </Button>
                             </div>
-
                         </div>
 
-                        {/* Modal สำหรับยืนยันการจอง */}
+                        {/* Modal for booking confirmation */}
                         <Modal
-                            title={
-                                <div
-                                    style={{
-                                        textAlign: 'center',
-                                        color: '#029B36',
-                                        fontWeight: 'bold',
-                                        fontSize: '20px', // ขนาดเล็กลง
-                                    }}
-                                >
-                                    ยืนยันการจอง
-                                </div>
-                            }
+                            title={<div style={{ textAlign: 'center', color: '#029B36', fontWeight: 'bold', fontSize: '20px' }}>ยืนยันการจอง</div>}
                             visible={isModalVisible}
                             onOk={handleConfirm}
                             onCancel={() => setIsModalVisible(false)}
                             centered
                             okText="ยืนยันการจอง"
                             cancelText="ยกเลิก"
-                            width={400} // ความกว้างเล็กลง
-                            style={{
-                                borderRadius: '12px', // ขอบมน
-                                overflow: 'hidden',
-                                backgroundColor: '#fff',
-                                boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-                            }}
-                            bodyStyle={{
-                                padding: '16px',
-                                fontFamily: 'Inter, sans-serif',
-                                fontSize: '14px',
-                                color: '#333',
-                            }}
-                            okButtonProps={{
-                                style: {
-                                    backgroundColor: '#029B36', // สีเขียวสำหรับปุ่ม OK
-                                    borderColor: '#029B36',
-                                    color: '#fff',
-                                    fontWeight: 'bold',
-                                },
-                            }}
-                            cancelButtonProps={{
-                                style: {
-                                    backgroundColor: '#E0F2E9', // สีเขียวอ่อนสำหรับปุ่ม Cancel
-                                    borderColor: '#E0F2E9',
-                                    color: '#029B36',
-                                    fontWeight: 'bold',
-                                },
-                            }}
+                            width={500}
                         >
-                            <div
-                                style={{
-                                    fontSize: '14px',
-                                    lineHeight: '1.6',
-                                    color: '#4A4A4A',
-                                }}
-                            >
-                                {[
-                                    { label: 'เลขที่ใบจอง', value: formData.bookingNumber || '-' },
-                                    { label: 'ชื่อ-สกุล', value: formData.username || '-' },
-                                    { label: 'ประเภทของรถ', value: formData.carType || '-' },
-                                    { label: 'วันที่จอง', value: formData.bookingDate || '-' },
-                                    { label: 'จุดประสงค์การใช้', value: formData.purpose || 'ไม่ได้ระบุ' },
-                                    { label: 'ปลายทาง', value: formData.destination || 'ไม่ได้ระบุ' },
-                                    { label: 'จำนวนผู้โดยสาร', value: formData.passengers || 'ไม่ได้ระบุ' },
-                                    { label: 'แผนก/ฝ่าย', value: formData.department || '-' },
-                                    {
-                                        label: 'ต้องการพนักงานขับ',
-                                        value: formData.driverRequired === 'yes' ? 'ต้องการ' : 'ไม่ต้องการ',
-                                    },
-                                ].map((item, index) => (
-                                    <div
-                                        key={index}
-                                        style={{
-                                            marginBottom: '12px',
-                                            paddingBottom: '8px',
-                                            borderBottom: index !== 7 ? '1px solid #E0E0E0' : 'none',
-                                        }}
-                                    >
-                                        <p
-                                            style={{
-                                                margin: 0,
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                fontSize: '13px',
-                                            }}
-                                        >
-                                            <strong style={{ color: '#555', fontWeight: 'bold' }}>{item.label}:</strong>
-                                            <span style={{ color: '#029B36', fontWeight: '500' }}>{item.value}</span>
-                                        </p>
-                                    </div>
-                                ))}
+                            <div style={{ textAlign: 'center' }}>
+                                <p style={{ color: '#555', fontSize: '16px', fontWeight: 'bold' }}>คุณต้องการยืนยันการจองหรือไม่?</p>
+                                <Button
+                                    style={{
+                                        width: '100%',
+                                        backgroundColor: '#029B36',
+                                        color: 'white',
+                                        padding: '12px',
+                                        fontWeight: '600',
+                                    }}
+                                    onClick={handleSaveBooking}
+                                >
+                                    ยืนยัน
+                                </Button>
                             </div>
                         </Modal>
                     </Content>
@@ -372,4 +217,5 @@ function BookingDetails() {
         </Layout>
     );
 }
+
 export default BookingDetails;

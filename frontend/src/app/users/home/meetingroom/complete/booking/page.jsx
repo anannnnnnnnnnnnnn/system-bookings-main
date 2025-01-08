@@ -344,53 +344,65 @@ function BookingDetails() {
               </div>
               {/* ฟอร์มการจอง */}
               {isTimeConfirmed && (
-                <div>
+                <div style={{ maxWidth: '720px', margin: '0 auto', fontFamily: 'var(--font-kanit)', }}>
                   <Divider />
-                  <div>
-                    <h2 style={{
-                      fontWeight: 'bold',
-                      fontSize: '15px',
-                      marginBottom: '12px',
-                      color: '#4D4D4D',
-                      fontFamily: 'Arial, sans-serif',
-                      textTransform: 'uppercase',
-                    }}>
+                  <div >
+                    <h2
+                      style={{
+                        fontWeight: 'bold',
+                        fontSize: '20px',
+                        marginBottom: '12px',
+                        color: '#4D4D4D',
+                        fontFamily: 'var(--font-kanit)',
+                        textTransform: 'uppercase',
+                      }}
+                    >
                       ข้อมูลของผู้จอง
                     </h2>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px', margin: '20px 50px' }}>
+
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '16px',
+                      marginBottom: '16px',
+                      margin: '20px 50px',
+                    }}
+                  >
                     <div>
-                      <label style={{ fontWeight: 'bold' }}>
-                        วันที่จอง
-                      </label>
+                      <label style={{ fontWeight: 'bold', fontSize: '14px' }}>วันที่จอง</label>
                       <p style={{ margin: '8px 0', fontSize: '14px', color: '#555' }}>
                         {formData.bookingDate}
                       </p>
                     </div>
 
                     <div>
-                      <label style={{ fontWeight: 'bold' }}>เวลา</label>
+                      <label style={{ fontWeight: 'bold', fontSize: '14px' }}>เวลา</label>
                       <p style={{ margin: '8px 0', fontSize: '14px', color: '#555' }}>
                         {formData.selectedTime.join(', ')}
                       </p>
                     </div>
 
                     <div>
-                      <label style={{ fontWeight: 'bold' }}>
-                        วัตถุประสงค์
-                      </label>
-                      <Input name="objective" value={formData.objective} onChange={handleChange} />
+                      <label style={{ fontWeight: 'bold', fontSize: '14px' }}>วัตถุประสงค์</label>
+                      <Input
+                        name="objective"
+                        value={formData.objective}
+                        onChange={handleChange}
+                        style={{ fontSize: '14px' }}
+                      />
                     </div>
 
                     <div>
-                      <label style={{ fontWeight: 'bold' }}>
-                        จำนวนผู้เข้าร่วม
-                      </label>
+                      <label style={{ fontWeight: 'bold', fontSize: '14px' }}>จำนวนผู้เข้าร่วม</label>
                       <Input
                         type="number"
                         name="capacity"
                         placeholder="จำนวนผู้โดยสาร"
-                        onChange={handleChange} />
+                        onChange={handleChange}
+                        style={{ fontSize: '14px' }}
+                      />
                     </div>
 
                     <div>
@@ -408,9 +420,9 @@ function BookingDetails() {
                         mode="multiple" // เปิดใช้งานการเลือกหลายรายการ
                         allowClear // เพิ่มปุ่มสำหรับล้างค่า
                         placeholder="เลือกอุปกรณ์เพิ่มเติม"
-                        value={formData.additionalEquipment} // ค่า default ที่มาจาก state
-                        onChange={(value) => setFormData({ ...formData, additionalEquipment: value })} // อัปเดต state เมื่อเปลี่ยนค่า
-                        style={{ width: '100%', margin: '6px 0px' }} // ปรับแต่งสไตล์
+                        value={formData.additionalEquipment}
+                        onChange={(value) => setFormData({ ...formData, additionalEquipment: value })}
+                        style={{ width: '100%', margin: '6px 0px', fontSize: '14px' }}
                       >
                         <Select.Option value="โปรเจคเตอร์">โปรเจคเตอร์</Select.Option>
                         <Select.Option value="กระดานไวท์บอร์ด">กระดานไวท์บอร์ด</Select.Option>
@@ -421,36 +433,51 @@ function BookingDetails() {
                         <Select.Option value="อินเทอร์เน็ตความเร็วสูง">อินเทอร์เน็ตความเร็วสูง</Select.Option>
                         <Select.Option value="โต๊ะและเก้าอี้">โต๊ะและเก้าอี้</Select.Option>
                         <Select.Option value="ไฟสำหรับการบันทึกวิดีโอ">ไฟสำหรับการบันทึกวิดีโอ</Select.Option>
-                        <Select.Option value="ตัวควบคุมการนำเสนอ (Presenter Remote)">ตัวควบคุมการนำเสนอ (Presenter Remote)</Select.Option>
+                        <Select.Option value="ตัวควบคุมการนำเสนอ (Presenter Remote)">
+                          ตัวควบคุมการนำเสนอ (Presenter Remote)
+                        </Select.Option>
                         <Select.Option value="สายต่อ HDMI">สายต่อ HDMI</Select.Option>
                         <Select.Option value="สายต่อ VGA">สายต่อ VGA</Select.Option>
                         <Select.Option value="พัดลม">พัดลม</Select.Option>
                         <Select.Option value="เครื่องปรับอากาศ">เครื่องปรับอากาศ</Select.Option>
                         <Select.Option value="โทรศัพท์สื่อสาร">โทรศัพท์สื่อสาร</Select.Option>
                         <Select.Option value="แฟลชไดรฟ์ USB">แฟลชไดรฟ์ USB</Select.Option>
-                        วิธีเพิ่มในโค้ด
                       </Select>
-
                     </div>
-
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
                     <Button
                       type="primary"
                       onClick={handleBack}
                       style={{
-                        backgroundColor: '#B0BEC5 ',
+                        backgroundColor: '#fff',
+                        color: '#4D4D4D',
                         borderRadius: '8px',
                         fontWeight: 'bold',
                         padding: '10px 24px',
-                        fontSize: '16px',
-                        border: 'none',
+                        fontSize: '14px',
+                        border: '1px solid #4D4D4D',  // เส้นขอบเป็นสีเทา
                         transition: 'all 0.3s ease',
-
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#4D4D4D'; // เปลี่ยนสีพื้นหลังเมื่อ hover
+                        e.target.style.color = '#fff'; // เปลี่ยนสีตัวอักษรเมื่อ hover
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '#fff'; // กลับสีพื้นหลังเมื่อเลิก hover
+                        e.target.style.color = '#4D4D4D'; // กลับสีตัวอักษรเมื่อเลิก hover
                       }}
                     >
                       ย้อนกลับ
                     </Button>
+
                     <Button
                       type="primary"
                       onClick={() => setIsModalVisible(true)}
@@ -459,7 +486,7 @@ function BookingDetails() {
                         borderRadius: '8px',
                         fontWeight: 'bold',
                         padding: '10px 24px',
-                        fontSize: '16px',
+                        fontSize: '14px',
                         border: 'none',
                         transition: 'all 0.3s ease',
                         boxShadow: '0px 4px 12px rgba(0, 123, 62, 0.3)',
@@ -467,10 +494,10 @@ function BookingDetails() {
                     >
                       ถัดไป
                     </Button>
-
                   </div>
                 </div>
               )}
+
             </div>
 
             {/* Modal สำหรับยืนยันการจอง */}

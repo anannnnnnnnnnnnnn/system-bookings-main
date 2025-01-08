@@ -1,22 +1,21 @@
 'use client';
-
 import React, { useState } from 'react';
-import { Layout, Typography, Space, DatePicker, Divider, Button, Radio, List, Card, Badge, Grid, TimePicker } from 'antd';
+import { Layout, Typography, Space, DatePicker, Divider, Button, List, Card, Badge, Grid, TimePicker, Meta } from 'antd';
 import Sidebar from '../components/sidebar';
 import Navbar from '../components/navbar';
 import Navigation from '../components/navigation';
 import { Content } from 'antd/lib/layout/layout';
 import Link from 'next/link';
-import { Kanit } from 'next/font/google'; // เปลี่ยน @next/font เป็น next/font
+import { Kanit } from 'next/font/google';
+import axios from 'axios';
 import '/src/app/globals.css';
-; // ใช้ "./" เพราะไฟล์อยู่ในโฟลเดอร์เดียวกัน
+import { useRouter } from 'next/router';  // นำเข้า useRouter
 
 // ตั้งค่าฟอนต์ Kanit
 const kanit = Kanit({
-  subsets: ['latin', 'thai'], // รองรับภาษาไทย
-  weight: ['300', '400', '700'], // น้ำหนักของฟอนต์
+  subsets: ['latin', 'thai'],
+  weight: ['300', '400', '700'],
 });
-
 
 const { Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -25,49 +24,55 @@ function CarBooking() {
   const [cars, setCars] = useState([]); // สถานะข้อมูลรถ
   const [loading, setLoading] = useState(false); // สถานะการโหลด
   const [filter, setFilter] = useState('available'); // ตัวกรองสถานะรถ
+  const [startDate, setStartDate] = useState(null); // วันเริ่มต้น
+  const [endDate, setEndDate] = useState(null); // วันสิ้นสุด
+  const [startTime, setStartTime] = useState(null); // เวลาเริ่มต้น
+  const [endTime, setEndTime] = useState(null); // เวลาสิ้นสุด
   const screens = useBreakpoint();
 
-  // Mock ข้อมูลรถ
-  const carData = [
-    { id: 1, plate: '1กม 6195', name: 'Toyota', model: 'Altis', status: 'ว่าง', image: '/assets/car1.jpg' },
-    { id: 2, plate: 'กม 945', name: 'Toyota', model: 'Vios', status: 'ว่าง', image: '/assets/car2.jpeg' },
-    { id: 3, plate: 'ขน 9178', name: 'Honda', model: 'Mobilio', status: 'ไม่ว่าง', image: '/assets/car1f.jpg' },
-    { id: 4, plate: 'กต 1234', name: 'Ford', model: 'Focus', status: 'ว่าง', image: '/assets/car3.jpg' },
-    { id: 5, plate: 'ขม 6789', name: 'Mazda', model: 'Mazda3', status: 'ว่าง', image: '/assets/car4.jpg' },
-    { id: 6, plate: 'บข 9031', name: 'Nissan', model: 'Altima', status: 'ไม่ว่าง', image: '/assets/car2f.jpg' },
-    { id: 7, plate: 'สข 2587', name: 'Honda', model: 'Civic', status: 'ว่าง', image: '/assets/car5.jpg' },
-    { id: 8, plate: 'จข 4920', name: 'Toyota', model: 'Camry', status: 'ไม่ว่าง', image: '/assets/car3f.png' },
-    { id: 9, plate: 'ฟฟ 6711', name: 'BMW', model: 'X5', status: 'ว่าง', image: '/assets/car6.png' },
-    { id: 10, plate: 'จจ 5203', name: 'Mercedes-Benz', model: 'C-Class', status: 'ไม่ว่าง', image: '/assets/car4f.jpg' },
-  ];
-
-  // ฟังก์ชันค้นหา
-  const handleSearch = () => {
+  // ฟังก์ชันสำหรับค้นหารถตามวันที่และเวลา
+  const handleSearch = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setCars(carData);
+    try {
+      const response = await axios.get('http://localhost:5182/api/bookings/search', {
+        params: {
+          startDate: startDate?.format('YYYY-MM-DD'),
+          endDate: endDate?.format('YYYY-MM-DD'),
+          startTime: startTime?.format('HH:mm'),
+          endTime: endTime?.format('HH:mm'),
+        },
+      });
+      console.log('API Response:', response.data); // ดูข้อมูลทั้งหมด
+      setCars(response.data); // เก็บข้อมูลรถที่ได้จาก API
+    } catch (error) {
+      console.error('Error fetching cars:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
-  // ฟิลเตอร์ข้อมูลตามสถานะ
   const filteredCars = cars.filter((car) => {
-    if (filter === 'available') return car.status === 'ว่าง';
-    if (filter === 'unavailable') return car.status === 'ไม่ว่าง';
-    return true;
+    if (filter === 'available') return car.status === 1;  // Only available cars
+    if (filter === 'unavailable') return car.status === 2; // Only unavailable cars
+    return true; // Show all cars
   });
+
+  // ฟังก์ชันสำหรับการเลือกและส่งข้อมูลไปยังหน้าอื่น
+  const handleSelectCar = (car) => {
+    // ส่งข้อมูล car ไปยังหน้าถัดไป
+    router.push({
+      pathname: '/users/home/car/complete/booking',
+      query: { carId: car.id, carPlate: car.plate, carBrand: car.brand, carModel: car.model },
+    });
+  };
+
 
   return (
     <main className={kanit.className}>
       <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
-        {/* Navbar */}
         <Navbar />
-
         <Layout style={{ padding: '0px 50px', marginTop: '20px', backgroundColor: '#fff' }}>
-          {/* Sidebar */}
           <Sidebar />
-
-          {/* เนื้อหาหลัก */}
           <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
             <Navigation />
             <Content
@@ -89,7 +94,6 @@ function CarBooking() {
                   level={2}
                   style={{
                     marginBottom: '24px',
-                    font: '24px',
                     fontSize: screens.xs ? '20px' : '28px',
                     color: 'black',
                   }}
@@ -99,34 +103,44 @@ function CarBooking() {
 
                 <Divider />
                 {/* Section: ค้นหารถ */}
-                <div style={{ maxWidth: '700px', marginBottom: '32px', }}>
+                <div style={{ maxWidth: '700px', marginBottom: '32px' }}>
                   <Space size="large" direction="vertical" style={{ width: '100%', maxWidth: '800px' }}>
-                    <div style={{marginLeft:'40px'}}>
-                      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap',marginTop:'10px' }}>
+                    <div style={{ marginLeft: '40px' }}>
+                      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '10px' }}>
                         <div style={{ flex: 1, minWidth: '200px' }}>
-                          <label style={{ fontWeight: 'bold' }}>วันเวลาที่ต้องการ</label>
-                          <DatePicker placeholder="วัน/เดือน/ปี" style={{ width: '100%' }} />
+                          <label style={{ fontWeight: 'bold' }}>วันเริ่มต้น</label>
+                          <DatePicker
+                            placeholder="วัน/เดือน/ปี"
+                            style={{ width: '100%' }}
+                            onChange={(date) => setStartDate(date)}
+                          />
                         </div>
                         <div style={{ flex: 1, minWidth: '200px' }}>
-                          <label style={{ fontWeight: 'bold' }}>เวลาเดินทาง</label>
+                          <label style={{ fontWeight: 'bold' }}>เวลาเริ่มต้น</label>
                           <TimePicker
-                            format="HH:mm"  // กำหนดให้แสดงเป็นเวลา (ชั่วโมง:นาที)
+                            format="HH:mm"
                             placeholder="เลือกเวลา"
                             style={{ width: '100%' }}
+                            onChange={(time) => setStartTime(time)}
                           />
                         </div>
                       </div>
-                      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap',marginTop:'15px' }}>
+                      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '15px' }}>
                         <div style={{ flex: 1, minWidth: '200px' }}>
-                          <label style={{ fontWeight: 'bold' }}>วันเวลาที่ต้องคืน</label>
-                          <DatePicker placeholder="วัน/เดือน/ปี" style={{ width: '100%' }} />
+                          <label style={{ fontWeight: 'bold' }}>วันสิ้นสุด</label>
+                          <DatePicker
+                            placeholder="วัน/เดือน/ปี"
+                            style={{ width: '100%' }}
+                            onChange={(date) => setEndDate(date)}
+                          />
                         </div>
                         <div style={{ flex: 1, minWidth: '200px' }}>
-                          <label style={{ fontWeight: 'bold' }}>เวลาคืนรถ</label>
+                          <label style={{ fontWeight: 'bold' }}>เวลาสิ้นสุด</label>
                           <TimePicker
-                            format="HH:mm"  // กำหนดให้แสดงเป็นเวลา (ชั่วโมง:นาที)
+                            format="HH:mm"
                             placeholder="เลือกเวลา"
                             style={{ width: '100%' }}
+                            onChange={(time) => setEndTime(time)}
                           />
                         </div>
                       </div>
@@ -164,7 +178,7 @@ function CarBooking() {
                         fontWeight: '600',
                         marginBottom: '20px',
                         textAlign: 'start',
-                        fontSize: '24px'
+                        fontSize: '24px',
                       }}
                     >
                       เลือกรถที่ต้องการจอง
@@ -223,7 +237,6 @@ function CarBooking() {
                         ทุกสถานะ
                       </Button>
                     </Button.Group>
-
                     {/* แสดงรายการรถ */}
                     <List
                       grid={{
@@ -237,28 +250,37 @@ function CarBooking() {
                             hoverable
                             style={{
                               borderRadius: '12px',
-                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)',  // เพิ่มมิติให้การ์ด
                               border: 'none',
                               transition: 'transform 0.3s, box-shadow 0.3s',
                               overflow: 'hidden',
+                              backgroundColor: '#fefefe',  // สีพื้นหลังของการ์ด
+                              display: 'flex',
+                              flexDirection: 'column',  // ให้ทุกอย่างในการ์ดจัดระเบียบในแนวตั้ง
+                              height: '100%',  // ทำให้การ์ดยืดความสูงเต็มพื้นที่
                             }}
-                            bodyStyle={{ padding: '16px 20px' }}
+                            bodyStyle={{
+                              padding: '20px 24px',
+                              flex: 1,  // ทำให้เนื้อหาภายในยืดตัวให้เต็มพื้นที่
+                            }}
                             cover={
                               <div
                                 style={{
                                   position: 'relative',
                                   overflow: 'hidden',
                                   borderRadius: '12px 12px 0 0',
+                                  paddingBottom: '-10%',  // ทำให้ภาพมีอัตราส่วนที่เหมาะสม
                                 }}
                               >
                                 <img
                                   alt={car.name}
-                                  src={car.image}
+                                  src={`http://localhost:5182${car.image_url}`}  // ตรวจสอบให้แน่ใจว่า image_url ถูกต้อง
                                   style={{
                                     objectFit: 'cover',
                                     width: '100%',
-                                    height: screens.xs ? '160px' : '220px',
+                                    height: '100%',
                                     transition: 'transform 0.3s',
+                                    borderRadius: '12px 12px 0 0',  // มุมการ์ดที่โค้งมน
                                   }}
                                   onMouseOver={(e) => (e.target.style.transform = 'scale(1.1)')}
                                   onMouseOut={(e) => (e.target.style.transform = 'scale(1)')}
@@ -266,50 +288,66 @@ function CarBooking() {
                               </div>
                             }
                           >
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                              <Title level={5} style={{ margin: 0, color: '#333' }}>
-                                {car.plate}
-                              </Title>
-                              <p style={{ fontSize: screens.xs ? '14px' : '16px', color: '#555', margin: 0 }}>
-                                รถ: {car.name}, {car.model}
-                              </p>
-                              <Badge
-                                status={car.status === 'ว่าง' ? 'success' : 'error'}
-                                text={
-                                  <span style={{ fontSize: '14px', color: car.status === 'ว่าง' ? '#52c41a' : '#ff4d4f' }}>
-                                    สถานะ: {car.status}
-                                  </span>
-                                }
-                              />
-                            </div>
-                            <div style={{ marginTop: '12px', textAlign: 'right' }}>
-                              <Link href="/users/home/car/complete/booking">
-                                <Button
-                                  type="primary"
-                                  disabled={car.status !== 'ว่าง'}
+                            <Title level={5} style={{ margin: 0, fontSize: '16px', color: '#333' }}>
+                              {car.plate}
+                            </Title>
+
+                            <div style={{ marginTop: '10px', color: '#777' }}>
+                              <div style={{ marginBottom: '20px' }}>
+                                <p style={{ margin: '5px 0', fontSize: '30px', fontWeight: 'bold' }}>
+                                  {car.brand}
+                                </p>
+                                <p style={{ margin: '5px 0', fontSize: '14px' }}>
+                                  <strong>รุ่น:</strong> {car.model}
+                                </p>
+                                <p style={{ margin: '5px 0', fontSize: '14px' }}>
+                                  <strong>ที่นั่ง:</strong> {car.seating_capacity} ที่นั่ง
+                                </p>
+                              </div>
+                              {/* สถานะของรถ */}
+                              <div
+                                style={{
+                                  marginTop: '20px',
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <span
                                   style={{
-                                    background: car.status === 'ว่าง' ? '#029B36' : '#d9d9d9',
-                                    borderColor: 'transparent',
-                                    fontSize: screens.xs ? '14px' : '16px',
-                                    borderRadius: '6px',
-                                    padding: '8px 16px',
-                                    transition: 'background 0.3s, transform 0.2s',
-                                  }}
-                                  onMouseOver={(e) => {
-                                    if (car.status === 'ว่าง') e.target.style.transform = 'translateY(-2px)';
-                                  }}
-                                  onMouseOut={(e) => {
-                                    e.target.style.transform = 'translateY(0)';
+                                    fontSize: '14px',
+                                    color: car.status === 1 ? '#4CAF50' : '#FF4D4F',
+                                    fontWeight: 'bold',
                                   }}
                                 >
-                                  เลือก
-                                </Button>
-                              </Link>
+                                  {car.status === 1 ? 'ว่าง' : 'ไม่ว่าง'}
+                                </span>
+
+                            
+                                  <Button
+                                    type="primary"
+                                    disabled={car.status !== 1}
+                                    onClick={() => handleSelectCar(car)}  // เรียกใช้ฟังก์ชัน handleSelectCar
+                                    style={{
+                                      backgroundColor: car.status === 1 ? '#4CAF50' : '#d9d9d9',
+                                      color: '#fff',
+                                      borderRadius: '6px',
+                                      padding: '8px 16px',
+                                      fontSize: '14px',
+                                      border: 'none',
+                                      transition: 'background-color 0.3s',
+                                    }}
+                                  >
+                                    {car.status === 1 ? 'เลือก' : 'ไม่สามารถจองได้'}
+                                  </Button>
+                          
+                              </div>
                             </div>
                           </Card>
                         </List.Item>
                       )}
                     />
+
                   </>
                 )}
               </div>

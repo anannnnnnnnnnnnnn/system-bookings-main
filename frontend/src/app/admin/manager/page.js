@@ -1,10 +1,9 @@
 'use client';
 import React, { useState } from 'react';
-import { Layout, Table, Button, Space, Modal, Typography, Card, Divider } from 'antd';
-import Sidebar from '../admincar/component/sidebar';
-import Navbar from '../admincar/component/navbar';
+import { Layout, Table, Button, Modal, Typography, Card } from 'antd';
+import { useMediaQuery } from 'react-responsive';
 
-const { Content } = Layout;
+const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
 const ManagerDashboard = () => {
@@ -42,6 +41,8 @@ const ManagerDashboard = () => {
     const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
     const [selectedRecord, setSelectedRecord] = useState(null);
 
+    const isMobile = useMediaQuery({ maxWidth: 768 });
+
     const handleApprove = (record) => {
         setData((prevData) =>
             prevData.map((item) =>
@@ -71,87 +72,73 @@ const ManagerDashboard = () => {
 
     const columns = [
         {
-            title: "ชื่อพนักงาน",
-            dataIndex: "name",
-            key: "name",
+            title: 'ชื่อพนักงาน',
+            dataIndex: 'name',
+            key: 'name',
+            responsive: ['xs', 'sm', 'md', 'lg'], // แสดงในทุกหน้าจอ
         },
         {
-            title: "เลขที่ใบจอง",
-            dataIndex: "reservationNumber",
-            key: "reservationNumber",
+            title: 'เลขที่ใบจอง',
+            dataIndex: 'reservationNumber',
+            key: 'reservationNumber',
+            responsive: ['md', 'lg'], // แสดงเฉพาะหน้าจอขนาดกลางขึ้นไป
         },
         {
-            title: "ประเภทของรถ",
-            dataIndex: "carType",
-            key: "carType",
+            title: 'สถานที่',
+            dataIndex: 'destination',
+            key: 'destination',
+            responsive: ['lg'], // แสดงเฉพาะหน้าจอใหญ่
         },
         {
-            title: "สถานที่",
-            dataIndex: "destination",
-            key: "destination",
+            title: 'วันที่ใช้งาน',
+            dataIndex: 'usageDate',
+            key: 'usageDate',
+            responsive: ['md', 'lg'], // แสดงเฉพาะหน้าจอขนาดกลางขึ้นไป
         },
         {
-            title: "วันที่ใช้งาน",
-            dataIndex: "usageDate",
-            key: "usageDate",
-        },
-        {
-            title: "สถานะ",
-            dataIndex: "status",
-            key: "status",
+            title: 'สถานะ',
+            dataIndex: 'status',
+            key: 'status',
             render: (text) => (
                 <Text
                     style={{
-                        color: text === "อนุมัติ" ? "green" : text === "ไม่อนุมัติ" ? "red" : "orange",
-                        fontWeight: "bold",
+                        color: text === 'อนุมัติ' ? '#28a745' : text === 'รออนุมัติ' ? '#ffc107' : '#dc3545',
+                        fontWeight: 'bold',
+                        fontSize: isMobile ? '12px' : '14px',
                     }}
                 >
                     {text}
                 </Text>
             ),
+            responsive: ['xs', 'sm', 'md', 'lg'], // แสดงในทุกหน้าจอ
         },
         {
-            title: "การกระทำ",
-            key: "action",
+            title: 'การกระทำ',
+            key: 'action',
             render: (_, record) => (
-                <Space size="middle">
-                    {record.status === "รออนุมัติ" && (
+                <div style={{ display: 'flex', gap: '5px' }}>
+                    {record.status === 'รออนุมัติ' && (
                         <>
                             <Button
+                                type="primary"
+                                size={isMobile ? 'small' : 'middle'}
                                 style={{
-                                    backgroundColor: "#28a745", // สีเขียว
-                                    color: "#fff",
-                                    border: "none",
-                                    fontWeight: "bold",
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.target.style.backgroundColor = "#218838"; // สีเขียวเข้มเมื่อ hover
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.target.style.backgroundColor = "#28a745"; // กลับมาเป็นสีเขียวปกติ
+                                    backgroundColor: '#28a745',
+                                    borderColor: '#28a745',
                                 }}
                                 onClick={(e) => {
-                                    e.stopPropagation(); // หยุดการทำงานของ onRow
+                                    e.stopPropagation();
                                     handleApprove(record);
                                 }}
                             >
                                 อนุมัติ
                             </Button>
                             <Button
-                                style={{
-                                    backgroundColor: "#dc3545", // สีแดง
-                                    color: "#fff",
-                                    border: "none",
-                                    fontWeight: "bold",
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.target.style.backgroundColor = "#c82333"; // สีแดงเข้มเมื่อ hover
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.target.style.backgroundColor = "#dc3545"; // กลับมาเป็นสีแดงปกติ
-                                }}
+                                type="primary"
+                                size={isMobile ? 'small' : 'middle'}
+                                danger
                                 onClick={(e) => {
-                                    e.stopPropagation(); // หยุดการทำงานของ onRow
+                                    e.stopPropagation();
                                     handleReject(record);
                                 }}
                             >
@@ -159,97 +146,80 @@ const ManagerDashboard = () => {
                             </Button>
                         </>
                     )}
-                </Space>
+                </div>
             ),
-        }
-        
+            responsive: ['xs', 'sm', 'md', 'lg'], // แสดงในทุกหน้าจอ
+        },
     ];
-    
 
     return (
-        <Layout style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
-            <Navbar />
-            <Layout style={{ padding: '24px', marginBottom: '50px' }}>
-                <Content>
-                    <Card
-                        title={<Title level={4}>Dashboard - การอนุมัติการจอง</Title>}
-                        bordered={false}
-                        style={{ boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)', borderRadius: '12px' }}
-                    >
-                        <Table
-                            columns={columns}
-                            dataSource={data}
-                            rowKey="key"
-                            pagination={{ position: ['bottomCenter'] }}
-                            onRow={(record) => ({
-                                onClick: () => handleRowClick(record),
-                                style: { cursor: 'pointer' },
-                            })}
-                        />
-                    </Card>
+        <Layout style={{ minHeight: '100vh' }}>
+            <Header
+                style={{
+                    background: '#28a745',
+                    padding: '0 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: 'white',
+                    fontSize: isMobile ? '14px' : '18px',
+                }}
+            >
+                <Title level={4} style={{ color: 'white', margin: 0, fontSize: 'inherit' }}>
+                    Manager Dashboard
+                </Title>
+            </Header>
 
-                    {/* Modal สำหรับกรอกเหตุผลในการไม่อนุมัติ */}
-                    <Modal
-                        title="เหตุผลในการไม่อนุมัติ"
-                        visible={isRejectModalVisible}
-                        onOk={handleRejectSubmit}
-                        onCancel={() => setIsRejectModalVisible(false)}
-                    >
-                        <textarea
-                            rows={4}
-                            placeholder="กรุณากรอกเหตุผลในการไม่อนุมัติ"
-                            style={{
-                                width: '100%',
-                                padding: '10px',
-                                borderRadius: '8px',
-                                border: '1px solid #ddd',
-                                fontSize: '14px',
-                            }}
-                        ></textarea>
-                    </Modal>
+            <Content style={{ backgroundColor: '#f9f9f9', padding: isMobile ? '10px' : '20px' }}>
+                <Card
+                    style={{
+                        maxWidth: '1200px',
+                        margin: '0 auto',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                        borderRadius: '8px',
+                    }}
+                >
+                    <Title level={3} style={{ textAlign: 'center', marginBottom: '20px', fontSize: isMobile ? '16px' : '20px' }}>
+                        ระบบจัดการการจองรถยนต์
+                    </Title>
+                    <Table
+                        columns={columns}
+                        dataSource={data}
+                        rowKey="key"
+                        pagination={{ position: ['bottomCenter'] }}
+                        size={isMobile ? 'small' : 'middle'}
+                        onRow={(record) => ({
+                            onClick: () => handleRowClick(record),
+                            style: { cursor: 'pointer' },
+                        })}
+                    />
+                </Card>
+            </Content>
 
-                    {/* Modal สำหรับแสดงข้อมูลผู้จอง */}
-                    <Modal
-                        title="ข้อมูลผู้จอง"
-                        visible={isDetailsModalVisible}
-                        onCancel={() => setIsDetailsModalVisible(false)}
-                        footer={null}
-                    >
-                        <div>
-                            <p>
-                                <strong>ชื่อพนักงาน:</strong> {selectedRecord?.name}
-                            </p>
-                            <p>
-                                <strong>เลขที่ใบจอง:</strong> {selectedRecord?.reservationNumber}
-                            </p>
-                            <p>
-                                <strong>ประเภทของรถ:</strong> {selectedRecord?.carType}
-                            </p>
-                            <p>
-                                <strong>สถานที่:</strong> {selectedRecord?.destination}
-                            </p>
-                            <p>
-                                <strong>วันที่ใช้งาน:</strong> {selectedRecord?.usageDate}
-                            </p>
-                            <p>
-                                <strong>สถานะ:</strong>{' '}
-                                <Text
-                                    style={{
-                                        color:
-                                            selectedRecord?.status === 'อนุมัติ'
-                                                ? 'green'
-                                                : selectedRecord?.status === 'ไม่อนุมัติ'
-                                                ? 'red'
-                                                : 'orange',
-                                    }}
-                                >
-                                    {selectedRecord?.status}
-                                </Text>
-                            </p>
-                        </div>
-                    </Modal>
-                </Content>
-            </Layout>
+            <Modal
+                title="เหตุผลในการไม่อนุมัติ"
+                visible={isRejectModalVisible}
+                onOk={handleRejectSubmit}
+                onCancel={() => setIsRejectModalVisible(false)}
+            >
+                <textarea rows={4} style={{ width: '100%', padding: '10px' }} placeholder="กรุณากรอกเหตุผลในการไม่อนุมัติ" />
+            </Modal>
+
+            <Modal
+                title="รายละเอียดการจอง"
+                visible={isDetailsModalVisible}
+                onCancel={() => setIsDetailsModalVisible(false)}
+                footer={null}
+            >
+                {selectedRecord && (
+                    <div>
+                        <p><strong>ชื่อพนักงาน:</strong> {selectedRecord.name}</p>
+                        <p><strong>เลขที่ใบจอง:</strong> {selectedRecord.reservationNumber}</p>
+                        <p><strong>สถานที่:</strong> {selectedRecord.destination}</p>
+                        <p><strong>วันที่ใช้งาน:</strong> {selectedRecord.usageDate}</p>
+                        <p><strong>สถานะ:</strong> {selectedRecord.status}</p>
+                    </div>
+                )}
+            </Modal>
         </Layout>
     );
 };

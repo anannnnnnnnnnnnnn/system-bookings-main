@@ -1,28 +1,26 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
-import { Layout, Typography, Button, Divider, Alert, Card, Space, message, Modal } from 'antd';
+import { Layout, Typography, Button, Divider, Alert, Card, Space, message, Modal, Row, Col } from 'antd';
 import { useRouter } from 'next/navigation';
 import { Content } from 'antd/es/layout/layout';
 import Navbar from '../../components/navbar';
 import Sidebar from '../../components/sidebar';
 import Navigation from '../../components/navigation';
 import { CheckCircleOutlined, WarningOutlined, PrinterOutlined, CheckOutlined, QrcodeOutlined } from '@ant-design/icons';
-import { jsPDF } from 'jspdf'; // นำเข้า jsPDF
+import { jsPDF } from 'jspdf';
 
 const { Title, Text } = Typography;
 
 function ApprovalPending() {
-    const [bookingData, setBookingData] = useState(null); // เก็บข้อมูลการจอง
+    const [bookingData, setBookingData] = useState(null);
     const [isApproved, setIsApproved] = useState(false);
-    const [qrCodeData, setQrCodeData] = useState(null); // เก็บข้อมูลสำหรับ QR Code
-    const [isModalVisible, setIsModalVisible] = useState(false); // สถานะของ Modal
+    const [isModalVisible, setIsModalVisible] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        // ดึงข้อมูลการจองจาก sessionStorage หรือ API
         const data = sessionStorage.getItem('bookingData');
         if (data) {
-            setBookingData(JSON.parse(data)); // ถ้ามีข้อมูลการจองให้เซ็ตลงใน state
+            setBookingData(JSON.parse(data));
         } else {
             message.error('ไม่พบข้อมูลการจอง');
         }
@@ -38,72 +36,58 @@ function ApprovalPending() {
             message.warning('รออนุมัติก่อนพิมพ์ใบจอง');
             return;
         }
-    
-        // สร้างไฟล์ PDF
+
         const doc = new jsPDF();
-        
-        // เพิ่มหัวข้อ
         doc.setFontSize(20);
         doc.text('รายละเอียดการจองรถ', 20, 20);
-    
-        // เพิ่มข้อมูลการจอง
-        const bookingDetails = bookingData || {}; // ใช้ข้อมูลการจองที่มีหรือเป็นอ็อบเจ็กต์ว่างถ้าไม่มีข้อมูล
+
+        const bookingDetails = bookingData || {};
         const details = [
             { label: 'ทะเบียนรถ:', value: bookingDetails.licensePlate || 'N/A' },
             { label: 'ประเภทรถ:', value: bookingDetails.carType || 'N/A' },
             { label: 'วันที่ใช้รถ:', value: bookingDetails.startDate || 'N/A' },
             { label: 'ถึงวันที่:', value: bookingDetails.endDate || 'N/A' },
-            { label: 'เลขที่ใบจอง:', value: bookingDetails.bookingNumber || 'N/A' },
-            { label: 'วันที่-เวลา:', value: bookingDetails.bookingDate || 'N/A' },
-            { label: 'จุดประสงค์:', value: bookingDetails.purpose || 'ไม่ได้ระบุ' },
-            { label: 'ปลายทาง:', value: bookingDetails.destination || 'ไม่ได้ระบุ' },
-            { label: 'จำนวนผู้โดยสาร:', value: bookingDetails.passengers || 'ไม่ได้ระบุ' },
-            { label: 'แผนก:', value: bookingDetails.department || 'ไม่ได้ระบุ' },
-            { label: 'เบอร์ติดต่อ:', value: bookingDetails.contactNumber || 'ไม่ได้ระบุ' },
-            { label: 'พนักงานขับรถ:', value: bookingDetails.driverRequired === 'yes' ? 'ต้องการ' : 'ไม่ต้องการ' },
         ];
-    
-        let yOffset = 30; // เริ่มต้นพิกัด y สำหรับการแสดงข้อความใน PDF
-    
+
+        let yOffset = 30;
         details.forEach(item => {
             doc.setFontSize(12);
             doc.text(`${item.label} ${item.value}`, 20, yOffset);
-            yOffset += 10; // เพิ่มช่องว่างหลังแต่ละบรรทัด
+            yOffset += 10;
         });
-    
-        // ดาวน์โหลดไฟล์ PDF
+
         doc.save('booking-details.pdf');
     };
 
     const handleScanQRCode = () => {
-        setIsModalVisible(true); // เปิด Modal
+        setIsModalVisible(true);
     };
 
     const handleCancel = () => {
-        setIsModalVisible(false); // ปิด Modal
+        setIsModalVisible(false);
     };
 
     return (
-        <Layout style={{ minHeight: '100vh',backgroundColor:'#ffff' }}>
+        <Layout style={{ minHeight: '100vh', backgroundColor: '#F9FAFB' }}>
             <Navbar />
-            <Layout style={{ padding: '0px 50px', marginTop: '20px',backgroundColor:'#ffff' }}>
+            <Layout style={{ padding: '20px 50px', backgroundColor: '#F9FAFB' }}>
                 <Sidebar />
-                <Layout style={{ padding: '0px 30px' ,backgroundColor:'#ffff'}}>
+                <Layout style={{ padding: '0 30px', backgroundColor: '#F9FAFB' }}>
                     <Navigation />
                     <Content
                         style={{
-                            marginTop: '21px',
+                            margin: '20px 0',
                             padding: '24px',
-                            backgroundColor: '#fff',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                            backgroundColor: '#FFFFFF',
+                            borderRadius: '12px',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                         }}
                     >
-                        <div style={{ maxWidth: '800px', margin: '0px auto' }}>
-                            <Title level={3} style={{ textAlign: 'left', color: '#333' }}>
+                        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                            <Title level={4} style={{ color: '#333', fontWeight: '600', marginBottom: '16px' }}>
                                 รออนุมัติ
                             </Title>
-                            <Divider style={{ margin: '0 0 10px 0' }} />    
+                            <Divider style={{ margin: '0 0 16px 0' }} />
                             <Alert
                                 message={`สถานะ: ${isApproved ? 'อนุมัติแล้ว' : 'รออนุมัติ'}`}
                                 type={isApproved ? 'success' : 'warning'}
@@ -111,8 +95,8 @@ function ApprovalPending() {
                                 icon={isApproved ? <CheckCircleOutlined /> : <WarningOutlined />}
                                 style={{
                                     borderRadius: '8px',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                    marginBottom: '15px',
+                                    marginBottom: '16px',
+                                    backgroundColor: isApproved ? '#E6F7E6' : '#FFF7E6',
                                 }}
                                 action={
                                     !isApproved && (
@@ -120,71 +104,158 @@ function ApprovalPending() {
                                             type="primary"
                                             icon={<CheckOutlined />}
                                             onClick={handleApprove}
-                                            shape="circle"
-                                            size="small"
-                                            style={{
-                                                backgroundColor: '#FAD5A8',
-                                                borderColor: '#FAD5A8',
-                                                padding: '4px',
-                                            }}
-                                        />
+                                            style={{ backgroundColor: '#FFC069', borderColor: '#FFC069' }}
+                                        >
+                                            อนุมัติ
+                                        </Button>
                                     )
                                 }
                             />
                             {bookingData ? (
-                                <Card
-                                    title="ข้อมูลการจอง"
-                                    bordered={false}
-                                    style={{
+                                <div style={{ padding: '16px', maxWidth: '800px', margin: '0 auto' }}>
+                                    {/* Title */}
+                                    <div style={{ marginBottom: '16px' }}>
+                                        <Title level={4} style={{ color: '#333', fontWeight: '600' }}>
+                                            ข้อมูลการจอง
+                                        </Title>
+                                    </div>
+
+                                    {/* ข้อมูลรถ */}
+                                    <div style={{
                                         borderRadius: '12px',
-                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                                        marginBottom: '15px',
-                                    }}
-                                >
-                                    <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                        padding: '16px',
+                                        backgroundColor: '#fff',
+                                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                        marginBottom: '20px',
+                                    }}>
+                                        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                                             <img
                                                 src="/assets/car1.jpg"
                                                 alt="Car"
                                                 style={{
-                                                    width: '200px',
-                                                    height: '120px',
+                                                    width: '100px',
+                                                    height: '70px',
                                                     borderRadius: '8px',
                                                     objectFit: 'cover',
-                                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                                                 }}
                                             />
-                                            <div style={{ flex: 1 }}>
-                                                <Text strong>ทะเบียนรถ:</Text> {bookingData.licensePlate || 'N/A'} <br />
-                                                <Text strong>ประเภทรถ:</Text> {bookingData.carType || 'N/A'} <br />
-                                                <Text strong>วันที่ใช้รถ:</Text> {bookingData.startDate || 'N/A'} <br />
-                                                <Text strong>ถึงวันที่:</Text> {bookingData.endDate || 'N/A'}
+                                            <div style={{ flexGrow: 1 }}>
+                                                <div style={{ display: 'flex', justifyContent: 'start' }}>
+                                                    <Text strong style={{ fontSize: '14px' }}>ทะเบียนรถ:</Text>
+                                                    <Text style={{ fontSize: '14px', color: '#666' }}>{bookingData.licensePlate || 'N/A'}</Text>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'start', }}>
+                                                    <Text strong style={{ fontSize: '14px' }}>ประเภทรถ:</Text>
+                                                    <Text style={{ fontSize: '14px', color: '#666' }}>{bookingData.carType || 'N/A'}</Text>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'start', }}>
+                                                    <Text strong style={{ fontSize: '14px' }}>วันที่ใช้รถ:</Text>
+                                                    <Text style={{ fontSize: '14px', color: '#666' }}>{bookingData.startDate || 'N/A'}</Text>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'start' }}>
+                                                    <Text strong style={{ fontSize: '14px' }}>ถึงวันที่:</Text>
+                                                    <Text style={{ fontSize: '14px', color: '#666' }}>{bookingData.endDate || 'N/A'}</Text>
+                                                </div>
                                             </div>
                                         </div>
-                                        <Divider style={{ margin: '10px 0' }} />
-                                        <div>
-                                            <Text strong>เลขที่ใบจอง:</Text> {bookingData.bookingNumber || 'N/A'} <br />
-                                            <Text strong>วันที่-เวลา:</Text> {bookingData.bookingDate || 'N/A'} <br />
-                                            <Text strong>จุดประสงค์:</Text> {bookingData.purpose || 'ไม่ได้ระบุ'} <br />
-                                            <Text strong>ปลายทาง:</Text> {bookingData.destination || 'ไม่ได้ระบุ'} <br />
-                                            <Text strong>จำนวนผู้โดยสาร:</Text> {bookingData.passengers || 'ไม่ได้ระบุ'} <br />
-                                            <Text strong>แผนก:</Text> {bookingData.department || 'ไม่ได้ระบุ'} <br />
-                                            <Text strong>เบอร์ติดต่อ:</Text> {bookingData.contactNumber || 'ไม่ได้ระบุ'} <br />
-                                            <Text strong>พนักงานขับรถ:</Text>{' '}
-                                            {bookingData.driverRequired === 'yes' ? 'ต้องการ' : 'ไม่ต้องการ'}
+                                    </div>
+
+                                    {/* ข้อมูลการจอง */}
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '30px', justifyContent: 'center' }}>
+                                        {/* ฟอร์ม 1 */}
+                                        <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
+                                            <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
+                                                เลขที่ใบจอง:
+                                            </label>
+                                            <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
+                                                {bookingData.bookingNumber || 'N/A'}
+                                            </span>
                                         </div>
-                                    </Space>
-                                </Card>
+
+                                        {/* ฟอร์ม 2 */}
+                                        <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
+                                            <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
+                                                วันที่-เวลา:
+                                            </label>
+                                            <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
+                                                {bookingData.bookingDate || 'N/A'}
+                                            </span>
+                                        </div>
+
+                                        {/* ฟอร์ม 3 */}
+                                        <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
+                                            <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
+                                                จุดประสงค์:
+                                            </label>
+                                            <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
+                                                {bookingData.purpose || 'ไม่ได้ระบุ'}
+                                            </span>
+                                        </div>
+
+                                        {/* ฟอร์ม 4 */}
+                                        <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
+                                            <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
+                                                ปลายทาง:
+                                            </label>
+                                            <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
+                                                {bookingData.destination || 'ไม่ได้ระบุ'}
+                                            </span>
+                                        </div>
+
+                                        {/* ฟอร์ม 5 */}
+                                        <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
+                                            <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
+                                                จำนวนผู้โดยสาร:
+                                            </label>
+                                            <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
+                                                {bookingData.passengers || 'ไม่ได้ระบุ'}
+                                            </span>
+                                        </div>
+
+                                        {/* ฟอร์ม 6 */}
+                                        <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
+                                            <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
+                                                แผนก:
+                                            </label>
+                                            <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
+                                                {bookingData.department || 'ไม่ได้ระบุ'}
+                                            </span>
+                                        </div>
+
+                                        {/* ฟอร์ม 7 */}
+                                        <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
+                                            <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
+                                                เบอร์ติดต่อ:
+                                            </label>
+                                            <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
+                                                {bookingData.contactNumber || 'ไม่ได้ระบุ'}
+                                            </span>
+                                        </div>
+
+                                        {/* ฟอร์ม 8 */}
+                                        <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
+                                            <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
+                                                พนักงานขับรถ:
+                                            </label>
+                                            <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
+                                                {bookingData.driverRequired === 'yes' ? 'ต้องการ' : 'ไม่ต้องการ'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                </div>
                             ) : (
-                                <p>กำลังโหลดข้อมูล...</p>
+                                <Text>กำลังโหลดข้อมูล...</Text>
                             )}
-                            <Divider style={{ margin: '10px 0' }} />
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px' }}>
+                            <Divider/>
+
+
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                                 <Button
                                     type="default"
                                     icon={<PrinterOutlined />}
                                     onClick={handlePrint}
-
+                                    style={{ borderRadius: '8px' }}
                                 >
                                     พิมพ์ใบจอง
                                 </Button>
@@ -193,54 +264,17 @@ function ApprovalPending() {
                                     icon={<QrcodeOutlined />}
                                     onClick={handleScanQRCode}
                                     disabled={!isApproved}
+                                    style={{ borderRadius: '8px' }}
                                 >
                                     สแกน QR Code
                                 </Button>
                             </div>
                         </div>
-
-                        {/* Modal สำหรับ QR Code */}
-                        <Modal
-                            title={
-                                <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: 'bold', color: '#333' }}>
-                                    QR Code การจองรถ
-                                </div>
-                            }
-                            open={isModalVisible}
-                            onCancel={handleCancel}
-                            footer={[
-                                <Button key="close" type="primary" onClick={handleCancel} style={{ borderRadius: '8px' }}>
-                                    ปิด
-                                </Button>
-                            ]}
-                            centered
-                            bodyStyle={{
-                                padding: '30px',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <div
-                                style={{
-                                    border: '3px dashed #d9d9d9',
-                                    borderRadius: '16px',
-                                    padding: '30px',
-                                    background: '#f7f7f7',
-                                    boxShadow: '0 6px 15px rgba(0, 0, 0, 0.15)',
-                                    width: '350px',
-                                    height: '350px',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                            >
-                            </div>
-                        </Modal>
                     </Content>
                 </Layout>
             </Layout>
         </Layout>
     );
 }
+
 export default ApprovalPending;

@@ -1,12 +1,11 @@
 'use client';
 
-import React, {useState} from 'react';
-import { Layout, Calendar, Badge, Divider, Tag, Typography,Modal,List } from 'antd';
+import React, { useState } from 'react';
+import { Layout, Calendar, Badge, Divider, Tag, Typography, Modal, List } from 'antd';
 import Navbar from './components/navbar';
 import Sidebar from './components/sidebar';
 import { Content } from 'antd/lib/layout/layout';
 import Navigation from './components/navigation';
-
 
 const { Header } = Layout;
 const { Title } = Typography;
@@ -43,11 +42,11 @@ function Home() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedBookings, setSelectedBookings] = useState([]);
 
-  // สีประจำรถ
+  // สีประจำรถ (สีมินิมอล)
   const carColors = {
-    รถเก๋ง: '#ff5733', // สีแดง
-    รถตู้: '#33cc33', // สีเขียว
-    รถบัส: '#0077ff', // สีน้ำเงิน
+    รถเก๋ง: '#a3d8f4', // สีฟ้าพาสเทล
+    รถตู้: '#c8e6c9', // สีเขียวพาสเทล
+    รถบัส: '#ffebc2', // สีส้มอ่อน
   };
 
   // ฟังก์ชันกรองข้อมูลตามวันที่
@@ -64,7 +63,7 @@ function Home() {
         {listData.map((item, index) => (
           <li key={index} style={{ marginBottom: '8px' }}>
             <Badge
-              color={carColors[item.type] || 'default'}
+              color={carColors[item.type] || '#dcdcdc'} // ใช้สีประจำรถที่มินิมอล
               text={`${item.type} (${item.time})`}
             />
             <div style={{ fontSize: '12px', color: '#888' }}>{item.destination}</div>
@@ -73,6 +72,8 @@ function Home() {
       </ul>
     );
   };
+
+  // ฟังก์ชันเมื่อเลือกวันที่
   const onSelectDate = (value) => {
     const listData = getListData(value);
     setSelectedBookings(listData);  // เก็บข้อมูลการจองที่เลือก
@@ -101,13 +102,13 @@ function Home() {
             }}
           >
             <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-              <Title level={2} style={{ textAlign: 'start', marginBottom: '24px', color: 'black' }}>ปฎิทิน</Title>
+              <Title level={2} style={{ textAlign: 'start', marginBottom: '24px', color: 'black' }}>ปฏิทิน</Title>
 
               <Divider />
 
               {/* ปฏิทิน */}
               <div style={{ marginTop: '20px', maxWidth: '900px', margin: '0 auto' }}>
-                <h3 style={{ marginBottom: '20px' }}>ปฏิทินการจองห้องประชุม</h3>
+                <h3 style={{ marginBottom: '20px' }}>ปฏิทินการจองรถของสำนักงาน</h3>
                 <div
                   style={{
                     overflow: 'hidden',
@@ -137,32 +138,33 @@ function Home() {
                   </Tag>
                 ))}
               </div>
-               {/* Modal สำหรับแสดงข้อมูลการจอง */}
-            <Modal
-              title={`รายละเอียดการจองห้องประชุม`}
-              visible={isModalVisible}
-              onCancel={() => setIsModalVisible(false)}
-              footer={null}
-              centered
-            >
-              <List
-                itemLayout="horizontal"
-                dataSource={selectedBookings}
-                renderItem={(item) => (
-                  <List.Item>
-                    <List.Item.Meta
-                      title={
-                        <div>
-                          <Badge status={item.room} text={item.room} />
-                          <span style={{ marginLeft: '10px' }}>เวลา: {item.time}</span>
-                        </div>
-                      }
-                      description={`วัตถุประสงค์: ${item.destination}`}
-                    />
-                  </List.Item>
-                )}
-              />
-            </Modal>
+
+              {/* Modal สำหรับแสดงข้อมูลการจอง */}
+              <Modal
+                title={`รายละเอียดการจอง`}
+                visible={isModalVisible}
+                onCancel={() => setIsModalVisible(false)}
+                footer={null}
+                centered
+              >
+                <List
+                  itemLayout="horizontal"
+                  dataSource={selectedBookings}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <List.Item.Meta
+                        title={
+                          <div>
+                            <Badge status={item.type} text={item.type} />
+                            <span style={{ marginLeft: '10px' }}>เวลา: {item.time}</span>
+                          </div>
+                        }
+                        description={`วัตถุประสงค์: ${item.destination}`}
+                      />
+                    </List.Item>
+                  )}
+                />
+              </Modal>
             </div>
           </Content>
         </Layout>

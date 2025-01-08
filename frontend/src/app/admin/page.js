@@ -9,7 +9,12 @@ import Link from 'next/link'
 const { Header } = Layout
 const { Title } = Typography
 
+
 function SelectSystem() {
+
+  const handleSystemSelection = () => {
+    
+  };
   return (
     <Layout style={{ minHeight: '100vh' }}>
       {/* Navbar */}
