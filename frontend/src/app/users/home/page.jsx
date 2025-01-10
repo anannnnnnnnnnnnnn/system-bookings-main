@@ -3,7 +3,7 @@
 import React from 'react'
 import { Card, Row, Col, Typography, Layout } from 'antd'
 import { CarOutlined, TeamOutlined } from '@ant-design/icons'
-import Navbar from './car/components/navbar'
+import Navbar from './navbar'
 import Link from 'next/link'
 
 const { Title, Text } = Typography

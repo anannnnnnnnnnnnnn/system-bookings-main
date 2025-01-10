@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "y7GQsN7Z08JLoy2iseqTZ3f2ktK9coW0g7b+ekTFGZA=",
+  "Hash": "LacWbhjfU48DQUKYu3RvPkcCjp4g/ABfbfS8mqRARj4=",
   "Source": "backend",
   "BasePath": "_content/backend",
   "Mode": "Default",
@@ -2468,6 +2468,44 @@
       "OriginalItemSpec": "wwwroot\\images\\car1f.jpg"
     },
     {
+      "Identity": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car2.jpeg",
+      "SourceId": "backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\",
+      "BasePath": "_content/backend",
+      "RelativePath": "images/car2.jpeg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\car2.jpeg"
+    },
+    {
+      "Identity": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car3.jpg",
+      "SourceId": "backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\",
+      "BasePath": "_content/backend",
+      "RelativePath": "images/car3.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\car3.jpg"
+    },
+    {
       "Identity": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car4.jpg",
       "SourceId": "backend",
       "SourceType": "Discovered",
@@ -2485,6 +2523,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\car4.jpg"
+    },
+    {
+      "Identity": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car5.jpg",
+      "SourceId": "backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\",
+      "BasePath": "_content/backend",
+      "RelativePath": "images/car5.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\car5.jpg"
     },
     {
       "Identity": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car6.png",
@@ -2542,6 +2599,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\images.jpg"
+    },
+    {
+      "Identity": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\pg1.jpeg",
+      "SourceId": "backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\",
+      "BasePath": "_content/backend",
+      "RelativePath": "images/pg1.jpeg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\pg1.jpeg"
     }
   ]
 }

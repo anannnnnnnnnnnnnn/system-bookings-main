@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Layout, Typography, Space, DatePicker, Divider, Button, List, Card, Badge, Grid, TimePicker, Meta } from 'antd';
+import { Layout, Typography, Space, DatePicker, Divider, Button, List, Card, Badge, Grid, TimePicker, Meta,message } from 'antd';
 import Sidebar from '../components/sidebar';
 import Navbar from '../components/navbar';
 import Navigation from '../components/navigation';
@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { Kanit } from 'next/font/google';
 import axios from 'axios';
 import '/src/app/globals.css';
-import { useRouter } from 'next/router';  // นำเข้า useRouter
+import { useRouter } from 'next/navigation';  // นำเข้า useRouter
 
 // ตั้งค่าฟอนต์ Kanit
 const kanit = Kanit({
@@ -21,6 +21,7 @@ const { Title } = Typography;
 const { useBreakpoint } = Grid;
 
 function CarBooking() {
+  const router = useRouter(); // ใช้ useRouter จาก next/navigation
   const [cars, setCars] = useState([]); // สถานะข้อมูลรถ
   const [loading, setLoading] = useState(false); // สถานะการโหลด
   const [filter, setFilter] = useState('available'); // ตัวกรองสถานะรถ
@@ -30,8 +31,25 @@ function CarBooking() {
   const [endTime, setEndTime] = useState(null); // เวลาสิ้นสุด
   const screens = useBreakpoint();
 
+
+
+  const handleSelectCar = (car) => {
+    console.log("Selected car: ", car); // ตรวจสอบค่าของ car
+    if (car && car.car_id) {
+      router.push(`/users/home/car/complete/booking?carId=${car.car_id}&startDate=${startDate?.format('YYYY-MM-DD')}&endDate=${endDate?.format('YYYY-MM-DD')}&startTime=${startTime?.format('HH:mm')}&endTime=${endTime?.format('HH:mm')}`);
+    } else {
+      console.error("car.car_id is undefined or null");
+    }
+  };
+  
   // ฟังก์ชันสำหรับค้นหารถตามวันที่และเวลา
   const handleSearch = async () => {
+    // ตรวจสอบว่าได้กรอกเวลาเริ่มต้นและสิ้นสุดหรือไม่
+    if (!startTime || !endTime) {
+      message.warning('กรุณากรอกเวลาเริ่มต้นและสิ้นสุดก่อนค้นหารถ');  // แสดงข้อความเตือน
+      return;  // หยุดการทำงานของฟังก์ชันหากไม่ได้กรอกเวลา
+    }
+
     setLoading(true);
     try {
       const response = await axios.get('http://localhost:5182/api/bookings/search', {
@@ -56,15 +74,6 @@ function CarBooking() {
     if (filter === 'unavailable') return car.status === 2; // Only unavailable cars
     return true; // Show all cars
   });
-
-  // ฟังก์ชันสำหรับการเลือกและส่งข้อมูลไปยังหน้าอื่น
-  const handleSelectCar = (car) => {
-    // ส่งข้อมูล car ไปยังหน้าถัดไป
-    router.push({
-      pathname: '/users/home/car/complete/booking',
-      query: { carId: car.id, carPlate: car.plate, carBrand: car.brand, carModel: car.model },
-    });
-  };
 
 
   return (
@@ -323,24 +332,24 @@ function CarBooking() {
                                   {car.status === 1 ? 'ว่าง' : 'ไม่ว่าง'}
                                 </span>
 
-                            
-                                  <Button
-                                    type="primary"
-                                    disabled={car.status !== 1}
-                                    onClick={() => handleSelectCar(car)}  // เรียกใช้ฟังก์ชัน handleSelectCar
-                                    style={{
-                                      backgroundColor: car.status === 1 ? '#4CAF50' : '#d9d9d9',
-                                      color: '#fff',
-                                      borderRadius: '6px',
-                                      padding: '8px 16px',
-                                      fontSize: '14px',
-                                      border: 'none',
-                                      transition: 'background-color 0.3s',
-                                    }}
-                                  >
-                                    {car.status === 1 ? 'เลือก' : 'ไม่สามารถจองได้'}
-                                  </Button>
-                          
+
+                                <Button
+                                  type="primary"
+                                  disabled={car.status !== 1}
+                                  onClick={() => handleSelectCar(car)}  // เรียกใช้ฟังก์ชัน handleSelectCar
+                                  style={{
+                                    backgroundColor: car.status === 1 ? '#4CAF50' : '#d9d9d9',
+                                    color: '#fff',
+                                    borderRadius: '6px',
+                                    padding: '8px 16px',
+                                    fontSize: '14px',
+                                    border: 'none',
+                                    transition: 'background-color 0.3s',
+                                  }}
+                                >
+                                  {car.status === 1 ? 'เลือก' : 'ไม่สามารถจองได้'}
+                                </Button>
+
                               </div>
                             </div>
                           </Card>

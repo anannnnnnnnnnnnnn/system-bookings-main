@@ -105,3 +105,12 @@ C:\project coop\system-bookings-main\backend\obj\Debug\net8.0\backend.pdb
 C:\project coop\system-bookings-main\backend\obj\Debug\net8.0\backend.genruntimeconfig.cache
 C:\project coop\system-bookings-main\backend\obj\Debug\net8.0\ref\backend.dll
 C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\backend.staticwebassets.runtime.json
+C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\BCrypt.Net-Next.dll
+C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll

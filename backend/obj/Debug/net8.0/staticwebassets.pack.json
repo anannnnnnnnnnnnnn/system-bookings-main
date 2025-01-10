@@ -509,8 +509,20 @@
       "PackagePath": "staticwebassets\\images\\car1f.jpg"
     },
     {
+      "Id": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car2.jpeg",
+      "PackagePath": "staticwebassets\\images\\car2.jpeg"
+    },
+    {
+      "Id": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car3.jpg",
+      "PackagePath": "staticwebassets\\images\\car3.jpg"
+    },
+    {
       "Id": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car4.jpg",
       "PackagePath": "staticwebassets\\images\\car4.jpg"
+    },
+    {
+      "Id": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car5.jpg",
+      "PackagePath": "staticwebassets\\images\\car5.jpg"
     },
     {
       "Id": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car6.png",
@@ -519,6 +531,10 @@
     {
       "Id": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\images.jpg",
       "PackagePath": "staticwebassets\\images\\images.jpg"
+    },
+    {
+      "Id": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\pg1.jpeg",
+      "PackagePath": "staticwebassets\\images\\pg1.jpeg"
     },
     {
       "Id": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\นิว.jpg",
