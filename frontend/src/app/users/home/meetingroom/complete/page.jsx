@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Layout, Typography, Divider, Button, Radio, List, Card, Badge, DatePicker, Space } from 'antd';
 import Sidebar from '../components/sidebar';
-import Navbar from '../components/navbar';
+import Navbar from '../../navbar';
 import Navigation from '../components/navigation';
 import { Content } from 'antd/lib/layout/layout';
 import { useRouter } from 'next/navigation';
@@ -93,7 +93,7 @@ function MeetingRoomBooking() {
                 <Divider />
                 <div style={{ marginLeft: '50px' }}>
                   <div style={{ flex: 1, minWidth: '100px' }}>
-                    <Title level={4} style={{ fontWeight: 'bold' }}>ช่วงเวลาเดินทาง</Title>
+                    <Title level={4} style={{ fontWeight: 'bold' }}>วันที่ต้องการจอง</Title>
                   </div>
                   <div style={{ display: 'flex',justifyContent:'space-between',  gap: '20px',}}>
                     <DatePicker.RangePicker

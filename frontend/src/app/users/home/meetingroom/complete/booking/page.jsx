@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Typography, Input, Button, Divider, Modal, Image, Select, List, Card, Space } from 'antd';
 import Sidebar from '../../components/sidebar';
-import Navbar from '../../components/navbar';
+import Navbar from '../../../navbar';
 import Navigation from '../../components/navigation';
 import { Content } from 'antd/lib/layout/layout';
 import { FileTextOutlined, } from '@ant-design/icons';

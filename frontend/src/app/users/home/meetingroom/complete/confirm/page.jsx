@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Typography, Divider, Layout, Card, Space, Button } from 'antd';
 import Sidebar from '../../components/sidebar';
-import Navbar from '../../components/navbar';
+import Navbar from '../../../navbar';
 import { Content } from 'antd/lib/layout/layout';
 import { useRouter } from 'next/navigation';
 import { CheckOutlined, ArrowLeftOutlined } from '@ant-design/icons';

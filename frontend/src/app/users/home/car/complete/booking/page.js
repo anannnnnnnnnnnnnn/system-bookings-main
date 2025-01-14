@@ -2,7 +2,7 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Layout, Typography, Input, Radio, Button, Divider, Modal, Space } from 'antd';
-import Navbar from '../../components/navbar';
+import Navbar from '../../../navbar';
 import Sidebar from '../../components/sidebar';
 import Navigation from '../../components/navigation';
 import { Content } from 'antd/lib/layout/layout';
@@ -30,6 +30,7 @@ const CarBookingComplete = () => {
     const endDate = searchParams.get('endDate'); // ดึง endDate จาก URL
     const startTime = searchParams.get('startTime'); // ดึง startTime จาก URL
     const endTime = searchParams.get('endTime'); // ดึง endTime จาก URL
+    
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevState) => ({
@@ -38,10 +39,18 @@ const CarBookingComplete = () => {
         }));
     };
     const [userFullName, setUserFullName] = useState(null); // สถานะสำหรับเก็บชื่อผู้ใช้
+    const [department, setDepartment] = useState(null); // สถานะสำหรับเก็บ department
     useEffect(() => {
+        // ดึงข้อมูลจาก localStorage
         const storedFullName = localStorage.getItem("userFullName");
+        const storedDepartment = localStorage.getItem("department");
+
         if (storedFullName) {
             setUserFullName(storedFullName); // ถ้ามีชื่อผู้ใช้ใน localStorage ก็ให้แสดง
+        }
+
+        if (storedDepartment) {
+            setDepartment(storedDepartment); // ถ้ามี department ใน localStorage ก็ให้แสดง
         }
     }, []);
 
@@ -61,10 +70,85 @@ const CarBookingComplete = () => {
     }, [carId]);
 
     const handleConfirm = () => {
-        sessionStorage.setItem('bookingData', JSON.stringify(formData));
-        window.location.href = '/users/home/car/complete/approv';
-    };
+        // ตรวจสอบว่ามีค่าที่จำเป็นครบหรือไม่
+        if (!formData.purpose || !formData.destination || !startDate || !startTime || !endDate || !endTime || !carId) {
+            alert('กรุณากรอกข้อมูลให้ครบถ้วน!');
+            return;
+        }
+    
+        // ตรวจสอบความถูกต้องของรูปแบบวันที่และเวลา
+        const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
+        const isValidTime = (time) => /^\d{2}:\d{2}$/.test(time);
+    
+        if (!isValidDate(startDate) || !isValidTime(startTime) || !isValidDate(endDate) || !isValidTime(endTime)) {
+            alert('รูปแบบวันที่หรือเวลาไม่ถูกต้อง!');
+            return;
+        }
+    
+        // ตรวจสอบว่าเวลาเริ่มต้นและเวลาสิ้นสุดถูกต้อง
+        const startTimeValid = new Date(`${startDate}T${startTime}`);
+        const endTimeValid = new Date(`${endDate}T${endTime}`);
+    
+        if (isNaN(startTimeValid.getTime()) || isNaN(endTimeValid.getTime()) || startTimeValid >= endTimeValid) {
+            alert('กรุณาตรวจสอบวันที่และเวลาให้ถูกต้อง!');
+            return;
+        }
 
+        const formatTimeSpan = (date) => {
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        };
+        const generateBookingNumber = () => {
+            const now = new Date();
+            return `BN${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+        };
+        
+        // เตรียมข้อมูลสำหรับการส่ง API
+        const bookingData = {
+            booking_number: formData.bookingNumber || generateBookingNumber(),
+            car_id: carId,
+            full_name: userFullName || 'ไม่ได้ระบุ',
+            booking_date: startDate,
+            booking_time: formatTimeSpan(startTimeValid),
+            return_date: endDate,
+            return_time: formatTimeSpan(endTimeValid),
+            purpose: formData.purpose,
+            destination: formData.destination,
+            passenger_count: formData.passengers ? parseInt(formData.passengers, 10) : null,
+            department: formData.department || 'ไม่ได้ระบุ',
+            driver_required: formData.driverRequired === 'yes' ? 1 : 0,
+        };
+    
+        // ส่งข้อมูลไปยัง API
+        axios.post('http://localhost:5182/api/bookings', bookingData)
+            .then((response) => {
+                if (response.status === 201) {
+                    Modal.success({
+                        title: 'การจองสำเร็จ!',
+                        content: 'ข้อมูลการจองของคุณถูกบันทึกเรียบร้อยแล้ว',
+                        onOk: () => {
+                            window.location.href = '/users/home/car/complete/approv';
+                        },
+                    });
+                } else {
+                    Modal.error({
+                        title: 'การจองไม่สำเร็จ',
+                        content: 'โปรดลองอีกครั้ง',
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error('Error booking car:', error.response?.data || error.message);
+                Modal.error({
+                    title: 'เกิดข้อผิดพลาด',
+                    content: JSON.stringify(error.response?.data?.errors || error.response?.data?.message || 'ไม่สามารถบันทึกข้อมูลได้'),
+                });
+            });
+    };
+    
+     
     return (
         <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
             {/* Navbar */}
@@ -178,6 +262,10 @@ const CarBookingComplete = () => {
                                     <Input value={userFullName} disabled />
                                 </div>
                                 <div>
+                                    <label style={{ fontWeight: 'bold' }}>ตำแหน่ง/แผนก</label>
+                                    <Input value={department} disabled />
+                                </div>
+                                <div>
                                     <label style={{ fontWeight: 'bold' }}>จุดประสงค์การใช้งาน</label>
                                     <TextArea name="purpose" rows={2} placeholder="กรุณาระบุจุดประสงค์" onChange={handleChange} style={{ height: '30px' }} />
                                 </div>
@@ -197,9 +285,7 @@ const CarBookingComplete = () => {
                                         <Radio value="no">ไม่ต้องการ</Radio>
                                     </Radio.Group>
                                 </div>
-
                             </div>
-
                             <Divider />
                             <div style={{ textAlign: 'right', marginTop: '24px' }}>
                                 <Button
@@ -312,12 +398,12 @@ const CarBookingComplete = () => {
                                         </div>
                                     </div>
                                 )}
-                                <Divider/>
-
+                                <Divider />
                                 {[
                                     { label: 'วันที่-เวลาการจอง', value: `${startDate} ${startTime}` },
                                     { label: 'วันที่-เวลาการคืน', value: `${endDate} ${endTime}` },
                                     { label: 'ชื่อ-สกุล', value: userFullName },
+                                    { label: 'ตำแหน่ง/แผนก', value: department },
                                     { label: 'จุดประสงค์การใช้งาน', value: formData.purpose },
                                     { label: 'ปลายทาง', value: formData.destination },
                                     { label: 'ต้องการพนักงานขับรถ', value: formData.driverRequired === 'yes' ? 'ต้องการ' : 'ไม่ต้องการ' },
@@ -352,5 +438,4 @@ const CarBookingComplete = () => {
 
     );
 };
-
 export default CarBookingComplete;

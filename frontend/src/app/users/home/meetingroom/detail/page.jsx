@@ -3,7 +3,7 @@
 import React from 'react';
 import { Layout, Table, Tag, Divider, Typography, Image } from 'antd';
 import Sidebar from '../components/sidebar';
-import Navbar from '../components/navbar';
+import Navbar from '../../navbar';
 import Navigation from '../components/navigation';
 
 const { Content } = Layout;

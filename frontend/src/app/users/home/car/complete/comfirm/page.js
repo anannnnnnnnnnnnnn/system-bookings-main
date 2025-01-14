@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import Sidebar from '../../components/sidebar';
-import Navbar from '../../components/navbar';
+import Navbar from '../../../navbar';
 import { Layout, Typography, Row, Col, Input, Card, Divider,Button } from 'antd';
 import Link from 'next/link';
 

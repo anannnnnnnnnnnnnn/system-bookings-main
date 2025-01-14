@@ -12,7 +12,7 @@ namespace YourNamespace.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<Tour> Tours { get; set; }
-        public DbSet<Booking> booking_confirmations { get; set; }
+        public DbSet<Carbooking> Carbookings { get; set; }
 
 
     }

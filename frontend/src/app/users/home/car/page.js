@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Layout, Calendar, Badge, Divider, Tag, Typography, Modal, List } from 'antd';
-import Navbar from './components/navbar';
+import Navbar from '../navbar';
 import Sidebar from './components/sidebar';
 import { Content } from 'antd/lib/layout/layout';
 import Navigation from './components/navigation';

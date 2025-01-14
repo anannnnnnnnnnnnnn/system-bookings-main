@@ -7,9 +7,9 @@ namespace YourNamespace.Models
         [Key]  // ระบุว่า car_id เป็น Primary Key
         public int car_id { get; set; }  // Primary Key ไม่สามารถเป็น NULL
 
-        public string brand { get; set; }  // ห้ามเป็น NULL
-        public string model { get; set; }  // ห้ามเป็น NULL
-        public string license_plate { get; set; }  // ห้ามเป็น NULL
+        public string? brand { get; set; }  // ห้ามเป็น NULL
+        public string? model { get; set; }  // ห้ามเป็น NULL
+        public string? license_plate { get; set; }  // ห้ามเป็น NULL
 
         public int seating_capacity { get; set; }  // ห้ามเป็น NULL
         public int fuel_type { get; set; }  // ห้ามเป็น NULL

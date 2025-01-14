@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout, Typography, Button, Divider, Alert, Card, Space, message, Modal, Row, Col } from 'antd';
 import { useRouter } from 'next/navigation';
 import { Content } from 'antd/es/layout/layout';
-import Navbar from '../../components/navbar';
+import Navbar from '../../../navbar';
 import Sidebar from '../../components/sidebar';
 import Navigation from '../../components/navigation';
 import { CheckCircleOutlined, WarningOutlined, PrinterOutlined, CheckOutlined, QrcodeOutlined } from '@ant-design/icons';

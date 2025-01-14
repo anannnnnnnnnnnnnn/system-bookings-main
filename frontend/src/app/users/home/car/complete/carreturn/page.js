@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Layout, Typography, Card, Space, Button, Divider, Alert, Modal, Form, Input, Row, Col } from 'antd';
 import Sidebar from '../../components/sidebar';
-import Navbar from '../../components/navbar';
+import Navbar from '../../../navbar';
 import { Content } from 'antd/lib/layout/layout';
 
 const { Title, Text } = Typography;

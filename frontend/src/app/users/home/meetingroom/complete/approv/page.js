@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation'; // ใช้ useRouter จาก next/router
 import { Result, Button, Layout, Modal, message, Divider, Typography } from 'antd';
 import Sidebar from '../../components/sidebar';
-import Navbar from '../../components/navbar';
+import Navbar from '../../../navbar';
 import Navigation from '../../components/navigation';
 
 const { Content } = Layout;

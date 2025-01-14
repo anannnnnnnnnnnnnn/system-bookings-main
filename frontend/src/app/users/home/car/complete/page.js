@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Layout, Typography, Space, DatePicker, Divider, Button, List, Card, Badge, Grid, TimePicker, Meta,message } from 'antd';
+import { Layout, Typography, Space, DatePicker, Divider, Button, List, Card, Badge, Grid, TimePicker, Meta, message } from 'antd';
 import Sidebar from '../components/sidebar';
 import Navbar from '../components/navbar';
 import Navigation from '../components/navigation';
@@ -10,6 +10,7 @@ import { Kanit } from 'next/font/google';
 import axios from 'axios';
 import '/src/app/globals.css';
 import { useRouter } from 'next/navigation';  // นำเข้า useRouter
+import moment from 'moment'; // ถ้ายังไม่ได้ import moment
 
 // ตั้งค่าฟอนต์ Kanit
 const kanit = Kanit({
@@ -31,37 +32,110 @@ function CarBooking() {
   const [endTime, setEndTime] = useState(null); // เวลาสิ้นสุด
   const screens = useBreakpoint();
 
+  const [formData, setFormData] = useState({
+    selectedTime: [], // Initialize with an empty array or default selected times
+  });
 
+  const unavailableTimes = []; // เวลาที่ไม่สามารถเลือกได้
+
+  const validateSearchInputs = () => {
+    if (!startDate || !endDate || !startTime || !endTime) {
+      message.warning('กรุณากรอกข้อมูลให้ครบก่อนค้นหา');
+      return false;
+    }
+    return true;
+  };
+
+  const handleTimeSelect = (time) => {
+    // ตรวจสอบว่าช่วงเวลานี้ไม่สามารถเลือกได้หรือไม่
+    if (unavailableTimes.includes(time)) {
+      message.error('เวลานี้ไม่สามารถเลือกได้'); // แสดงข้อความแสดงข้อผิดพลาด
+      return; // หยุดการทำงานของฟังก์ชัน
+    }
+
+    const selectedTimes = [...formData.selectedTime];
+
+    if (selectedTimes.includes(time)) {
+      // หากเลือกปุ่มที่ถูกเลือกอยู่แล้ว ให้ยกเลิกการเลือก
+      setFormData({
+        ...formData,
+        selectedTime: selectedTimes.filter(item => item !== time),
+      });
+    } else if (selectedTimes.length < 2) {
+      // หากยังเลือกไม่ถึง 2 ปุ่ม ให้เลือก
+      selectedTimes.push(time);
+      setFormData({
+        ...formData,
+        selectedTime: selectedTimes,
+      });
+
+      // กำหนดค่า startTime และ endTime จากการเลือก
+      if (selectedTimes.length === 1) {
+        setStartTime(time);  // กำหนดเวลาเริ่มต้น
+      } else if (selectedTimes.length === 2) {
+        setEndTime(time);  // กำหนดเวลาสิ้นสุด
+      }
+    }
+  };
+
+  // For example, you can fetch unavailable times from an API or set them manually
+  const fetchUnavailableTimes = async () => {
+    try {
+      const response = await axios.get('http://localhost:5182/api/bookings/unavailable-times');
+      setUnavailableTimes(response.data); // Assuming the response is an array of times
+    } catch (error) {
+      console.error('Error fetching unavailable times:', error);
+    }
+  };
 
   const handleSelectCar = (car) => {
-    console.log("Selected car: ", car); // ตรวจสอบค่าของ car
+    // ตรวจสอบว่ามี startTime และ endTime หรือไม่
+    if (!startTime || !endTime) {
+      message.error('กรุณาเลือกเวลาที่ต้องการ');
+      return;
+    }
+    // ตรวจสอบว่า car มีข้อมูล
     if (car && car.car_id) {
-      router.push(`/users/home/car/complete/booking?carId=${car.car_id}&startDate=${startDate?.format('YYYY-MM-DD')}&endDate=${endDate?.format('YYYY-MM-DD')}&startTime=${startTime?.format('HH:mm')}&endTime=${endTime?.format('HH:mm')}`);
+      const formattedStartDate = startDate ? startDate.format('YYYY-MM-DD') : '';
+      const formattedEndDate = endDate ? endDate.format('YYYY-MM-DD') : '';
+      
+      router.push(`/users/home/car/complete/booking?carId=${car.car_id}&startDate=${formattedStartDate}&endDate=${formattedEndDate}&startTime=${startTime}&endTime=${endTime}`);
     } else {
       console.error("car.car_id is undefined or null");
     }
   };
-  
+
   // ฟังก์ชันสำหรับค้นหารถตามวันที่และเวลา
+  // ฟังก์ชัน handleSearch
   const handleSearch = async () => {
-    // ตรวจสอบว่าได้กรอกเวลาเริ่มต้นและสิ้นสุดหรือไม่
-    if (!startTime || !endTime) {
-      message.warning('กรุณากรอกเวลาเริ่มต้นและสิ้นสุดก่อนค้นหารถ');  // แสดงข้อความเตือน
-      return;  // หยุดการทำงานของฟังก์ชันหากไม่ได้กรอกเวลา
+    if (!validateSearchInputs()) return;
+    console.log('Start Date:', startDate);
+    console.log('End Date:', endDate);
+    console.log('Start Time:', startTime);
+    console.log('End Time:', endTime);
+
+    if (
+      !startDate?.isValid?.() || // ตรวจสอบว่า startDate เป็น Moment และ valid
+      !endDate?.isValid?.() ||   // ตรวจสอบว่า endDate เป็น Moment และ valid
+      !startTime ||              // ตรวจสอบว่า startTime มีค่า
+      !endTime                   // ตรวจสอบว่า endTime มีค่า
+    ) {
+      message.warning('กรุณากรอกข้อมูลทั้งหมดก่อนค้นหารถ');
+      return;
     }
 
     setLoading(true);
     try {
       const response = await axios.get('http://localhost:5182/api/bookings/search', {
         params: {
-          startDate: startDate?.format('YYYY-MM-DD'),
-          endDate: endDate?.format('YYYY-MM-DD'),
-          startTime: startTime?.format('HH:mm'),
-          endTime: endTime?.format('HH:mm'),
+          startDate: startDate.format('YYYY-MM-DD'),
+          endDate: endDate.format('YYYY-MM-DD'),
+          startTime: startTime, // สมมติว่า startTime อยู่ในรูป 'HH:mm'
+          endTime: endTime,     // สมมติว่า endTime อยู่ในรูป 'HH:mm'
         },
       });
-      console.log('API Response:', response.data); // ดูข้อมูลทั้งหมด
-      setCars(response.data); // เก็บข้อมูลรถที่ได้จาก API
+      console.log('API Response:', response.data);
+      setCars(response.data);
     } catch (error) {
       console.error('Error fetching cars:', error);
     } finally {
@@ -72,9 +146,8 @@ function CarBooking() {
   const filteredCars = cars.filter((car) => {
     if (filter === 'available') return car.status === 1;  // Only available cars
     if (filter === 'unavailable') return car.status === 2; // Only unavailable cars
-    return true; // Show all cars
+    return true; // Show all cars 
   });
-
 
   return (
     <main className={kanit.className}>
@@ -117,40 +190,105 @@ function CarBooking() {
                     <div style={{ marginLeft: '40px' }}>
                       <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '10px' }}>
                         <div style={{ flex: 1, minWidth: '200px' }}>
-                          <label style={{ fontWeight: 'bold' }}>วันเริ่มต้น</label>
-                          <DatePicker
-                            placeholder="วัน/เดือน/ปี"
-                            style={{ width: '100%' }}
-                            onChange={(date) => setStartDate(date)}
-                          />
+                          <div style={{ flex: 1, minWidth: '100px' }}>
+                            <Title style={{
+                              marginBottom: '16px',
+                              fontWeight: 'bold',
+                              fontSize: '20px',
+                              color: '#4D4D4D'
+                            }}>เวลาที่การจอง</Title>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', margin: '0 50px' }}>
+                            <DatePicker.RangePicker
+                              format="YYYY-MM-DD"
+                              value={startDate && endDate ? [startDate, endDate] : null}
+                              onChange={(dates) => {
+                                if (dates) {
+                                  setStartDate(dates[0]);
+                                  setEndDate(dates[1]);
+                                } else {
+                                  setStartDate(null);
+                                  setEndDate(null);
+                                }
+                              }}
+                              placeholder={["วันที่ต้องการจอง", "วันที่สิ้นสุดการจอง"]}
+                              style={{ width: '90%' }}
+                            />
+
+                          </div>
                         </div>
-                        <div style={{ flex: 1, minWidth: '200px' }}>
-                          <label style={{ fontWeight: 'bold' }}>เวลาเริ่มต้น</label>
-                          <TimePicker
-                            format="HH:mm"
-                            placeholder="เลือกเวลา"
-                            style={{ width: '100%' }}
-                            onChange={(time) => setStartTime(time)}
-                          />
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '15px' }}>
-                        <div style={{ flex: 1, minWidth: '200px' }}>
-                          <label style={{ fontWeight: 'bold' }}>วันสิ้นสุด</label>
-                          <DatePicker
-                            placeholder="วัน/เดือน/ปี"
-                            style={{ width: '100%' }}
-                            onChange={(date) => setEndDate(date)}
-                          />
-                        </div>
-                        <div style={{ flex: 1, minWidth: '200px' }}>
-                          <label style={{ fontWeight: 'bold' }}>เวลาสิ้นสุด</label>
-                          <TimePicker
-                            format="HH:mm"
-                            placeholder="เลือกเวลา"
-                            style={{ width: '100%' }}
-                            onChange={(time) => setEndTime(time)}
-                          />
+                        <Divider style={{ marginBottom: '10px' }} />
+                        <div style={{ margin: '0px' }}>
+                          <h2
+                            style={{
+                              marginBottom: '16px',
+                              fontWeight: 'bold',
+                              fontSize: '20px',
+                              color: '#4D4D4D',
+                            }}
+                          >
+                            เลือกเวลาที่ต้องการจอง
+                          </h2>
+
+                          {[
+                            { label: 'ก่อนเที่ยง', times: ['07:00', '08:00', '09:00', '10:00', '11:00','12:00'] },
+                            { label: 'หลังเที่ยง', times: ['13:00', '14:00', '15:00', '16:00', '17:00', '18:00'] }
+                          ].map((section, sectionIndex) => (
+                            <div key={sectionIndex} style={{ marginBottom: '20px' }}>
+                              <p
+                                style={{
+                                  fontWeight: 'bold',
+                                  fontSize: '16px',
+                                  marginBottom: '12px',
+                                  color: '#4D4D4D',
+                                  fontFamily: 'Arial, sans-serif',
+                                  textTransform: 'uppercase',
+                                  margin: '20px 50px'
+                                }}
+                              >
+                                {section.label}
+                              </p>
+                              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', margin: '0 50px' }}>
+                                {section.times.map((time, index) => {
+                                  const isSelected = formData.selectedTime.includes(time);
+                                  const selectedIndex = formData.selectedTime.indexOf(time);
+
+                                  // ปุ่มที่เลือกครบ 2 ปุ่มแล้วจะไม่สามารถเลือกได้
+                                  const isDisabled = formData.selectedTime.length >= 2 && !isSelected;
+
+                                  // กำหนดสีตามการเลือก (ปุ่มแรกสีเขียว, ปุ่มที่สองสีแดง)
+                                  let buttonStyle = {
+                                    borderRadius: '10px',
+                                    width: '100px',
+                                    height: '30px',
+                                    fontWeight: 'bold',
+                                    padding: '8px 18px',
+                                    border: isSelected ? '2px solid' : '2px solid #ccc',
+                                    backgroundColor: isSelected
+                                      ? selectedIndex === 0
+                                        ? '#478D00' // สีเขียวสำหรับปุ่มแรก
+                                        : '#FF4D4F'  // สีแดงสำหรับปุ่มที่สอง
+                                      : isDisabled ? '#f5f5f5' : '#ffffff', // สีเทาสำหรับปุ่มที่ไม่สามารถเลือกได้
+                                    color: isSelected ? '#fff' : isDisabled ? '#a9a9a9' : '#333',
+                                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                    transition: 'all 0.3s ease',
+                                  };
+
+                                  return (
+                                    <Button
+                                      key={index}
+                                      type={isSelected ? 'primary' : 'default'}
+                                      disabled={unavailableTimes.includes(time) || isDisabled}
+                                      style={buttonStyle}
+                                      onClick={() => handleTimeSelect(time)}
+                                    >
+                                      {time}
+                                    </Button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -356,7 +494,6 @@ function CarBooking() {
                         </List.Item>
                       )}
                     />
-
                   </>
                 )}
               </div>
