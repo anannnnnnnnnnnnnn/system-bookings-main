@@ -1,154 +1,230 @@
 'use client';
-import React, { useState } from 'react';
-import { Layout, Table, Button, Modal, Typography, Card } from 'antd';
-import { useMediaQuery } from 'react-responsive';
+import React, { useEffect, useState } from 'react';
+import { Table, Typography, Layout, Card, Space, Button } from 'antd';
 
 const { Header, Content } = Layout;
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const ManagerDashboard = () => {
-    const [data, setData] = useState([
-        {
-            key: '1',
-            name: 'Anan',
-            reservationNumber: 'AAA0001',
-            carType: 'Sedan',
-            destination: 'ห้องประชุมจังหวัดพัทลุง',
-            usageDate: '05 ก.พ. 67 - 05 ก.พ. 67',
-            status: 'รออนุมัติ',
-        },
-        {
-            key: '2',
-            name: 'สมชาย ใจดี',
-            reservationNumber: 'AAA0002',
-            carType: 'SUV',
-            destination: 'สำนักงานสาขาเชียงใหม่',
-            usageDate: '10 ก.พ. 67 - 12 ก.พ. 67',
-            status: 'อนุมัติ',
-        },
-        {
-            key: '3',
-            name: 'จารุวรรณ แสนดี',
-            reservationNumber: 'AAA0003',
-            carType: 'Sedan',
-            destination: 'ธนาคารกรุงเทพ สาขาสุราษฎร์ธานี',
-            usageDate: '08 ก.พ. 67 - 08 ก.พ. 67',
-            status: 'รออนุมัติ',
-        },
-    ]);
+    const [bookings, setBookings] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const [isRejectModalVisible, setIsRejectModalVisible] = useState(false);
-    const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
-    const [selectedRecord, setSelectedRecord] = useState(null);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // ดึงข้อมูลการจอง
+                const bookingsResponse = await fetch('http://localhost:5182/api/bookings');
+                if (!bookingsResponse.ok) {
+                    throw new Error('Failed to fetch bookings');
+                }
+                const bookingsData = await bookingsResponse.json();
 
-    const isMobile = useMediaQuery({ maxWidth: 768 });
+                // ดึงข้อมูลรถ
+                const carsResponse = await fetch('http://localhost:5182/api/cars');
+                if (!carsResponse.ok) {
+                    throw new Error('Failed to fetch cars');
+                }
+                const carsData = await carsResponse.json();
 
-    const handleApprove = (record) => {
-        setData((prevData) =>
-            prevData.map((item) =>
-                item.key === record.key ? { ...item, status: 'อนุมัติ' } : item
-            )
-        );
+                // รวมข้อมูลรถเข้ากับข้อมูลการจอง
+                const combinedData = bookingsData.map((booking) => {
+                    const car = carsData.find((car) => car.car_id === booking.car_id) || {};
+                    return {
+                        ...booking,
+                        car_brand: car.brand || 'ไม่พบข้อมูล',
+                        car_model: car.model || '',
+                        car_license: car.license_plate || '',
+                    };
+                });
+
+                setBookings(combinedData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    // // ฟังก์ชันในการอนุมัติ
+    // const handleApprove = (record) => {
+    //     // เปลี่ยนสถานะเป็น "อนุมัติ"
+    //     record.status = "อนุมัติ";
+
+    //     // อัปเดตสถานะใหม่ในฐานข้อมูลหรือ state ถ้ามี
+    //     setData(prevData => prevData.map(item => item.key === record.key ? { ...item, status: "อนุมัติ" } : item));
+    // };
+
+    // // ฟังก์ชันในการไม่อนุมัติ
+    // const handleReject = (record) => {
+    //     // เปลี่ยนสถานะเป็น "ไม่อนุมัติ"
+    //     record.status = "ไม่อนุมัติ";
+
+    //     // อัปเดตสถานะใหม่ในฐานข้อมูลหรือ state ถ้ามี
+    //     setData(prevData => prevData.map(item => item.key === record.key ? { ...item, status: "ไม่อนุมัติ" } : item));
+    // };
+
+    const handleApprove = async () => {
+        try {
+            const response = await fetch(`http://localhost:5182/api/bookings/${record.confirmation_id}/approve`, {
+                method: 'PUT',
+            });
+            if (response.ok) {
+                // อัปเดตสถานะใน state
+                setBookings((prevBookings) =>
+                    prevBookings.map((booking) =>
+                        booking.confirmation_id === record.confirmation_id
+                            ? { ...booking, status: 2 } // เปลี่ยนสถานะเป็น 2 (อนุมัติ)
+                            : booking
+                    )
+                );
+                console.log(`Booking ID: ${record.confirmation_id} approved successfully`);
+            } else {
+                console.error('Failed to approve booking');
+            }
+        } catch (error) {
+            console.error('Error approving booking:', error);
+        }
     };
 
-    const handleReject = (record) => {
-        setSelectedRecord(record);
-        setIsRejectModalVisible(true);
+    const handleReject = async () => {
+        try {
+            const response = await fetch(`http://localhost:5182/api/bookings/${record.confirmation_id}/reject`, {
+                method: 'PUT',
+            });
+            if (response.ok) {
+                // อัปเดตสถานะใน state
+                setBookings((prevBookings) =>
+                    prevBookings.map((booking) =>
+                        booking.confirmation_id === record.confirmation_id
+                            ? { ...booking, status: 3 } // เปลี่ยนสถานะเป็น 3 (ไม่อนุมัติ)
+                            : booking
+                    )
+                );
+                console.log(`Booking ID: ${record.confirmation_id} rejected successfully`);
+            } else {
+                console.error('Failed to reject booking');
+            }
+        } catch (error) {
+            console.error('Error rejecting booking:', error);
+        }
     };
 
-    const handleRejectSubmit = () => {
-        setData((prevData) =>
-            prevData.map((item) =>
-                item.key === selectedRecord.key ? { ...item, status: 'ไม่อนุมัติ' } : item
-            )
-        );
-        setIsRejectModalVisible(false);
-    };
-
-    const handleRowClick = (record) => {
-        setSelectedRecord(record);
-        setIsDetailsModalVisible(true);
-    };
-
+    // โครงสร้างคอลัมน์ของตาราง
     const columns = [
         {
-            title: 'ชื่อพนักงาน',
-            dataIndex: 'name',
-            key: 'name',
-            responsive: ['xs', 'sm', 'md', 'lg'], // แสดงในทุกหน้าจอ
+            title: 'รหัสการจอง',
+            dataIndex: 'confirmation_id',
+            key: 'confirmation_id',
         },
         {
-            title: 'เลขที่ใบจอง',
-            dataIndex: 'reservationNumber',
-            key: 'reservationNumber',
-            responsive: ['md', 'lg'], // แสดงเฉพาะหน้าจอขนาดกลางขึ้นไป
+            title: 'ชื่อผู้จอง',
+            dataIndex: 'full_name',
+            key: 'full_name',
+        },
+        {
+            title: 'ข้อมูลรถ',
+            key: 'car_info',
+            render: (_, record) => (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <img
+                        src={record.car_image || '/placeholder.png'} // เพิ่มรูปภาพรถ
+                        alt="Car"
+                        style={{
+                            width: 50,
+                            height: 50,
+                            objectFit: 'cover',
+                            borderRadius: '4px',
+                            marginRight: '10px',
+                        }}
+                    />
+                    <div>
+                        <strong>{record.car_brand} {record.car_model}</strong>
+                        <br />
+                        <span style={{ color: '#888' }}>ทะเบียน: {record.car_license}</span>
+                    </div>
+                </div>
+            ),
         },
         {
             title: 'สถานที่',
             dataIndex: 'destination',
             key: 'destination',
-            responsive: ['lg'], // แสดงเฉพาะหน้าจอใหญ่
         },
         {
-            title: 'วันที่ใช้งาน',
-            dataIndex: 'usageDate',
-            key: 'usageDate',
-            responsive: ['md', 'lg'], // แสดงเฉพาะหน้าจอขนาดกลางขึ้นไป
+            title: 'จุดประสงค์',
+            dataIndex: 'purpose',
+            key: 'purpose',
         },
         {
-            title: 'สถานะ',
-            dataIndex: 'status',
+            title: "สถานะ",
+            dataIndex: "status",
+            key: "status",
+            render: (status, record) => {
+                const statusColors = {
+                    "อนุมัติ": "#A5D6A7", // สีเขียวพาสเทลอ่อน
+                    "รออนุมัติ": "#DCE775", // สีเขียวอ่อน
+                    "ไม่อนุมัติ": "#FFCDD2", // สีแดงอ่อน
+                };
+
+                // ตรวจสอบว่า status เป็นเลข 1 หรือไม่ และแสดงสถานะ
+                const statusText = status === 1 ? "รออนุมัติ" : status === 2 ? "อนุมัติ" : "ไม่อนุมัติ";
+                const color = statusColors[statusText] || "#000"; // หากไม่พบสถานะจะใช้สีดำ
+
+                return <span style={{ color: color }}>{statusText}</span>;
+            },
+        },
+        {
+            title: 'ปุ่ม',
             key: 'status',
-            render: (text) => (
-                <Text
-                    style={{
-                        color: text === 'อนุมัติ' ? '#28a745' : text === 'รออนุมัติ' ? '#ffc107' : '#dc3545',
-                        fontWeight: 'bold',
-                        fontSize: isMobile ? '12px' : '14px',
-                    }}
-                >
-                    {text}
-                </Text>
-            ),
-            responsive: ['xs', 'sm', 'md', 'lg'], // แสดงในทุกหน้าจอ
-        },
-        {
-            title: 'การกระทำ',
-            key: 'action',
-            render: (_, record) => (
-                <div style={{ display: 'flex', gap: '5px' }}>
-                    {record.status === 'รออนุมัติ' && (
-                        <>
-                            <Button
-                                type="primary"
-                                size={isMobile ? 'small' : 'middle'}
-                                style={{
-                                    backgroundColor: '#28a745',
-                                    borderColor: '#28a745',
-                                }}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleApprove(record);
-                                }}
-                            >
-                                อนุมัติ
-                            </Button>
-                            <Button
-                                type="primary"
-                                size={isMobile ? 'small' : 'middle'}
-                                danger
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleReject(record);
-                                }}
-                            >
-                                ไม่อนุมัติ
-                            </Button>
-                        </>
-                    )}
-                </div>
-            ),
-            responsive: ['xs', 'sm', 'md', 'lg'], // แสดงในทุกหน้าจอ
+            render: (_, record) => {
+                const statusText = record.status === 1 ? "รออนุมัติ" : record.status === 2 ? "อนุมัติ" : "ไม่อนุมัติ";
+
+                return (
+                    <Space size="small">
+                        {statusText === "รออนุมัติ" && (
+                            <>
+                                <Button
+                                    type="primary"
+                                    size="small"
+                                    style={{
+                                        backgroundColor: "#0a7e07", // สีเขียวสด
+                                        color: "#fff",
+                                        border: "none",
+                                        transition: "all 0.3s ease",
+                                        transform: "scale(1)",
+                                    }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleApprove(record); // เรียกฟังก์ชันในการอนุมัติ
+                                    }}
+                                >
+                                    อนุมัติ
+                                </Button>
+                                <Button
+                                    size="small"
+                                    danger
+                                    style={{
+                                        backgroundColor: "#bf360c", // สีแดง
+                                        color: "#fff",
+                                        border: "none",
+                                        transition: "all 0.3s ease",
+                                        transform: "scale(1)",
+                                    }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleReject(record); // เรียกฟังก์ชันในการไม่อนุมัติ
+                                    }}
+                                >
+                                    ไม่อนุมัติ
+                                </Button>
+                            </>
+                        )}
+                    </Space>
+                );
+            },
         },
     ];
 
@@ -156,70 +232,34 @@ const ManagerDashboard = () => {
         <Layout style={{ minHeight: '100vh' }}>
             <Header
                 style={{
-                    background: '#28a745',
-                    padding: '0 20px',
-                    display: 'flex',
-                    alignItems: 'center',
+                    backgroundColor: '#28a745',
+                    padding: '10px 20px',
                     color: 'white',
-                    fontSize: isMobile ? '14px' : '18px',
+                    textAlign: 'center',
                 }}
             >
-                <Title level={4} style={{ color: 'white', margin: 0, fontSize: 'inherit' }}>
+                <Title level={3} style={{ color: 'white', margin: 0 }}>
                     Manager Dashboard
                 </Title>
             </Header>
 
-            <Content style={{ backgroundColor: '#f9f9f9', padding: isMobile ? '10px' : '20px' }}>
+            <Content style={{ padding: '20px', background: '#f0f2f5' }}>
                 <Card
-                    style={{
-                        maxWidth: '1200px',
-                        margin: '0 auto',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                        borderRadius: '8px',
-                    }}
+                    title="รายการจองรถยนต์"
+                    bordered={false}
+                    style={{ maxWidth: '1200px', margin: '0 auto' }}
                 >
-                    <Title level={3} style={{ textAlign: 'center', marginBottom: '20px', fontSize: isMobile ? '16px' : '20px' }}>
-                        ระบบจัดการการจองรถยนต์
-                    </Title>
                     <Table
                         columns={columns}
-                        dataSource={data}
-                        rowKey="key"
-                        pagination={{ position: ['bottomCenter'] }}
-                        size={isMobile ? 'small' : 'middle'}
-                        onRow={(record) => ({
-                            onClick: () => handleRowClick(record),
-                            style: { cursor: 'pointer' },
-                        })}
+                        dataSource={bookings.map((booking) => ({
+                            ...booking,
+                            key: booking.confirmation_id,
+                        }))}
+                        loading={loading}
+                        pagination={{ pageSize: 10 }}
                     />
                 </Card>
             </Content>
-
-            <Modal
-                title="เหตุผลในการไม่อนุมัติ"
-                visible={isRejectModalVisible}
-                onOk={handleRejectSubmit}
-                onCancel={() => setIsRejectModalVisible(false)}
-            >
-                <textarea rows={4} style={{ width: '100%', padding: '10px' }} placeholder="กรุณากรอกเหตุผลในการไม่อนุมัติ" />
-            </Modal>
-
-            <Modal
-                title="รายละเอียดการจอง"
-                visible={isDetailsModalVisible}
-                onCancel={() => setIsDetailsModalVisible(false)}
-                footer={null}
-            >
-                {selectedRecord && (
-                    <div>
-                        <p><strong>ชื่อพนักงาน:</strong> {selectedRecord.name}</p>
-                        <p><strong>เลขที่ใบจอง:</strong> {selectedRecord.reservationNumber}</p>
-                        <p><strong>สถานที่:</strong> {selectedRecord.destination}</p>
-                        <p><strong>วันที่ใช้งาน:</strong> {selectedRecord.usageDate}</p>
-                        <p><strong>สถานะ:</strong> {selectedRecord.status}</p>
-                    </div>
-                )}
-            </Modal>
         </Layout>
     );
 };

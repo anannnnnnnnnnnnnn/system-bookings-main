@@ -130,6 +130,9 @@ namespace YourNamespace.Controllers
                 carbooking.booking_number = "BN" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
             }
 
+            // ตั้งค่า status ของการจองเป็น 1 (รออนุมัติ)
+            carbooking.status = 1;
+
             // ตั้งค่าเวลาสร้างและอัปเดต
             carbooking.created_at = DateTime.UtcNow;
             carbooking.updated_at = DateTime.UtcNow;
@@ -152,6 +155,28 @@ namespace YourNamespace.Controllers
                     booking = carbooking
                 });
         }
+        [HttpPut("{id}/approve")]
+        public async Task<IActionResult> ApproveBooking(int id)
+        {
+            var booking = await _context.Carbookings.FindAsync(id);
+            if (booking == null) return NotFound();
+
+            booking.status = 1; // อนุมัติ
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Booking approved" });
+        }
+
+        [HttpPut("{id}/reject")]
+        public async Task<IActionResult> RejectBooking(int id)
+        {
+            var booking = await _context.Carbookings.FindAsync(id);
+            if (booking == null) return NotFound();
+
+            booking.status = 2; // ไม่อนุมัติ
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Booking rejected" });
+        }
+
 
 
         [HttpDelete("{id}")]

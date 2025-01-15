@@ -54,28 +54,7 @@ function Login() {
   return (
     <Layout style={{ minHeight: "100vh", backgroundColor: "#ffff" }}>
       <Content style={{ display: "flex", flexDirection: "row" }}>
-        <div
-          style={{
-            flex: 1,
-            backgroundColor: "#236927",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: "20px",
-            height: "620px",
-            maxWidth: "528px",
-            margin: "20px auto",
-            marginLeft: "40px",
-            borderRadius: "5px",
-          }}
-        >
-          <div style={{ textAlign: "center" }}>
-            <Title level={2} style={{ color: "#ffff" }}>LOGO</Title>
-            <Title level={3} style={{ color: "#ffff" }}>จองรถสำนักและห้องประชุม</Title>
-            <Text type="secondary" style={{ color: "#ffff" }}>Book office cars and Conference rooms</Text>
-          </div>
-        </div>
+       
 
         <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "20px" }}>
           <div style={{ textAlign: "center", marginBottom: "20px" }}>

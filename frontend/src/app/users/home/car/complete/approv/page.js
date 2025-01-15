@@ -1,5 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import axios from 'axios';  // เพิ่มการนำเข้า axios สำหรับดึงข้อมูลรถจาก API
 import { Layout, Typography, Button, Divider, Alert, Card, Space, message, Modal, Row, Col } from 'antd';
 import { useRouter } from 'next/navigation';
 import { Content } from 'antd/es/layout/layout';
@@ -12,19 +14,38 @@ import { jsPDF } from 'jspdf';
 const { Title, Text } = Typography;
 
 function ApprovalPending() {
+    const searchParams = useSearchParams(); // ใช้ useSearchParams เพื่อดึง query string
+    const carId = searchParams.get('carId');
     const [bookingData, setBookingData] = useState(null);
+    const [carDetails, setCarDetails] = useState(null);  // สถานะสำหรับเก็บข้อมูลของรถ
     const [isApproved, setIsApproved] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const router = useRouter();
 
+    // ดึงข้อมูลการจองจาก query string
     useEffect(() => {
-        const data = sessionStorage.getItem('bookingData');
-        if (data) {
-            setBookingData(JSON.parse(data));
-        } else {
-            message.error('ไม่พบข้อมูลการจอง');
+        const bookingDataQuery = searchParams.get('bookingData');
+        if (bookingDataQuery) {
+            try {
+                setBookingData(JSON.parse(bookingDataQuery));  // แปลงข้อมูลที่ได้จาก query string
+            } catch (error) {
+                console.error('Error parsing booking data:', error);
+            }
         }
-    }, []);
+    }, [searchParams]);
+
+    // ดึงข้อมูลของรถจาก carId
+    useEffect(() => {
+        if (carId) {
+            axios.get(`http://localhost:5182/api/cars/${carId}`)
+                .then((response) => {
+                    setCarDetails(response.data);  // เก็บข้อมูลรถในสถานะ
+                })
+                .catch((error) => {
+                    console.error('Error fetching car details:', error);
+                });
+        }
+    }, [carId]);
 
     const handleApprove = () => {
         setIsApproved(true);
@@ -66,6 +87,7 @@ function ApprovalPending() {
     const handleCancel = () => {
         setIsModalVisible(false);
     };
+
 
     return (
         <Layout style={{ minHeight: '100vh', backgroundColor: '#F9FAFB' }}>
@@ -129,33 +151,48 @@ function ApprovalPending() {
                                         marginBottom: '20px',
                                     }}>
                                         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                                            <img
-                                                src="/assets/car1.jpg"
-                                                alt="Car"
-                                                style={{
-                                                    width: '100px',
-                                                    height: '70px',
-                                                    borderRadius: '8px',
-                                                    objectFit: 'cover',
-                                                }}
-                                            />
+                                        <img
+                                        src={carDetails?.image_url ? `http://localhost:5182${carDetails.image_url}` : null}
+                                        alt="Car"
+                                        style={{
+                                            width: '200px',
+                                            height: '100px',
+                                            borderRadius: '8px',
+                                            objectFit: 'cover',
+                                            marginRight: '16px',
+                                            border: '1px solid #E0E0E0',
+                                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                        }}
+                                    />
                                             <div style={{ flexGrow: 1 }}>
-                                                <div style={{ display: 'flex', justifyContent: 'start' }}>
-                                                    <Text strong style={{ fontSize: '14px' }}>ทะเบียนรถ:</Text>
-                                                    <Text style={{ fontSize: '14px', color: '#666' }}>{bookingData.licensePlate || 'N/A'}</Text>
+                                            {carDetails ? (
+                                           <>
+                                            <Text
+                                            
+                                                    style={{
+                                                        fontSize: '18px',
+                                                        fontWeight: '600',
+                                                        color: '#2C3E50',
+                                                        marginBottom: '8px',
+                                                    }}
+                                                >
+                                                    {carDetails.brand}
+                                                </Text>
+                                                <div
+                                                    style={{
+                                                        fontSize: '14px',
+                                                        color: '#7F8C8D',
+                                                        lineHeight: '1.6',
+                                                    }}
+                                                >
+                                                    <p style={{ margin: 0 }}>รถรุ่น: {carDetails.model}</p>
+                                                    <p style={{ margin: 0 }}>ป้ายทะเบียน: {carDetails.license_plate}</p>
+                                                    <p style={{ margin: 0 }}>จำนวนที่นั่ง: {carDetails.seating_capacity} ที่นั่ง</p>
                                                 </div>
-                                                <div style={{ display: 'flex', justifyContent: 'start', }}>
-                                                    <Text strong style={{ fontSize: '14px' }}>ประเภทรถ:</Text>
-                                                    <Text style={{ fontSize: '14px', color: '#666' }}>{bookingData.carType || 'N/A'}</Text>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'start', }}>
-                                                    <Text strong style={{ fontSize: '14px' }}>วันที่ใช้รถ:</Text>
-                                                    <Text style={{ fontSize: '14px', color: '#666' }}>{bookingData.startDate || 'N/A'}</Text>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'start' }}>
-                                                    <Text strong style={{ fontSize: '14px' }}>ถึงวันที่:</Text>
-                                                    <Text style={{ fontSize: '14px', color: '#666' }}>{bookingData.endDate || 'N/A'}</Text>
-                                                </div>
+                                            </>
+                                            ) : (
+                                                <p>กำลังโหลดข้อมูลรถ...</p>  // ข้อความระหว่างโหลดข้อมูล
+                                            )}
                                             </div>
                                         </div>
                                     </div>
@@ -165,21 +202,30 @@ function ApprovalPending() {
                                         {/* ฟอร์ม 1 */}
                                         <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
                                             <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
-                                                เลขที่ใบจอง:
+                                            หมายเลขการจอง:
                                             </label>
                                             <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
-                                                {bookingData.bookingNumber || 'N/A'}
+                                                {bookingData.booking_number || 'N/A'}
                                             </span>
                                         </div>
 
                                         {/* ฟอร์ม 2 */}
                                         <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
                                             <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
-                                                วันที่-เวลา:
+                                            วันที่-เวลาการจอง:
                                             </label>
                                             <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
-                                                {bookingData.bookingDate || 'N/A'}
+                                                { `${bookingData.booking_date } ${bookingData.booking_time}` || 'N/A'}
                                             </span>
+                                           
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
+                                            <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
+                                            วันที่-เวลาการคืน:
+                                            </label>
+                                            <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
+                                                {`${bookingData.return_date} ${bookingData.return_time}`  || 'N/A'}
+                                            </span>    
                                         </div>
 
                                         {/* ฟอร์ม 3 */}
@@ -188,7 +234,7 @@ function ApprovalPending() {
                                                 จุดประสงค์:
                                             </label>
                                             <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
-                                                {bookingData.purpose || 'ไม่ได้ระบุ'}
+                                                {bookingData.purpose|| 'ไม่ได้ระบุ'}
                                             </span>
                                         </div>
 
@@ -205,16 +251,6 @@ function ApprovalPending() {
                                         {/* ฟอร์ม 5 */}
                                         <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
                                             <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
-                                                จำนวนผู้โดยสาร:
-                                            </label>
-                                            <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
-                                                {bookingData.passengers || 'ไม่ได้ระบุ'}
-                                            </span>
-                                        </div>
-
-                                        {/* ฟอร์ม 6 */}
-                                        <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
-                                            <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
                                                 แผนก:
                                             </label>
                                             <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
@@ -225,29 +261,18 @@ function ApprovalPending() {
                                         {/* ฟอร์ม 7 */}
                                         <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
                                             <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
-                                                เบอร์ติดต่อ:
-                                            </label>
-                                            <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
-                                                {bookingData.contactNumber || 'ไม่ได้ระบุ'}
-                                            </span>
-                                        </div>
-
-                                        {/* ฟอร์ม 8 */}
-                                        <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
-                                            <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
                                                 พนักงานขับรถ:
                                             </label>
                                             <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
-                                                {bookingData.driverRequired === 'yes' ? 'ต้องการ' : 'ไม่ต้องการ'}
+                                                {bookingData.driver_required === 1 ? 'ต้องการ' : 'ไม่ต้องการ'}
                                             </span>
                                         </div>
                                     </div>
-
                                 </div>
                             ) : (
                                 <Text>กำลังโหลดข้อมูล...</Text>
                             )}
-                            <Divider/>
+                            <Divider />
 
 
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>

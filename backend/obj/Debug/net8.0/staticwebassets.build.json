@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "11Q3ncYebBDejIT00WjB7jrkZGA26dX3sCbwZpvQY84=",
+  "Hash": "PBTxkmV2pW/jZS5P0ZFlCTA3B12tqxuHcUTASoCm+Wk=",
   "Source": "backend",
   "BasePath": "_content/backend",
   "Mode": "Default",
@@ -2485,6 +2485,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\car1.jpg"
+    },
+    {
+      "Identity": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car2f.jpg",
+      "SourceId": "backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\",
+      "BasePath": "_content/backend",
+      "RelativePath": "images/car2f.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\car2f.jpg"
     },
     {
       "Identity": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car2.jpeg",

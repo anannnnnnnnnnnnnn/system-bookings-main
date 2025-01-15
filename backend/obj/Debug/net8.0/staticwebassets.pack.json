@@ -517,6 +517,10 @@
       "PackagePath": "staticwebassets\\images\\car2.jpeg"
     },
     {
+      "Id": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car2f.jpg",
+      "PackagePath": "staticwebassets\\images\\car2f.jpg"
+    },
+    {
       "Id": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\car3.jpg",
       "PackagePath": "staticwebassets\\images\\car3.jpg"
     },

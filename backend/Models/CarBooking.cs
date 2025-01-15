@@ -30,6 +30,7 @@ namespace YourNamespace.Models
         public int? passenger_count { get; set; }
         public string department { get; set; } = "ไม่ได้ระบุ";
         public int driver_required { get; set; } = 0;
+        public int status { get; set; } = 1; // 1: รออนุมัติ, 2: อนุมัติแล้ว, 3: คืนรถแล้ว
 
         public DateTime created_at { get; set; } = DateTime.UtcNow;
         public DateTime updated_at { get; set; } = DateTime.UtcNow;

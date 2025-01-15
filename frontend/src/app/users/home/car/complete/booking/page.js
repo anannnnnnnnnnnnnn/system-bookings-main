@@ -1,5 +1,5 @@
 'use client'
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';  // นำเข้า useRouter จาก next/navigation
 import { useEffect, useState } from 'react';
 import { Layout, Typography, Input, Radio, Button, Divider, Modal, Space } from 'antd';
 import Navbar from '../../../navbar';
@@ -14,7 +14,7 @@ const { Title, Text } = Typography;
 
 const CarBookingComplete = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [carDetails, setCarDetails] = useState(null); // ประกาศ state สำหรับเก็บข้อมูลของรถ    
+    const [carDetails, setCarDetails] = useState(null); 
     const [formData, setFormData] = useState({
         bookingNumber: '',
         bookingDate: '',
@@ -25,12 +25,13 @@ const CarBookingComplete = () => {
         driverRequired: ''
     });
     const searchParams = useSearchParams();
-    const carId = searchParams.get('carId'); // ดึง carId จาก URL
-    const startDate = searchParams.get('startDate'); // ดึง startDate จาก URL
-    const endDate = searchParams.get('endDate'); // ดึง endDate จาก URL
-    const startTime = searchParams.get('startTime'); // ดึง startTime จาก URL
-    const endTime = searchParams.get('endTime'); // ดึง endTime จาก URL
-    
+    const carId = searchParams.get('carId'); 
+    const startDate = searchParams.get('startDate'); 
+    const endDate = searchParams.get('endDate'); 
+    const startTime = searchParams.get('startTime'); 
+    const endTime = searchParams.get('endTime'); 
+    const router = useRouter();  // ใช้ useRouter
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevState) => ({
@@ -38,19 +39,21 @@ const CarBookingComplete = () => {
             [name]: value,
         }));
     };
-    const [userFullName, setUserFullName] = useState(null); // สถานะสำหรับเก็บชื่อผู้ใช้
-    const [department, setDepartment] = useState(null); // สถานะสำหรับเก็บ department
+    
+    const [userFullName, setUserFullName] = useState(null); 
+    const [department, setDepartment] = useState(null); 
+
     useEffect(() => {
         // ดึงข้อมูลจาก localStorage
         const storedFullName = localStorage.getItem("userFullName");
         const storedDepartment = localStorage.getItem("department");
 
         if (storedFullName) {
-            setUserFullName(storedFullName); // ถ้ามีชื่อผู้ใช้ใน localStorage ก็ให้แสดง
+            setUserFullName(storedFullName); 
         }
 
         if (storedDepartment) {
-            setDepartment(storedDepartment); // ถ้ามี department ใน localStorage ก็ให้แสดง
+            setDepartment(storedDepartment); 
         }
     }, []);
 
@@ -59,7 +62,7 @@ const CarBookingComplete = () => {
             // ใช้ carId เพื่อดึงข้อมูลของรถจาก API หรือฐานข้อมูล
             axios.get(`http://localhost:5182/api/cars/${carId}`)
                 .then(response => {
-                    setCarDetails(response.data);  // เก็บรายละเอียดของรถใน state
+                    setCarDetails(response.data); 
                 })
                 .catch(error => {
                     console.error('Error fetching car details:', error);
@@ -119,6 +122,7 @@ const CarBookingComplete = () => {
             passenger_count: formData.passengers ? parseInt(formData.passengers, 10) : null,
             department: formData.department || 'ไม่ได้ระบุ',
             driver_required: formData.driverRequired === 'yes' ? 1 : 0,
+            status: 1,  
         };
     
         // ส่งข้อมูลไปยัง API
@@ -129,7 +133,8 @@ const CarBookingComplete = () => {
                         title: 'การจองสำเร็จ!',
                         content: 'ข้อมูลการจองของคุณถูกบันทึกเรียบร้อยแล้ว',
                         onOk: () => {
-                            window.location.href = '/users/home/car/complete/approv';
+                            // ส่งข้อมูลไปยังหน้าถัดไป
+                            router.push(`/users/home/car/complete/approv?bookingData=${encodeURIComponent(JSON.stringify(bookingData))}&carId=${carId}`);                            
                         },
                     });
                 } else {
@@ -148,7 +153,6 @@ const CarBookingComplete = () => {
             });
     };
     
-     
     return (
         <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
             {/* Navbar */}
