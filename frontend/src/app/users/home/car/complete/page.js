@@ -1,8 +1,9 @@
 'use client';
 import React, { useState } from 'react';
-import { Layout, Typography, Space, DatePicker, Divider, Button, List, Card, Badge, Grid, TimePicker, Meta, message } from 'antd';
+import { Layout, Typography, Space, DatePicker, Divider, Button, List, Card, Badge, Grid, Breadcrumb, Tag, message } from 'antd';
+import { HomeOutlined, RightOutlined } from '@ant-design/icons';
 import Sidebar from '../components/sidebar';
-import Navbar from '../components/navbar';
+import Navbar from '../../navbar';
 import Navigation from '../components/navigation';
 import { Content } from 'antd/lib/layout/layout';
 import Link from 'next/link';
@@ -98,7 +99,7 @@ function CarBooking() {
     if (car && car.car_id) {
       const formattedStartDate = startDate ? startDate.format('YYYY-MM-DD') : '';
       const formattedEndDate = endDate ? endDate.format('YYYY-MM-DD') : '';
-      
+
       router.push(`/users/home/car/complete/booking?carId=${car.car_id}&startDate=${formattedStartDate}&endDate=${formattedEndDate}&startTime=${startTime}&endTime=${endTime}`);
     } else {
       console.error("car.car_id is undefined or null");
@@ -151,19 +152,78 @@ function CarBooking() {
 
   return (
     <main className={kanit.className}>
-      <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
+      {/* Layout หลักที่ครอบทุกส่วน */}
+      <Layout style={{backgroundColor: '#fff' }}>
+        {/* Navbar */}
         <Navbar />
-        <Layout style={{ padding: '0px 50px', marginTop: '20px', backgroundColor: '#fff' }}>
+
+        {/* Layout หลักของหน้า */}
+        <Layout style={{ padding: '0px 40px', marginTop: '110px', backgroundColor: '#fff' }}>
+          {/* Sidebar */}
           <Sidebar />
-          <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
-            <Navigation />
+
+          {/* Layout ด้านขวาหลัก */}
+          <Layout style={{ marginTop: '20px', backgroundColor: '#fff' }}>
+            {/* Breadcrumb */}
+            {/* ไอคอนหลัก */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center", // จัดให้อยู่กลางแนวตั้ง
+                margin:'0 100px'
+             
+              }}
+            >
+              {/* ไอคอนหลัก */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "40px",
+                  height: "40px",
+                  backgroundColor: "#d9e8d2", // สีพื้นหลังไอคอน
+                  borderRadius: "50%", // รูปทรงกลม
+                  marginRight: "10px", // ระยะห่างระหว่างไอคอนและข้อความ
+                }}
+              >
+                <HomeOutlined style={{ fontSize: "20px", color: "#4caf50" }} />
+              </div>
+
+              {/* Breadcrumb */}
+              <Breadcrumb separator=">">
+                <Breadcrumb.Item>
+                  <span
+                    style={{
+                      fontWeight: "500",
+                      fontSize: "14px",
+                      color: "#333", // สีข้อความหลัก
+                    }}
+                  >
+                    ระบบจองรถ
+                  </span>
+                </Breadcrumb.Item>
+                <Breadcrumb.Item>
+                  <span
+                    style={{
+                      fontWeight: "500",
+                      fontSize: "14px",
+                      color: "#333", // สีข้อความรอง
+                    }}
+                  >
+                    ค้นหารถ
+                  </span>
+                </Breadcrumb.Item>
+              </Breadcrumb>
+            </div>
+
+            {/* Content */}
             <Content
               style={{
-                marginTop: '21px',
+                marginTop: '10px',    
                 padding: '24px',
                 backgroundColor: '#fff',
                 borderRadius: '8px',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
               }}
             >
               <div
@@ -172,6 +232,7 @@ function CarBooking() {
                   margin: '0 auto',
                 }}
               >
+
                 <Title
                   level={2}
                   style={{
@@ -180,12 +241,12 @@ function CarBooking() {
                     color: 'black',
                   }}
                 >
-                  ค้นหารถ
+                  จองรถ
                 </Title>
 
                 <Divider />
                 {/* Section: ค้นหารถ */}
-                <div style={{ maxWidth: '700px', marginBottom: '32px' }}>
+                <div style={{ maxWidth: '1200px', marginBottom: '32px' }}>
                   <Space size="large" direction="vertical" style={{ width: '100%', maxWidth: '800px' }}>
                     <div style={{ marginLeft: '40px' }}>
                       <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '10px' }}>
@@ -229,9 +290,8 @@ function CarBooking() {
                           >
                             เลือกเวลาที่ต้องการจอง
                           </h2>
-
                           {[
-                            { label: 'ก่อนเที่ยง', times: ['07:00', '08:00', '09:00', '10:00', '11:00','12:00'] },
+                            { label: 'ก่อนเที่ยง', times: ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00'] },
                             { label: 'หลังเที่ยง', times: ['13:00', '14:00', '15:00', '16:00', '17:00', '18:00'] }
                           ].map((section, sectionIndex) => (
                             <div key={sectionIndex} style={{ marginBottom: '20px' }}>
@@ -273,7 +333,6 @@ function CarBooking() {
                                     cursor: isDisabled ? 'not-allowed' : 'pointer',
                                     transition: 'all 0.3s ease',
                                   };
-
                                   return (
                                     <Button
                                       key={index}

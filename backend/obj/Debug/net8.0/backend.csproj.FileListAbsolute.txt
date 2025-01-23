@@ -114,3 +114,4 @@ C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\Microsoft.Identity
 C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
 C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+C:\project coop\system-bookings-main\backend\bin\Debug\net8.0\Newtonsoft.Json.dll

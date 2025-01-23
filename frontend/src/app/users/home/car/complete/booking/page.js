@@ -1,20 +1,21 @@
 'use client'
 import { useSearchParams, useRouter } from 'next/navigation';  // นำเข้า useRouter จาก next/navigation
 import { useEffect, useState } from 'react';
-import { Layout, Typography, Input, Radio, Button, Divider, Modal, Space } from 'antd';
+import { Layout, Typography, Input, Radio, Button, Divider, Modal, Breadcrumb } from 'antd';
 import Navbar from '../../../navbar';
 import Sidebar from '../../components/sidebar';
 import Navigation from '../../components/navigation';
 import { Content } from 'antd/lib/layout/layout';
-import { FileTextOutlined } from '@ant-design/icons';
+import { FileTextOutlined, HomeOutlined } from '@ant-design/icons';
 import axios from 'axios';
+// import Sidebar from '@/app/admin/admincar/component/sidebar';
 
 const { TextArea } = Input;
 const { Title, Text } = Typography;
 
 const CarBookingComplete = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [carDetails, setCarDetails] = useState(null); 
+    const [carDetails, setCarDetails] = useState(null);
     const [formData, setFormData] = useState({
         bookingNumber: '',
         bookingDate: '',
@@ -25,11 +26,11 @@ const CarBookingComplete = () => {
         driverRequired: ''
     });
     const searchParams = useSearchParams();
-    const carId = searchParams.get('carId'); 
-    const startDate = searchParams.get('startDate'); 
-    const endDate = searchParams.get('endDate'); 
-    const startTime = searchParams.get('startTime'); 
-    const endTime = searchParams.get('endTime'); 
+    const carId = searchParams.get('carId');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    const startTime = searchParams.get('startTime');
+    const endTime = searchParams.get('endTime');
     const router = useRouter();  // ใช้ useRouter
 
     const handleChange = (e) => {
@@ -39,9 +40,9 @@ const CarBookingComplete = () => {
             [name]: value,
         }));
     };
-    
-    const [userFullName, setUserFullName] = useState(null); 
-    const [department, setDepartment] = useState(null); 
+
+    const [userFullName, setUserFullName] = useState(null);
+    const [department, setDepartment] = useState(null);
 
     useEffect(() => {
         // ดึงข้อมูลจาก localStorage
@@ -49,11 +50,11 @@ const CarBookingComplete = () => {
         const storedDepartment = localStorage.getItem("department");
 
         if (storedFullName) {
-            setUserFullName(storedFullName); 
+            setUserFullName(storedFullName);
         }
 
         if (storedDepartment) {
-            setDepartment(storedDepartment); 
+            setDepartment(storedDepartment);
         }
     }, []);
 
@@ -62,7 +63,7 @@ const CarBookingComplete = () => {
             // ใช้ carId เพื่อดึงข้อมูลของรถจาก API หรือฐานข้อมูล
             axios.get(`http://localhost:5182/api/cars/${carId}`)
                 .then(response => {
-                    setCarDetails(response.data); 
+                    setCarDetails(response.data);
                 })
                 .catch(error => {
                     console.error('Error fetching car details:', error);
@@ -78,20 +79,20 @@ const CarBookingComplete = () => {
             alert('กรุณากรอกข้อมูลให้ครบถ้วน!');
             return;
         }
-    
+
         // ตรวจสอบความถูกต้องของรูปแบบวันที่และเวลา
         const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
         const isValidTime = (time) => /^\d{2}:\d{2}$/.test(time);
-    
+
         if (!isValidDate(startDate) || !isValidTime(startTime) || !isValidDate(endDate) || !isValidTime(endTime)) {
             alert('รูปแบบวันที่หรือเวลาไม่ถูกต้อง!');
             return;
         }
-    
+
         // ตรวจสอบว่าเวลาเริ่มต้นและเวลาสิ้นสุดถูกต้อง
         const startTimeValid = new Date(`${startDate}T${startTime}`);
         const endTimeValid = new Date(`${endDate}T${endTime}`);
-    
+
         if (isNaN(startTimeValid.getTime()) || isNaN(endTimeValid.getTime()) || startTimeValid >= endTimeValid) {
             alert('กรุณาตรวจสอบวันที่และเวลาให้ถูกต้อง!');
             return;
@@ -107,7 +108,7 @@ const CarBookingComplete = () => {
             const now = new Date();
             return `BN${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
         };
-        
+
         // เตรียมข้อมูลสำหรับการส่ง API
         const bookingData = {
             booking_number: formData.bookingNumber || generateBookingNumber(),
@@ -122,9 +123,9 @@ const CarBookingComplete = () => {
             passenger_count: formData.passengers ? parseInt(formData.passengers, 10) : null,
             department: formData.department || 'ไม่ได้ระบุ',
             driver_required: formData.driverRequired === 'yes' ? 1 : 0,
-            status: 1,  
+            status: 1,
         };
-    
+
         // ส่งข้อมูลไปยัง API
         axios.post('http://localhost:5182/api/bookings', bookingData)
             .then((response) => {
@@ -134,7 +135,7 @@ const CarBookingComplete = () => {
                         content: 'ข้อมูลการจองของคุณถูกบันทึกเรียบร้อยแล้ว',
                         onOk: () => {
                             // ส่งข้อมูลไปยังหน้าถัดไป
-                            router.push(`/users/home/car/complete/approv?bookingData=${encodeURIComponent(JSON.stringify(bookingData))}&carId=${carId}`);                            
+                            router.push(`/users/home/car/complete/approv?bookingData=${encodeURIComponent(JSON.stringify(bookingData.booking_number))}&carId=${carId}`);
                         },
                     });
                 } else {
@@ -152,26 +153,89 @@ const CarBookingComplete = () => {
                 });
             });
     };
-    
+
     return (
-        <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
+        <Layout style={{  backgroundColor: '#fff' }}>
             {/* Navbar */}
             <Navbar />
 
-            <Layout style={{ padding: '0px 50px', marginTop: '20px', backgroundColor: '#fff' }}>
+            {/* Layout หลักของหน้า */}
+            <Layout style={{ padding: '0px 40px', marginTop: '110px', backgroundColor: '#fff' }}>
                 {/* Sidebar */}
                 <Sidebar />
 
-                {/* Main Content */}
-                <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
-                    <Navigation />
+                {/* Layout ด้านขวาหลัก */}
+                <Layout style={{ marginTop: '20px', backgroundColor: '#fff' }}>
+                    {/* Breadcrumb */}
+                    {/* ไอคอนหลัก */}
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center", // จัดให้อยู่กลางแนวตั้ง
+                            margin: '0 100px'
+                        }}
+                    >
+                        {/* ไอคอนหลัก */}
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: "40px",
+                                height: "40px",
+                                backgroundColor: "#d9e8d2", // สีพื้นหลังไอคอน
+                                borderRadius: "50%", // รูปทรงกลม
+                                marginRight: "10px", // ระยะห่างระหว่างไอคอนและข้อความ
+                            }}
+                        >
+                            <HomeOutlined style={{ fontSize: "20px", color: "#4caf50" }} />
+                        </div>
+
+                        {/* Breadcrumb */}
+                        <Breadcrumb separator=">">
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: "500",
+                                        fontSize: "14px",
+                                        color: "#666", // สีข้อความหลัก
+                                    }}
+                                >
+                                    ระบบจองรถ
+                                </span>
+                            </Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: "500",
+                                        fontSize: "14px",
+                                        color: "#666", // สีข้อความรอง
+                                    }}
+                                >
+                                    ค้นหารถ
+                                </span>
+                            </Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: "500",
+                                        fontSize: "14px",
+                                        color: "#333", // สีข้อความรอง
+                                    }}
+                                >
+                                    กรอกรายละเอียด
+                                </span>
+                            </Breadcrumb.Item>
+                            
+                        </Breadcrumb>
+                    </div>
                     <Content
                         style={{
                             marginTop: '21px',
                             padding: '24px',
                             backgroundColor: '#fff',
                             borderRadius: '8px',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+
                         }}
                     >
                         <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#fff' }}>
@@ -250,7 +314,7 @@ const CarBookingComplete = () => {
                             </div>
                             {/* Booking Form */}
                             <Title level={2} style={{ color: '#2C3E50', fontWeight: '600', marginBottom: '20px', fontSize: '24px' }}>
-                                เลือกรถที่ต้องการจอง
+                                กรอกรายละเอียดการจอง
                             </Title>
                             <div style={{ maxWidth: '700px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px', justifyContent: 'center' }}>
                                 <div>

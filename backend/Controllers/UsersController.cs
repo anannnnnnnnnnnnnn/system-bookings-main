@@ -60,7 +60,22 @@ namespace YourNamespace.Controllers
 
             return Ok(users);
         }
-        
+
+        // GET: api/users/{userId} - ดึงข้อมูลผู้ใช้ตาม userId
+
+        // GET: api/users/{userId}
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetUserById(int userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+            return Ok(user);
+        }
+
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UsersRequest request)
         {

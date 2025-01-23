@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using YourNamespace.Data;
 using YourNamespace.Models;
+using Newtonsoft.Json; // นำเข้าไลบรารี
 
 namespace YourNamespace.Controllers
 {
@@ -52,12 +53,12 @@ namespace YourNamespace.Controllers
             return Ok(cars);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetBookingById(int id)
+        [HttpGet("{confirmation_id}")]
+        public async Task<IActionResult> GetBookingByConfirmationId(int confirmation_id)
         {
             // ค้นหาการจองที่มี confirmation_id ตรงกับ id
             var carbooking = await _context.Carbookings
-                                           .Where(b => b.confirmation_id == id)
+                                           .Where(b => b.confirmation_id == confirmation_id)
                                            .FirstOrDefaultAsync();
             if (carbooking == null)
             {
@@ -67,21 +68,18 @@ namespace YourNamespace.Controllers
             return Ok(carbooking);  // คืนค่าข้อมูลการจองที่พบ
         }
 
+
+
+
         [HttpGet]
         public async Task<IActionResult> GetBookings()
         {
             try
             {
-                // ดึงข้อมูลการจองทั้งหมดจากฐานข้อมูล
-                var bookings = await _context.Carbookings.ToListAsync();
+                // ดึงข้อมูลการจองทั้งหมดจากฐานข้อมูลใหม่
+                var bookings = await _context.Carbookings.AsNoTracking().ToListAsync();
 
-                // ตรวจสอบถ้ามีการจองหรือไม่
-                if (bookings == null || !bookings.Any())
-                {
-                    return NotFound(new { message = "No bookings found." }); // ถ้าไม่มีการจอง
-                }
-
-                // ส่งข้อมูลกลับในรูปแบบ JSON
+                // ส่งข้อมูลทั้งหมดกลับในรูปแบบ JSON
                 return Ok(bookings);
             }
             catch (Exception ex)
@@ -91,11 +89,9 @@ namespace YourNamespace.Controllers
             }
         }
 
-
         [HttpPost]
         public async Task<IActionResult> CreateBooking([FromBody] Carbooking carbooking)
         {
-            // ตรวจสอบ ModelState
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values
@@ -104,67 +100,72 @@ namespace YourNamespace.Controllers
                                         .ToList();
                 return BadRequest(new { message = "Validation failed", errors });
             }
-            // ตรวจสอบว่ามีเวลาจองและเวลาคืน
-            if (string.IsNullOrEmpty(carbooking.purpose))
-            {
-                return BadRequest(new { message = "Purpose is required." });
-            }
 
-            if (carbooking.booking_date == null || carbooking.return_date == null)
-            {
-                return BadRequest(new { message = "Booking and return dates are required." });
-            }
+            // แปลงวันที่จองและคืนเป็น UTC+7
+            carbooking.booking_date = carbooking.booking_date?.AddHours(7);
+            carbooking.return_date = carbooking.return_date?.AddHours(7);
 
-
-            // ตรวจสอบว่ารถพร้อมใช้งาน
-            var car = await _context.Cars.FirstOrDefaultAsync(c => c.car_id == carbooking.car_id && c.status == 1);
-            if (car == null)
-            {
-                return BadRequest(new { message = "Car is not available for booking." });
-            }
-
-
-            // สร้างหมายเลขการจองถ้ายังไม่มี
+            // ตรวจสอบว่าเลขที่การจองมีหรือไม่
             if (string.IsNullOrEmpty(carbooking.booking_number))
             {
                 carbooking.booking_number = "BN" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
             }
 
-            // ตั้งค่า status ของการจองเป็น 1 (รออนุมัติ)
+            // ตั้งค่าสถานะการจองเป็น 1 (รออนุมัติ)
             carbooking.status = 1;
 
             // ตั้งค่าเวลาสร้างและอัปเดต
             carbooking.created_at = DateTime.UtcNow;
             carbooking.updated_at = DateTime.UtcNow;
 
-            // บันทึกข้อมูลการจองลงฐานข้อมูล
+            // บันทึกการจอง
             _context.Carbookings.Add(carbooking);
+
+            // ตรวจสอบสถานะรถและทำการเปลี่ยนแปลงสถานะ
+            var car = await _context.Cars.FirstOrDefaultAsync(c => c.car_id == carbooking.car_id && c.status == 1);
+            if (car == null)
+            {
+                return BadRequest(new { message = "Car is not available for booking." });
+            }
 
             // เปลี่ยนสถานะรถเป็นไม่พร้อมใช้งาน
             car.status = 2;
 
-            // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
+            // บันทึกข้อมูลไปยังฐานข้อมูล
             await _context.SaveChangesAsync();
 
-            // ส่งข้อมูลการจองกลับพร้อมข้อความสำเร็จ
-            return CreatedAtAction(nameof(GetBookingById),
-                new { id = carbooking.confirmation_id },
-                new
-                {
-                    message = "Booking created successfully",
-                    booking = carbooking
-                });
+            // ตรวจสอบว่า confirmation_id ถูกสร้างหรือไม่
+            if (carbooking.confirmation_id == 0) // สมมุติว่า confirmation_id เป็น int และ 0 คือค่าดีฟอลต์
+            {
+                return BadRequest(new { message = "Failed to create confirmation_id." });
+            }
+
+            return CreatedAtAction(nameof(GetBookingByConfirmationId), new { id = carbooking.confirmation_id }, new
+            {
+                message = "Booking created successfully",
+                confirmation_id = carbooking.confirmation_id, // ส่งค่า confirmation_id กลับใน Response
+                booking = carbooking
+            });
+
         }
+
         [HttpPut("{id}/approve")]
         public async Task<IActionResult> ApproveBooking(int id)
         {
-            var booking = await _context.Carbookings.FindAsync(id);
-            if (booking == null) return NotFound();
+            var Carbooking = await _context.Carbookings.FindAsync(id);
+            if (Carbooking == null) return NotFound();
 
-            booking.status = 1; // อนุมัติ
-            await _context.SaveChangesAsync();
+            if (Carbooking.status != 1)
+            {
+                return BadRequest(new { message = "Booking is not in pending status" });
+            }
+
+            Carbooking.status = 2; // อัปเดตสถานะ
+            await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลง
+
             return Ok(new { message = "Booking approved" });
         }
+
 
         [HttpPut("{id}/reject")]
         public async Task<IActionResult> RejectBooking(int id)
@@ -172,7 +173,7 @@ namespace YourNamespace.Controllers
             var booking = await _context.Carbookings.FindAsync(id);
             if (booking == null) return NotFound();
 
-            booking.status = 2; // ไม่อนุมัติ
+            booking.status = 3; // ไม่อนุมัติ
             await _context.SaveChangesAsync();
             return Ok(new { message = "Booking rejected" });
         }

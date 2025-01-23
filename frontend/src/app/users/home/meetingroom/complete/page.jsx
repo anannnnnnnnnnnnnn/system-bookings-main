@@ -1,14 +1,13 @@
 'use client'
-
 import React, { useEffect, useState } from 'react';
-import { Layout, Typography, Divider, Button, Radio, List, Card, Badge, DatePicker, Space } from 'antd';
+import { Layout, Typography, Divider, Button, Radio, List, Card, Badge, DatePicker, Space, Modal } from 'antd';
 import Sidebar from '../components/sidebar';
 import Navbar from '../../navbar';
 import Navigation from '../components/navigation';
 import { Content } from 'antd/lib/layout/layout';
 import { useRouter } from 'next/navigation';
 
-const { Title, Text } = Typography; 
+const { Title, Text } = Typography;
 
 function MeetingRoomBooking() {
   const router = useRouter();
@@ -18,8 +17,12 @@ function MeetingRoomBooking() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [showRooms, setShowRooms] = useState(false);
   const [selectedRooms, setSelectedRooms] = useState([]); // State for selected room IDs
-
-  const roomData = [
+  const [unavailableTimes, setUnavailableTimes] = useState(['08:00-09:00', '14:00-15:00']); // เวลาที่ไม่ว่าง
+  const [formData, setFormData] = useState({ selectedTime: [] });
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  
+  
+  const [roomData, setRoomData] = useState([
     { id: 1, roomNumber: 'ห้อง 101', name: 'ห้องประชุม A', capacity: 10, status: 'ว่าง', image: '/assets/pg1.jpg' },
     { id: 2, roomNumber: 'ห้อง 102', name: 'ห้องประชุม B', capacity: 20, status: 'ว่าง', image: '/assets/pg2.jpg' },
     { id: 3, roomNumber: 'ห้อง 103', name: 'ห้องประชุม C', capacity: 15, status: 'ไม่ว่าง', image: '/assets/pg3.jpg' },
@@ -30,7 +33,8 @@ function MeetingRoomBooking() {
     { id: 8, roomNumber: 'ห้อง 108', name: 'ห้องประชุม H', capacity: 5, status: 'ว่าง', image: '/assets/pg8.jpg' },
     { id: 9, roomNumber: 'ห้อง 109', name: 'ห้องประชุม I', capacity: 50, status: 'ว่าง', image: '/assets/pg9.jpg' },
     { id: 10, roomNumber: 'ห้อง 110', name: 'ห้องประชุม J', capacity: 40, status: 'ไม่ว่าง', image: '/assets/pg10.jpg' },
-  ];
+  ]);
+  
 
   useEffect(() => {
     setRooms(roomData);
@@ -64,6 +68,14 @@ function MeetingRoomBooking() {
     }, 1000);
   };
 
+  const handleTimeConfirm = () => {
+    if (formData.selectedTime.length > 0) {
+      setIsTimeConfirmed(true);
+    } else {
+      alert('กรุณาเลือกเวลาอย่างน้อยหนึ่งช่วง!');
+    }
+  };
+
   // Handle "Next" button click
   const handleNext = () => {
     const selectedRoomDetails = rooms.filter((room) => selectedRooms.includes(room.id));
@@ -71,44 +83,143 @@ function MeetingRoomBooking() {
     router.push('/users/home/meetingroom/complete/booking');
   };
 
+  const handleTimeSelect = (time) => {
+    setFormData((prev) => ({
+      ...prev,
+      selectedTime: prev.selectedTime.includes(time)
+        ? prev.selectedTime.filter((t) => t !== time) // Deselect time
+        : [...prev.selectedTime, time], // Select time
+    }));
+  };
+
+  // ฟังก์ชันสำหรับแสดง Modal พร้อมข้อมูลห้องที่เลือก
+  const handleViewDetails = (room) => {
+    setRoomData(room); // ตั้งค่าข้อมูลห้อง
+    setIsModalVisible(true); // เปิด Modal
+  };
+
+  // ฟังก์ชันสำหรับปิด Modal
+  const handleCancel = () => {
+    setIsModalVisible(false); // ปิด Modal
+    setRoomData(null); // ล้างข้อมูลห้อง
+  };
+
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
-      {/* Navbar */}
       <Navbar />
-      <Layout style={{ padding: '0px 49px', marginTop: '20px', backgroundColor: '#fff' }}>
-        <Sidebar />
+      <Layout style={{ padding: '0px 50px', marginTop: '110px', backgroundColor: '#fff' }}>
         <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
           <Navigation />
-          <Content style={{
-            marginTop: '21px',
-            padding: '24px',
-            backgroundColor: '#fff',
-            borderRadius: '8px',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-          }}>
+          <Content
+            style={{
+              marginTop: '21px',
+              marginBottom: '213px',
+              padding: '24px',
+              backgroundColor: '#fff',
+              borderRadius: '8px',
+
+            }}
+          >
             <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: '#fffff' }}>
               {/* Section: ค้นหาห้องประชุม */}
               <div style={{ marginBottom: '32px' }}>
-                <Title level={2} style={{ color: 'black', font: '24px', }}>ค้นหาห้องประชุม</Title>
+                <Title level={2} style={{ color: 'black', font: '24px' }}>ค้นหาห้องประชุม</Title>
                 <Divider />
                 <div style={{ marginLeft: '50px' }}>
-                  <div style={{ flex: 1, minWidth: '100px' }}>
-                    <Title level={4} style={{ fontWeight: 'bold' }}>วันที่ต้องการจอง</Title>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {/* ส่วนเลือกวันที่ */}
+                    <div>
+                      <Title level={4} style={{ fontWeight: 'bold' }}>วันที่ต้องการจอง</Title>
+                      <DatePicker.RangePicker
+                        format="YYYY-MM-DD"
+                        placeholder={["วันที่ต้องการจอง", "วันที่สิ้นสุดการจอง"]}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+
+                    {/* ส่วนเลือกเวลาที่ต้องการ */}
+                    <div style={{ padding: '20px 0' }}>
+                      <h2
+                        style={{
+                          marginBottom: '16px',
+                          fontWeight: 'bold',
+                          fontSize: '20px',
+                          color: '#4D4D4D',
+                        }}
+                      >
+                        เลือกเวลาที่ต้องการจอง
+                      </h2>
+
+                      {[
+                        { times: ['07:00-08:00', '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00'] },
+                        { times: ['12:00-13:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00'] }
+                      ].map((section, sectionIndex) => (
+                        <div key={sectionIndex} style={{ marginBottom: '20px' }}>
+                          <p
+                            style={{
+                              fontWeight: 'bold',
+                              fontSize: '16px',
+                              marginBottom: '12px',
+                              color: '#4D4D4D',
+                              fontFamily: 'Arial, sans-serif',
+                              textTransform: 'uppercase',
+                              margin: '20px 50px'
+                            }}
+                          >
+                            {section.label}
+                          </p>
+                          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            {section.times.map((time, index) => (
+                              <Button
+                                key={index}
+                                type={
+                                  unavailableTimes.includes(time)
+                                    ? 'default'
+                                    : formData.selectedTime.includes(time)
+                                      ? 'primary'
+                                      : 'default'
+                                }
+                                disabled={unavailableTimes.includes(time)} // ปุ่มนี้จะกดไม่ได้ถ้าเวลาอยู่ใน unavailableTimes
+                                style={{
+                                  borderRadius: '10px',
+                                  width: '100px',
+                                  height: '30px',
+                                  fontWeight: 'bold',
+                                  padding: '8px 18px',
+                                  border: unavailableTimes.includes(time)
+                                    ? '2px solid #d9d9d9'
+                                    : formData.selectedTime.includes(time)
+                                      ? '2px solid #478D00'
+                                      : '2px solid #ccc',
+                                  backgroundColor: unavailableTimes.includes(time)
+                                    ? '#f5f5f5'
+                                    : formData.selectedTime.includes(time)
+                                      ? '#478D00'
+                                      : '#ffffff',
+                                  color: unavailableTimes.includes(time)
+                                    ? '#a9a9a9'
+                                    : formData.selectedTime.includes(time)
+                                      ? '#fff'
+                                      : '#333',
+                                  cursor: unavailableTimes.includes(time) ? 'not-allowed' : 'pointer',
+                                  transition: 'all 0.3s ease',
+                                }}
+                                onClick={() => handleTimeSelect(time)}
+                              >
+                                {time}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div style={{ display: 'flex',justifyContent:'space-between',  gap: '20px',}}>
-                    <DatePicker.RangePicker
-                      format="YYYY-MM-DD" // ฟอร์แมตรวมวันที่
-                      placeholder={["วันที่ต้องการจอง", "วันที่สิ้นสุดการจอง"]} // ข้อความ placeholder
-                      style={{ width: '90%' }} // กำหนดขนาดของ RangePicker
-                    />
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
                     <Button
                       type="primary"
                       style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: '#029B36', // สีพื้นฐาน
-                        borderColor: '#FFFFFF', // สีของขอบ
+                        backgroundColor: '#029B36',
+                        borderColor: '#FFFFFF',
                         height: '43px',
                         fontSize: '16px',
                         transition: 'background-color 0.3s ease, transform 0.2s ease',
@@ -116,24 +227,24 @@ function MeetingRoomBooking() {
                       onClick={handleSearch}
                       loading={loading}
                       onMouseEnter={(e) =>
-                        (e.currentTarget.style.backgroundColor = '#03A84E') // สีเมื่อ Hover (อ่อนขึ้น)
+                        (e.currentTarget.style.backgroundColor = '#03A84E')
                       }
                       onMouseLeave={(e) =>
-                        (e.currentTarget.style.backgroundColor = '#029B36') // กลับสู่สีพื้นฐาน
+                        (e.currentTarget.style.backgroundColor = '#029B36')
                       }
                       onMouseDown={(e) =>
-                        (e.currentTarget.style.backgroundColor = '#02802E') // สีเมื่อกด (เข้มขึ้นเล็กน้อย)
+                        (e.currentTarget.style.backgroundColor = '#02802E')
                       }
                       onMouseUp={(e) =>
-                        (e.currentTarget.style.backgroundColor = '#03A84E') // กลับสู่สี Hover
+                        (e.currentTarget.style.backgroundColor = '#03A84E')
                       }
                     >
                       ค้นหาห้องประชุม
                     </Button>
                   </div>
+
                 </div>
               </div>
-
               <Divider />
               {showRooms && (
                 <>
@@ -210,6 +321,8 @@ function MeetingRoomBooking() {
                       <List.Item>
                         <Card
                           hoverable
+                          onClick={() => handleViewDetails(room)} // เปิด Modal เมื่อคลิก Card
+                          disabled={room.status !== 'ว่าง'}
                           style={{
                             borderRadius: '12px',
                             border: selectedRooms.includes(room.id) ? '2px solid #029B36' : '1px solid #ddd',
@@ -229,8 +342,6 @@ function MeetingRoomBooking() {
                               }}
                             />
                           }
-                          onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
-                          onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                         >
                           <div style={{ padding: '16px' }}>
                             <Title level={5} style={{ marginBottom: '8px', fontWeight: '600', color: '#333' }}>
@@ -253,7 +364,10 @@ function MeetingRoomBooking() {
                             />
                             <Button
                               type={selectedRooms.includes(room.id) ? 'default' : 'primary'}
-                              onClick={() => handleRoomSelect(room.id)}
+                              onClick={(e) => {
+                                e.stopPropagation(); // หยุด event คลิกไม่ให้กระจายไปที่ Card
+                                handleRoomSelect(room.id); // เลือกหรือยกเลิกการเลือกห้อง
+                              }}
                               disabled={room.status !== 'ว่าง'}
                               style={{
                                 marginTop: '16px',
@@ -275,6 +389,7 @@ function MeetingRoomBooking() {
                     )}
                   />
 
+
                   {/* Next Button */}
                   <div style={{ textAlign: 'end', marginTop: '32px' }}>
                     <Button
@@ -294,6 +409,36 @@ function MeetingRoomBooking() {
                     >
                       ถัดไป
                     </Button>
+
+                    <Modal
+                      title="รายละเอียดห้องประชุม"
+                      visible={isModalVisible}
+                      onCancel={handleCancel}
+                      footer={[
+                        <Button key="close" onClick={handleCancel}>
+                          ปิด
+                        </Button>
+                      ]}
+                    >
+                      {roomData && (
+                        <div>
+                          <img
+                            src={roomData.image}
+                            alt={roomData.name}
+                            style={{
+                              width: '100%',
+                              height: '200px',
+                              objectFit: 'cover',
+                              marginBottom: '20px',
+                            }}
+                          />
+                          <h3>{roomData.name}</h3>
+                          <p>ความจุ: {roomData.capacity} คน</p>
+                          <p>สถานะ: {roomData.status}</p>
+                          <p>คำอธิบาย: ห้องประชุม {roomData.name} พร้อมอุปกรณ์ครบครัน</p>
+                        </div>
+                      )}
+                    </Modal>
                   </div>
                 </>
               )}

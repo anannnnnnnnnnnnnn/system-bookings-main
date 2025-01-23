@@ -34,7 +34,7 @@ function Login() {
         const role = parseInt(data.role, 10);
 
         if (role === 0) {
-          window.location.href = "/users/home"; // สำหรับ User
+          window.location.href = "/user/home"; // สำหรับ User
         } else if (role === 1) {
           window.location.href = "/admin"; // สำหรับ Admin
         } else {

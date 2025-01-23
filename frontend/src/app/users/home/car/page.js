@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState } from 'react';
 import { Layout, Calendar, Badge, Divider, Tag, Typography, Modal, List } from 'antd';
 import Navbar from '../navbar';
@@ -82,25 +81,19 @@ function Home() {
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
-      {/* Navbar */}
-      <Navbar />
-
-      <Layout style={{ padding: '0px 50px', marginTop: '20px', backgroundColor: '#fff' }}>
-        {/* Sidebar */}
-        <Sidebar />
-
-        {/* เนื้อหาหลัก */}
-        <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
-          <Navigation />
-          <Content
-            style={{
-              marginTop: '21px',
-              padding: '24px',
-              backgroundColor: '#fff',
-              borderRadius: '8px',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-            }}
-          >
+    <Navbar />
+    <Layout style={{ padding: '0px 50px', marginTop: '50px', backgroundColor: '#fff' }}>
+      <Sidebar/>
+      <Layout style={{ padding:'0 30px',marginTop: '-20px', backgroundColor: '#fff' }}>
+        {/* <Navigation /> */}
+        <Content
+          style={{
+            marginTop: '21px',
+            padding: '24px',
+            backgroundColor: '#fff',
+            borderRadius: '8px',
+          }}
+        >
             <div style={{ maxWidth: '800px', margin: '0 auto' }}>
               <Title level={2} style={{ textAlign: 'start', marginBottom: '24px', color: 'black' }}>ปฏิทิน</Title>
 

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "PBTxkmV2pW/jZS5P0ZFlCTA3B12tqxuHcUTASoCm+Wk=",
+  "Hash": "tNd7mIhfOAVBdb9bwGUfYwkUVG1IMaiUW6wlhLUIigo=",
   "Source": "backend",
   "BasePath": "_content/backend",
   "Mode": "Default",
@@ -2694,6 +2694,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\pg3.jpg"
+    },
+    {
+      "Identity": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\images\\pg7.jpg",
+      "SourceId": "backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\project coop\\system-bookings-main\\backend\\wwwroot\\",
+      "BasePath": "_content/backend",
+      "RelativePath": "images/pg7.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\pg7.jpg"
     }
   ]
 }

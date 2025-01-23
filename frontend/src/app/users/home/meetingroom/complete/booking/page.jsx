@@ -101,8 +101,6 @@ function BookingDetails() {
     setIsModalVisible(false);
   };
 
-
-
   const BookingSummaryModal = ({ isModalVisible, setIsModalVisible, formData }) => {
     const handleConfirm = () => {
       console.log("ข้อมูลการจอง:", formData);
@@ -128,9 +126,8 @@ function BookingDetails() {
       {/* Navbar */}
       <Navbar />
 
-      <Layout style={{ padding: '0px 49px', marginTop: '20px', backgroundColor: '#fff' }}>
+      <Layout style={{ padding: '0px 49px', marginTop: '110px', backgroundColor: '#fff' }}>
         {/* Sidebar */}
-        <Sidebar />
 
         {/* เนื้อหาหลัก */}
         <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
@@ -140,7 +137,7 @@ function BookingDetails() {
             padding: '24px',
             backgroundColor: '#fff',
             borderRadius: '8px',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+         
 
           }}>
             <div style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -244,261 +241,163 @@ function BookingDetails() {
                   )}
                 />
               </div>
+            </div>
+            {/* ฟอร์มการจอง */}
+            <div style={{ maxWidth: '720px', margin: '0 auto', fontFamily: 'var(--font-kanit)', }}>
               <Divider />
-
-              {/* ส่วนเลือกเวลาที่ต้องการ */}
-              <div style={{ padding: '0 30px' }}>
+              <div >
                 <h2
                   style={{
-                    marginBottom: '16px',
                     fontWeight: 'bold',
                     fontSize: '20px',
+                    marginBottom: '12px',
                     color: '#4D4D4D',
+                    fontFamily: 'var(--font-kanit)',
+                    textTransform: 'uppercase',
                   }}
                 >
-                  เลือกเวลาที่ต้องการจอง
+                  ข้อมูลของผู้จอง
                 </h2>
+              </div>
 
-                {[
-                  { label: 'ก่อนเที่ยง', times: ['07:00-08:00', '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00'] },
-                  { label: 'หลังเที่ยง', times: ['12:00-13:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00'] }
-                ].map((section, sectionIndex) => (
-                  <div key={sectionIndex} style={{ marginBottom: '20px' }}>
-                    <p
-                      style={{
-                        fontWeight: 'bold',
-                        fontSize: '16px',
-                        marginBottom: '12px',
-                        color: '#4D4D4D',
-                        fontFamily: 'Arial, sans-serif',
-                        textTransform: 'uppercase',
-                        margin: '20px 50px'
-                      }}
-                    >
-                      {section.label}
-                    </p>
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                      {section.times.map((time, index) => (
-                        <Button
-                          key={index}
-                          type={
-                            unavailableTimes.includes(time)
-                              ? 'default'
-                              : formData.selectedTime.includes(time)
-                                ? 'primary'
-                                : 'default'
-                          }
-                          disabled={unavailableTimes.includes(time)} // ปุ่มนี้จะกดไม่ได้ถ้าเวลาอยู่ใน unavailableTimes
-                          style={{
-                            borderRadius: '10px',
-                            width: '100px',
-                            height: '30px',
-                            fontWeight: 'bold',
-                            padding: '8px 18px',
-                            border: unavailableTimes.includes(time)
-                              ? '2px solid #d9d9d9'
-                              : formData.selectedTime.includes(time)
-                                ? '2px solid #478D00'
-                                : '2px solid #ccc',
-                            backgroundColor: unavailableTimes.includes(time)
-                              ? '#f5f5f5'
-                              : formData.selectedTime.includes(time)
-                                ? '#478D00'
-                                : '#ffffff',
-                            color: unavailableTimes.includes(time)
-                              ? '#a9a9a9'
-                              : formData.selectedTime.includes(time)
-                                ? '#fff'
-                                : '#333',
-                            cursor: unavailableTimes.includes(time) ? 'not-allowed' : 'pointer',
-                            transition: 'all 0.3s ease',
-                          }}
-                          onClick={() => handleTimeSelect(time)}
-                        >
-                          {time}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-                <Divider style={{ margin: '25px' }} />
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '16px',
+                  marginBottom: '16px',
+                  margin: '20px 50px',
+                }}
+              >
+                <div>
+                  <label style={{ fontWeight: 'bold', fontSize: '14px' }}>วันที่จอง</label>
+                  <p style={{ margin: '8px 0', fontSize: '14px', color: '#555' }}>
+                    {formData.bookingDate}
+                  </p>
+                </div>
 
-                <div style={{ textAlign: 'end' }}>
-                  <Button
-                    type="primary"
-                    onClick={handleTimeConfirm}
+                <div>
+                  <label style={{ fontWeight: 'bold', fontSize: '14px' }}>เวลา</label>
+                  <p style={{ margin: '8px 0', fontSize: '14px', color: '#555' }}>
+                    {formData.selectedTime.join(', ')}
+                  </p>
+                </div>
+
+                <div>
+                  <label style={{ fontWeight: 'bold', fontSize: '14px' }}>วัตถุประสงค์</label>
+                  <Input
+                    name="objective"
+                    value={formData.objective}
+                    onChange={handleChange}
+                    style={{ fontSize: '14px' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontWeight: 'bold', fontSize: '14px' }}>จำนวนผู้เข้าร่วม</label>
+                  <Input
+                    type="number"
+                    name="capacity"
+                    placeholder="จำนวนผู้เข้าร่วมประชุม"
+                    onChange={handleChange}
+                    style={{ fontSize: '14px' }}
+                  />
+                </div>
+
+                <div>
+                  <label
                     style={{
-                      backgroundColor: '#478D00',
-                      borderRadius: '8px',
                       fontWeight: 'bold',
-                      padding: '10px 24px',
                       fontSize: '16px',
-                      border: 'none',
-                      transition: 'all 0.3s ease',
-                      boxShadow: '0px 4px 12px rgba(0, 123, 62, 0.3)',
+                      marginBottom: '8px',
+                      color: '#4D4D4D',
                     }}
                   >
-                    ถัดไป
-                  </Button>
+                    อุปกรณ์เสริม
+                  </label>
+                  <Select
+                    mode="multiple" // เปิดใช้งานการเลือกหลายรายการ
+                    allowClear // เพิ่มปุ่มสำหรับล้างค่า
+                    placeholder="เลือกอุปกรณ์เพิ่มเติม"
+                    value={formData.additionalEquipment}
+                    onChange={(value) => setFormData({ ...formData, additionalEquipment: value })}
+                    style={{ width: '100%', margin: '6px 0px', fontSize: '14px' }}
+                  >
+                    <Select.Option value="โปรเจคเตอร์">โปรเจคเตอร์</Select.Option>
+                    <Select.Option value="กระดานไวท์บอร์ด">กระดานไวท์บอร์ด</Select.Option>
+                    <Select.Option value="ทีวีจอใหญ่">ทีวีจอใหญ่</Select.Option>
+                    <Select.Option value="ลำโพง">ลำโพง</Select.Option>
+                    <Select.Option value="ไมโครโฟนไร้สาย">ไมโครโฟนไร้สาย</Select.Option>
+                    <Select.Option value="กล้องวิดีโอคอนเฟอเรนซ์">กล้องวิดีโอคอนเฟอเรนซ์</Select.Option>
+                    <Select.Option value="อินเทอร์เน็ตความเร็วสูง">อินเทอร์เน็ตความเร็วสูง</Select.Option>
+                    <Select.Option value="โต๊ะและเก้าอี้">โต๊ะและเก้าอี้</Select.Option>
+                    <Select.Option value="ไฟสำหรับการบันทึกวิดีโอ">ไฟสำหรับการบันทึกวิดีโอ</Select.Option>
+                    <Select.Option value="ตัวควบคุมการนำเสนอ (Presenter Remote)">
+                      ตัวควบคุมการนำเสนอ (Presenter Remote)
+                    </Select.Option>
+                    <Select.Option value="สายต่อ HDMI">สายต่อ HDMI</Select.Option>
+                    <Select.Option value="สายต่อ VGA">สายต่อ VGA</Select.Option>
+                    <Select.Option value="พัดลม">พัดลม</Select.Option>
+                    <Select.Option value="เครื่องปรับอากาศ">เครื่องปรับอากาศ</Select.Option>
+                    <Select.Option value="โทรศัพท์สื่อสาร">โทรศัพท์สื่อสาร</Select.Option>
+                    <Select.Option value="แฟลชไดรฟ์ USB">แฟลชไดรฟ์ USB</Select.Option>
+                  </Select>
                 </div>
               </div>
-              {/* ฟอร์มการจอง */}
-              {isTimeConfirmed && (
-                <div style={{ maxWidth: '720px', margin: '0 auto', fontFamily: 'var(--font-kanit)', }}>
-                  <Divider />
-                  <div >
-                    <h2
-                      style={{
-                        fontWeight: 'bold',
-                        fontSize: '20px',
-                        marginBottom: '12px',
-                        color: '#4D4D4D',
-                        fontFamily: 'var(--font-kanit)',
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      ข้อมูลของผู้จอง
-                    </h2>
-                  </div>
 
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: '16px',
-                      marginBottom: '16px',
-                      margin: '20px 50px',
-                    }}
-                  >
-                    <div>
-                      <label style={{ fontWeight: 'bold', fontSize: '14px' }}>วันที่จอง</label>
-                      <p style={{ margin: '8px 0', fontSize: '14px', color: '#555' }}>
-                        {formData.bookingDate}
-                      </p>
-                    </div>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Button
+                  type="primary"
+                  onClick={handleBack}
+                  style={{
+                    backgroundColor: '#fff',
+                    color: '#4D4D4D',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    padding: '10px 24px',
+                    fontSize: '14px',
+                    border: '1px solid #4D4D4D',  // เส้นขอบเป็นสีเทา
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#4D4D4D'; // เปลี่ยนสีพื้นหลังเมื่อ hover
+                    e.target.style.color = '#fff'; // เปลี่ยนสีตัวอักษรเมื่อ hover
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#fff'; // กลับสีพื้นหลังเมื่อเลิก hover
+                    e.target.style.color = '#4D4D4D'; // กลับสีตัวอักษรเมื่อเลิก hover
+                  }}
+                >
+                  ย้อนกลับ
+                </Button>
 
-                    <div>
-                      <label style={{ fontWeight: 'bold', fontSize: '14px' }}>เวลา</label>
-                      <p style={{ margin: '8px 0', fontSize: '14px', color: '#555' }}>
-                        {formData.selectedTime.join(', ')}
-                      </p>
-                    </div>
-
-                    <div>
-                      <label style={{ fontWeight: 'bold', fontSize: '14px' }}>วัตถุประสงค์</label>
-                      <Input
-                        name="objective"
-                        value={formData.objective}
-                        onChange={handleChange}
-                        style={{ fontSize: '14px' }}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={{ fontWeight: 'bold', fontSize: '14px' }}>จำนวนผู้เข้าร่วม</label>
-                      <Input
-                        type="number"
-                        name="capacity"
-                        placeholder="จำนวนผู้โดยสาร"
-                        onChange={handleChange}
-                        style={{ fontSize: '14px' }}
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: '16px',
-                          marginBottom: '8px',
-                          color: '#4D4D4D',
-                        }}
-                      >
-                        อุปกรณ์เสริม
-                      </label>
-                      <Select
-                        mode="multiple" // เปิดใช้งานการเลือกหลายรายการ
-                        allowClear // เพิ่มปุ่มสำหรับล้างค่า
-                        placeholder="เลือกอุปกรณ์เพิ่มเติม"
-                        value={formData.additionalEquipment}
-                        onChange={(value) => setFormData({ ...formData, additionalEquipment: value })}
-                        style={{ width: '100%', margin: '6px 0px', fontSize: '14px' }}
-                      >
-                        <Select.Option value="โปรเจคเตอร์">โปรเจคเตอร์</Select.Option>
-                        <Select.Option value="กระดานไวท์บอร์ด">กระดานไวท์บอร์ด</Select.Option>
-                        <Select.Option value="ทีวีจอใหญ่">ทีวีจอใหญ่</Select.Option>
-                        <Select.Option value="ลำโพง">ลำโพง</Select.Option>
-                        <Select.Option value="ไมโครโฟนไร้สาย">ไมโครโฟนไร้สาย</Select.Option>
-                        <Select.Option value="กล้องวิดีโอคอนเฟอเรนซ์">กล้องวิดีโอคอนเฟอเรนซ์</Select.Option>
-                        <Select.Option value="อินเทอร์เน็ตความเร็วสูง">อินเทอร์เน็ตความเร็วสูง</Select.Option>
-                        <Select.Option value="โต๊ะและเก้าอี้">โต๊ะและเก้าอี้</Select.Option>
-                        <Select.Option value="ไฟสำหรับการบันทึกวิดีโอ">ไฟสำหรับการบันทึกวิดีโอ</Select.Option>
-                        <Select.Option value="ตัวควบคุมการนำเสนอ (Presenter Remote)">
-                          ตัวควบคุมการนำเสนอ (Presenter Remote)
-                        </Select.Option>
-                        <Select.Option value="สายต่อ HDMI">สายต่อ HDMI</Select.Option>
-                        <Select.Option value="สายต่อ VGA">สายต่อ VGA</Select.Option>
-                        <Select.Option value="พัดลม">พัดลม</Select.Option>
-                        <Select.Option value="เครื่องปรับอากาศ">เครื่องปรับอากาศ</Select.Option>
-                        <Select.Option value="โทรศัพท์สื่อสาร">โทรศัพท์สื่อสาร</Select.Option>
-                        <Select.Option value="แฟลชไดรฟ์ USB">แฟลชไดรฟ์ USB</Select.Option>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    <Button
-                      type="primary"
-                      onClick={handleBack}
-                      style={{
-                        backgroundColor: '#fff',
-                        color: '#4D4D4D',
-                        borderRadius: '8px',
-                        fontWeight: 'bold',
-                        padding: '10px 24px',
-                        fontSize: '14px',
-                        border: '1px solid #4D4D4D',  // เส้นขอบเป็นสีเทา
-                        transition: 'all 0.3s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = '#4D4D4D'; // เปลี่ยนสีพื้นหลังเมื่อ hover
-                        e.target.style.color = '#fff'; // เปลี่ยนสีตัวอักษรเมื่อ hover
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = '#fff'; // กลับสีพื้นหลังเมื่อเลิก hover
-                        e.target.style.color = '#4D4D4D'; // กลับสีตัวอักษรเมื่อเลิก hover
-                      }}
-                    >
-                      ย้อนกลับ
-                    </Button>
-
-                    <Button
-                      type="primary"
-                      onClick={() => setIsModalVisible(true)}
-                      style={{
-                        backgroundColor: '#478D00',
-                        borderRadius: '8px',
-                        fontWeight: 'bold',
-                        padding: '10px 24px',
-                        fontSize: '14px',
-                        border: 'none',
-                        transition: 'all 0.3s ease',
-                        boxShadow: '0px 4px 12px rgba(0, 123, 62, 0.3)',
-                      }}
-                    >
-                      ถัดไป
-                    </Button>
-                  </div>
-                </div>
-              )}
-
+                <Button
+                  type="primary"
+                  onClick={() => setIsModalVisible(true)}
+                  style={{
+                    backgroundColor: '#478D00',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    padding: '10px 24px',
+                    fontSize: '14px',
+                    border: 'none',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0px 4px 12px rgba(0, 123, 62, 0.3)',
+                  }}
+                >
+                  ถัดไป
+                </Button>
+              </div>
             </div>
+
+
+
 
             {/* Modal สำหรับยืนยันการจอง */}
             <Modal

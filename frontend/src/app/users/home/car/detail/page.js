@@ -1,137 +1,115 @@
 'use client'
 
-import React from 'react';
-import { Layout, Table, Tag, Image, Divider, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Layout, Table, Image, Divider, Typography, Breadcrumb } from 'antd';
+import { HomeOutlined } from '@ant-design/icons';
 import Sidebar from '../components/sidebar';
 import Navbar from '../../navbar';
-import Navigation from '../components/navigation';
 
 const { Content } = Layout;
 const { Title } = Typography;
 
-function details() {
+function Details() {
+  const [cars, setCars] = useState([]);  // ใช้ state สำหรับเก็บข้อมูลจาก API
+
+  const fuelTypes = {
+    1: 'น้ำมัน',
+    2: 'ไฟฟ้า',
+  };
+
   const columns = [
     {
       title: 'NO',
       dataIndex: 'no',
       key: 'no',
+      align: 'center',
     },
     {
       title: 'รูปรถ',
-      dataIndex: 'image',
-      key: 'image',
-      render: (image) => <Image src={image} width={100} alt="Car Image" />,
+      dataIndex: 'image_url',
+      key: 'image_url',
+      render: (image) => (
+        <div style={{ textAlign: 'center' }}>
+          <Image
+            src={`http://localhost:5182${image}`}
+            width={100}
+            alt="Car Image"
+          />
+        </div>
+      ),
     },
     {
       title: 'รายละเอียดรถ',
       dataIndex: 'details',
       key: 'details',
+      render: (text, record) => (
+        <div style={{ margin: 0, padding: 0 }}>
+          <p style={{ margin: 0, padding: 0 }}><strong>ยี่ห้อ:</strong> {record.brand}</p>
+          <p style={{ margin: 0, padding: 0 }}><strong>รุ่น:</strong> {record.model}</p>
+          <p style={{ margin: 0, padding: 0 }}><strong>ป้ายทะเบียน:</strong> {record.license_plate}</p>
+          <p style={{ margin: 0, padding: 0 }}><strong>ความจุที่นั่ง:</strong> {record.seating_capacity}</p>
+          <p><strong>ประเภทเชื่อเพลิง:</strong> {fuelTypes[record.fuel_type]}</p>
+        </div>
+      ),
     },
     {
-      title: 'สถานะการใช้งาน',
+      title: 'สถานะ',
       dataIndex: 'status',
       key: 'status',
-    },
-
-  ];
-
-  const data = [
-    {
-      key: '1',
-      no: '1',
-      image: '/tests', // เปลี่ยนเป็น path รูปภาพจริง
-      details: (
-        <div>
-          <p>รุ่น/ยี่ห้อ: MITSUBISHI</p>
-          <p>ประเภท: รถแวนด์</p>
-          <p>ทะเบียน: กค 7137 มค.</p>
-          <p>จำนวนที่นั่ง: 5 ที่นั่ง</p>
-          <p>เชื้อเพลิง: ดีเซล</p>
-
-        </div>
-      ),
-      status: (
-        <Tag color="green">ใช้งานปกติ</Tag>
-      ),
-      insurance: '1 ต.ค. 2578',
-      expiration: '15 ธ.ค. 2580',
-    },
-    {
-      key: '2',
-      no: '2',
-      image: '/test-image2.jpg', // เปลี่ยนเป็น path รูปภาพจริง
-      details: (
-        <div>
-          <p>รุ่น/ยี่ห้อ: TOYOTA</p>
-          <p>ประเภท: รถตู้</p>
-          <p>ทะเบียน: ทร 1111 นร.</p>
-          <p>จำนวนที่นั่ง: 16 ที่นั่ง</p>
-          <p>เชื้อเพลิง: ดีเซล</p>
-
-        </div>
-      ),
-      status: (
-        <Tag color="green">ใช้งานปกติ</Tag>
-      ),
-      insurance: '01 ก.ค. 2590',
-      expiration: '01 มี.ค. 2600',
-    },
-    {
-      key: '3',
-      no: '3',
-      image: '/test-image2.jpg', // เปลี่ยนเป็น path รูปภาพจริง
-      details: (
-        <div>
-          <p>รุ่น/ยี่ห้อ: TOYOTA</p>
-          <p>ประเภท: รถตู้</p>
-          <p>ทะเบียน: ทร 1111 นร.</p>
-          <p>จำนวนที่นั่ง: 16 ที่นั่ง</p>
-          <p>เชื้อเพลิง: ดีเซล</p>
-        </div>
-      ),
-      status: (
-        <Tag color="red">ใช้งานปกติ</Tag>
-      ),
-      insurance: '01 ก.ค. 2590',
-      expiration: '01 มี.ค. 2600',
+      render: (status) => {
+        if (status === 1) {
+          return <span style={{ color: 'green' }}>พร้อมใช้งาน</span>;
+        } else if (status === 2) {
+          return <span style={{ color: 'orange' }}>กำลังซ่อมแซม</span>;
+        }
+        return <span>ไม่ทราบสถานะ</span>;
+      },
     },
   ];
+
+  useEffect(() => {
+    fetch('http://localhost:5182/api/cars')
+      .then((response) => response.json())
+      .then((data) => setCars(data))  // เก็บข้อมูลที่ดึงมาใน state
+      .catch((error) => console.error('Error fetching data:', error));
+  }, []);
+
   return (
-    <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
-      {/* Navbar */}
+    <Layout style={{ backgroundColor: '#fff' }}>
       <Navbar />
-
-      <Layout style={{ padding: '0px 50px', marginTop: '20px', backgroundColor: '#fff' }}>
-        {/* Sidebar */}
+      <Layout style={{ padding: '0px 40px', marginTop: '110px', backgroundColor: '#fff' }}>
         <Sidebar />
-
-        {/* เนื้อหาหลัก */}
-        <Layout style={{ padding: '0px 30px', backgroundColor: '#fff' }}>
-          <Navigation/>
-          <Content
-            style={{
-              marginTop: '21px',
-              padding: '24px',
-              backgroundColor: '#fff',
-              borderRadius: '8px',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-            }}
-          >
+        <Layout style={{ marginTop: '20px', backgroundColor: '#fff' }}>
+          <div style={{ display: "flex", alignItems: "center", margin: '0 100px' }}>
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "center", width: "40px", height: "40px",
+              backgroundColor: "#d9e8d2", borderRadius: "50%", marginRight: "10px"
+            }}>
+              <HomeOutlined style={{ fontSize: "20px", color: "#4caf50" }} />
+            </div>
+            <Breadcrumb separator=">">
+              <Breadcrumb.Item>
+                <span style={{ fontWeight: "500", fontSize: "14px", color: "#666" }}>ระบบจองรถ</span>
+              </Breadcrumb.Item>
+              <Breadcrumb.Item>
+                <span style={{ fontWeight: "500", fontSize: "14px", color: "#666" }}>ค้นหารถ</span>
+              </Breadcrumb.Item>
+              <Breadcrumb.Item>
+                <span style={{ fontWeight: "500", fontSize: "14px", color: "#333" }}>กรอกรายละเอียด</span>
+              </Breadcrumb.Item>
+            </Breadcrumb>
+          </div>
+          <Content style={{ marginTop: '21px', padding: '24px', backgroundColor: '#fff', borderRadius: '8px' }}>
             <div style={{ maxWidth: '800px', margin: '0 auto', marginTop: '10px' }}>
-              <Title level={2} style={{ textAlign: 'start', marginBottom: '24px', color: 'black' }}>รายละเอียดรถ</Title>
-
+              <Title level={2} style={{ textAlign: 'start', marginBottom: '24px', color: 'black' }}>
+                รายละเอียดรถ
+              </Title>
               <Divider />
-
               <div style={{
-                backgroundColor: '#fff',
-                borderRadius: '12px',
-                padding: '30px',
-                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',  // ปรับเงาให้ดูนุ่มนวล
-                overflow: 'hidden'  // เพื่อป้องกันเงาหรือขอบที่อาจล้นจากตาราง
+                backgroundColor: '#fff', borderRadius: '12px', padding: '30px', overflow: 'hidden'
               }}>
-                <Table columns={columns} dataSource={data} pagination={false} />
+                <Table columns={columns} dataSource={cars} pagination={false} />
               </div>
-
             </div>
           </Content>
         </Layout>
@@ -140,4 +118,4 @@ function details() {
   );
 };
 
-export default details;
+export default Details;

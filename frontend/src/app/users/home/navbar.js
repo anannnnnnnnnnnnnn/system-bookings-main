@@ -1,14 +1,10 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
-import { Layout, Menu, Dropdown, Space, Grid, Popover, Button } from 'antd';
-import { GlobalOutlined, UserOutlined, MenuOutlined } from '@ant-design/icons';
+import { Layout, Menu, Avatar, Dropdown, Button } from "antd";
+import { FlagOutlined, UserOutlined, SettingOutlined, LogoutOutlined, DownOutlined, } from "@ant-design/icons";
 
 const { Header } = Layout;
-const { useBreakpoint } = Grid;
 
-function Navbar() {
-    const screens = useBreakpoint();
+const Navbar = () => {
     const [userFullName, setUserFullName] = useState(null); // สถานะสำหรับเก็บชื่อผู้ใช้
 
     useEffect(() => {
@@ -18,117 +14,146 @@ function Navbar() {
         }
     }, []);
 
-    const languageMenu = (
-        <Menu
-            items={[
-                { key: 'th', label: 'TH' },
-                { key: 'en', label: 'EN' },
-                { key: 'my', label: 'Melayu' },
-            ]}
-        />
-    );
-
     // ฟังก์ชันที่ใช้สำหรับออกจากระบบ
     const handleLogout = () => {
         console.log("ออกจากระบบ");
         localStorage.removeItem("userId");
         localStorage.removeItem("userFullName");
-        window.location.href = '/';
-        // ที่นี่คุณสามารถเพิ่มฟังก์ชันสำหรับออกจากระบบ เช่น การลบ token หรือ redirect
+        window.location.href = "/";
     };
 
-    // เนื้อหาภายใน Popover
-    const userMenuContent = (
-        <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <Button type="link" style={{ color: '#029B36' }}>
-                โปรไฟล์
-            </Button>
-            <Button type="link" style={{ color: '#029B36' }}>
-                ตั้งค่าบัญชี
-            </Button>
-            <Button type="link" style={{ color: '#029B36' }}>
-                ดูประวัติการทำรายการ
-            </Button>
-            <Button type="link" onClick={handleLogout} style={{ color: '#029B36' }}>
-                ออกจากระบบ
-            </Button>
-        </div>
+    const userMenu = (
+        <Menu>
+            <Menu.Item key="profile">
+                <UserOutlined style={{ marginRight: 8 }} />
+                Profile
+            </Menu.Item>
+            <Menu.Item key="profile">
+                <SettingOutlined style={{ marginRight: 8 }} />
+                Setting
+            </Menu.Item>
+            <Menu.Item key="logout" onClick={handleLogout}>
+                <LogoutOutlined style={{ marginRight: 8 }} />
+                Sign Out
+            </Menu.Item>
+        </Menu>
+    );
 
+    // เมนูสำหรับเลือกภาษา
+    const languageMenu = (
+        <Menu>
+            <Menu.Item key="thai">
+                <img
+                    src="/assets/thailand.png"  // ใช้ src เพื่อชี้ไปที่ไฟล์รูปภาพใน public/assets
+                    alt="Language Flag"
+                    style={{ width: "20px", height: "auto", marginRight: "8px" }}  // เพิ่มระยะห่างระหว่างภาพและข้อความ
+                />
+                ไทย
+            </Menu.Item>
+            <Menu.Item key="english">
+                <img
+                    src="/assets/england.png"  // ใช้ src เพื่อชี้ไปที่ไฟล์รูปภาพใน public/assets
+                    alt="Language Flag"
+                    style={{ width: "20px", height: "auto", marginRight: "8px" }}  // เพิ่มระยะห่างระหว่างภาพและข้อความ
+                />
+                อังกฤษ
+            </Menu.Item>
+        </Menu>
+    );
+
+    const menu = (
+        <Menu>
+
+            <Menu.Item key="profile">
+                <SettingOutlined style={{ marginRight: 8 }} />
+                Setting
+            </Menu.Item>
+        </Menu>
     );
 
     return (
         <Layout>
             <Header
                 style={{
-                    backgroundColor: '#ffff',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '0 20px',
-                    boxShadow: '2px 0 5px rgba(0, 0, 0, 0.1)',
+                    backgroundColor: "#fff",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "0 30px",
+                    height: "80px",
+                    borderBottom: "1px solid #777676",
+                    position: "fixed",
+                    top: 0,
+                    width: "100%",
+                    zIndex: 1000,
                 }}
             >
-                {/* Logo */}
-                <div
-                    className="logo"
-                    style={{
-                        color: 'black',
-                        fontSize: '18px',
-                        fontWeight: 'bold',
-                    }}
-                >
-                    สำนักงาน Anan
+                {/* ชื่อสำนักงาน */}
+                <div style={{ fontSize: "20px", fontWeight: "bold" }}>
+                    ระบบการจองรถและห้องประชุม
                 </div>
 
-                {/* User Info and Language Switcher */}
-                <div
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '20px',
-                    }}
-                >
-                    {/* Language Switcher */}
-                    {screens.md && ( // ซ่อนในหน้าจอเล็กกว่า md
-                        <Dropdown overlay={languageMenu} trigger={['click']}>
-                            <Space style={{ color: 'black', cursor: 'pointer' }}>
-                                <GlobalOutlined />
-                                <span>TH</span>
-                            </Space>
-                        </Dropdown>
-                    )}
-
-                    {/* User Info */}
-                    {screens.md ? ( // ซ่อนในหน้าจอเล็กกว่า md
-                        <div
+                {/* ส่วนขวา */}
+                <div style={{ display: "flex", alignItems: "center", gap: "30px" }}>
+                    {/* ธงภาษา */}
+                    <Dropdown overlay={languageMenu} trigger={["click"]}>
+                        <Button
                             style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                color: 'black',
-                                gap: '10px',
+                                backgroundColor: "#fffff",
+                                border: "none",
+                                padding: 0,
+                                display: "flex",
+                                alignItems: "center"
                             }}
                         >
-                            <div>
-                                <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
-                                    {userFullName || 'ผู้ใช้งาน'} {/* ถ้ามีชื่อผู้ใช้ใน state ก็จะแสดงชื่อ */}
-                                </div>
-                            </div>
-                            <Popover
-                                content={userMenuContent}
-                                trigger="click"
-                                placement="bottomRight"
-                                arrowPointAtCenter
+                            <img
+                                src="/assets/thailand.png"  // ใช้ src เพื่อชี้ไปที่ไฟล์รูปภาพใน public/assets
+                                alt="Language Flag"
+                                style={{ width: "20px", height: "auto" }}  // ปรับขนาดของภาพ
+                            />
+                            <DownOutlined />
+                        </Button>
+                    </Dropdown>
+
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <Dropdown overlay={menu} trigger={['click']}>
+                            <SettingOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
+                        </Dropdown>
+                    </div>
+                    
+                    {/* ชื่อผู้ใช้งานและสถานะ */}
+                    <Dropdown overlay={userMenu} trigger={["click"]}>
+                        <div
+                            style={{
+                                display: "flex", // ใช้ flex เพื่อจัดวางทุกอย่างในบรรทัดเดียวกัน
+                                alignItems: "center", // จัดแนวกลางในแนวตั้ง
+                                padding: "10px",
+                                lineHeight: "1",
+                            }}
+                        >
+                            <img
+                                src="/assets/profile.png"  // ใช้ src เพื่อชี้ไปที่ไฟล์รูปภาพใน public/assets
+                                alt="Language Flag"
+                                style={{ width: "30px", height: "auto" }}  // ปรับขนาดของภาพ
+                            />
+
+                            <div
+                                style={{
+                                    fontSize: "16px",
+                                    fontWeight: "bold",
+                                    marginLeft: "10px", // เพิ่มระยะห่างระหว่างไอคอนและชื่อ
+                                    textAlign: "center",
+                                    cursor: "pointer",
+                                }}
                             >
-                                <UserOutlined style={{ fontSize: '20px', color: 'black', cursor: 'pointer' }} />
-                            </Popover>
+                                {userFullName || "ผู้ใช้งาน"}
+                            </div>
+                            <DownOutlined style={{ cursor: "pointer", marginLeft: "10px" }} />
                         </div>
-                    ) : (
-                        <MenuOutlined style={{ fontSize: '20px', color: 'black', cursor: 'pointer' }} />
-                    )}
+                    </Dropdown>
                 </div>
             </Header>
         </Layout>
     );
-}
-
+};
 export default Navbar;

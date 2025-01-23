@@ -1,16 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Layout, Menu, Button, Grid, Drawer } from 'antd';
-import {
-  HomeOutlined,
-  InfoCircleOutlined,
-  CarOutlined,
-  RollbackOutlined,
-  LogoutOutlined,
-  MenuOutlined,
-  FilePdfOutlined,
-  
-} from '@ant-design/icons';
+import { MenuOutlined, CarOutlined, HomeOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 
 const { Sider } = Layout;
@@ -49,20 +40,14 @@ function Sidebar() {
           borderRight: 'none',
         }}
       >
-        <Menu.Item key="1" icon={<HomeOutlined />}>
-          <Link href="/users/home/car">หน้าหลัก</Link>
-        </Menu.Item>
-        <Menu.Item key="2" icon={<InfoCircleOutlined />}>
-          <Link href="/users/home/car/detail">รายละเอียด</Link>
-        </Menu.Item>
-        <Menu.Item key="3" icon={<CarOutlined />}>
+        <Menu.Item key="1" icon={<CarOutlined />}>
           <Link href="/users/home/car/complete">จองรถ</Link>
         </Menu.Item>
-        <Menu.Item key="4" icon={<FilePdfOutlined/>}>
-          <Link href="">คู่มือการใช้งาน</Link>
+        <Menu.Item key="2" icon={<HomeOutlined />}>
+          <Link href="/users/home/car">ปฎิทิน</Link>
         </Menu.Item>
-        <Menu.Item key="5" icon={<InfoCircleOutlined/>}>
-          <Link href="">แจ้งปัญหา/ข้อเสนอแนะ</Link>
+        <Menu.Item key="3" icon={<InfoCircleOutlined />}>
+          <Link href="/users/home/car/detail">รายละเอียด</Link>
         </Menu.Item>
       </Menu>
     </>
@@ -70,23 +55,24 @@ function Sidebar() {
 
   return (
     <>
-      {screens.md ? (
+      {screens.md ? ( // ตรวจสอบหน้าจอใหญ่ (>= 768px)
         <Sider
-          width="240px"
+          width="275px"
           trigger={null}
           collapsible
           collapsed={collapsed}
           style={{
-            boxShadow: '2px 0 5px rgba(0, 0, 0, 0.1)',
-            borderRadius: '10px',
-            height: '100vh',
-            background: '#fff',
-            transition: 'all 0.3s',
+            backgroundColor: '#fff',
+            boxShadow:
+              '0px 4px 8px rgba(0, 0, 0, 0.1), 0px -4px 8px rgba(0, 0, 0, 0.1), 4px 0px 8px rgba(0, 0, 0, 0.1), -4px 0px 8px rgba(0, 0, 0, 0.1)', // เงาทุกด้าน
+            borderRadius: '10px', // มุมโค้ง
+            overflow: 'hidden',
           }}
         >
           {sidebarContent}
         </Sider>
       ) : (
+        // สำหรับหน้าจอเล็ก (< 768px)
         <>
           <Button
             type="text"
@@ -102,8 +88,7 @@ function Sidebar() {
             }}
           />
           <Drawer
-            width="50%"
-            title="ระบบจองรถ"
+            width="75%" // เปลี่ยนขนาด Drawer เพื่อให้เหมาะสมกับหน้าจอเล็ก
             placement="left"
             onClose={toggleDrawer}
             visible={visible}
@@ -116,18 +101,19 @@ function Sidebar() {
       )}
       <style jsx global>{`
         .ant-menu-item-selected {
-          background-color: #478D00 !important; /* สีเขียวเมื่อ active */
+          background-color: #478d00 !important; /* สีเขียวเมื่อ active */
           color: #ffffff !important; /* ตัวอักษรสีขาว */
         }
         .ant-menu-item:hover {
           background-color: #6abf40 !important; /* สีเขียวอ่อนเมื่อ hover */
           color: #ffffff !important; /* ตัวอักษรสีขาว */
         }
+        .ant-menu-submenu-title:hover {
+          background-color: #e7f5e6 !important; /* สีเขียวอ่อนเมื่อ hover submenu */
+          color: #478d00 !important;
+        }
         .ant-menu-item a {
           color: #000000; /* ตัวอักษรสีดำเมื่อไม่ได้เลือก */
-        }
-        .ant-drawer-title {
-          color: #478D00 !important; /* เปลี่ยนสีข้อความ title ใน Drawer */
         }
       `}</style>
     </>
@@ -135,3 +121,4 @@ function Sidebar() {
 }
 
 export default Sidebar;
+  

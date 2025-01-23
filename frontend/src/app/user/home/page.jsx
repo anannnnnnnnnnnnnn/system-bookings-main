@@ -3,12 +3,18 @@
 import React from 'react'
 import { Card, Row, Col, Typography, Layout } from 'antd'
 import { CarOutlined, TeamOutlined } from '@ant-design/icons'
-import Navbar from './navbar'
-import Link from 'next/link'
+import Navbar from '@/app/users/home/navbar'
+import { useRouter } from 'next/navigation'
 
 const { Title, Text } = Typography
 
 function SelectSystem() {
+  const router = useRouter()
+
+  const navigate = (path) => {
+    router.push(path)
+  }
+
   return (
     <Layout style={{ minHeight: '100vh', background: '#ffffff' }}>
       {/* Navbar */}
@@ -28,12 +34,12 @@ function SelectSystem() {
           color: '#333',
           margin: '20px 0 30px',
         }}>
-          กรุณาเลือกระบบที่ต้องการ
+          เลือกประเภทการจอง
         </Title>
 
         {/* กล่องเลือกระบบ */}
         <Row gutter={[24, 24]} justify="center" style={{ width: '100%', maxWidth: '900px' }}>
-          {/* ระบบจองรถ */}
+          {/* ระบบจองรถสำนักงาน */}
           <Col xs={24} sm={12} lg={8}>
             <Card
               hoverable
@@ -47,23 +53,22 @@ function SelectSystem() {
               }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+              onClick={() => navigate('/user/home/car/complete')}
             >
               <CarOutlined style={{ fontSize: '48px', color: '#52c41a', marginBottom: '15px' }} />
-              <Link href="/users/home/car">
-                <Title level={4} style={{
-                  fontFamily: 'var(--font-kanit)',
-                  color: '#333',
-                  margin: 0,
-                }}>
-                  ระบบจองรถ
-                </Title>
-              </Link>
+              <Title level={4} style={{
+                fontFamily: 'var(--font-kanit)',
+                color: '#333',
+                margin: 0,
+              }}>
+                ระบบจองรถสำนักงาน
+              </Title>
               <Text style={{
                 fontFamily: 'var(--font-kanit)',
                 color: '#666',
                 fontSize: '14px',
               }}>
-                บริการจองและจัดการรถสำนักงาน
+                สามารถทำการจองได้เลย
               </Text>
             </Card>
           </Col>
@@ -82,23 +87,22 @@ function SelectSystem() {
               }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+              onClick={() => navigate('/users/home/meetingroom')}
             >
               <TeamOutlined style={{ fontSize: '48px', color: '#73d13d', marginBottom: '15px' }} />
-              <Link href="/users/home/meetingroom">
-                <Title level={4} style={{
-                  fontFamily: 'var(--font-kanit)',
-                  color: '#333',
-                  margin: 0,
-                }}>
-                  ระบบจองห้องประชุม
-                </Title>
-              </Link>
+              <Title level={4} style={{
+                fontFamily: 'var(--font-kanit)',
+                color: '#333',
+                margin: 0,
+              }}>
+                ระบบจองห้องประชุม
+              </Title>
               <Text style={{
                 fontFamily: 'var(--font-kanit)',
                 color: '#666',
                 fontSize: '14px',
               }}>
-                บริการจองและจัดการห้องประชุม
+                สามารถทำการจองได้เลย
               </Text>
             </Card>
           </Col>

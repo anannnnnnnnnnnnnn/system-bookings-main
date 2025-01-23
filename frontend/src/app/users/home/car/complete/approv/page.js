@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import axios from 'axios';  // เพิ่มการนำเข้า axios สำหรับดึงข้อมูลรถจาก API
-import { Layout, Typography, Button, Divider, Alert, Card, Space, message, Modal, Row, Col } from 'antd';
+import { Layout, Typography, Button, Divider, Alert, Card, Space, message, Modal, Breadcrumb, Col } from 'antd';
 import { useRouter } from 'next/navigation';
 import { Content } from 'antd/es/layout/layout';
 import Navbar from '../../../navbar';
 import Sidebar from '../../components/sidebar';
 import Navigation from '../../components/navigation';
-import { CheckCircleOutlined, WarningOutlined, PrinterOutlined, CheckOutlined, QrcodeOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, WarningOutlined, PrinterOutlined, CheckOutlined, QrcodeOutlined, HomeOutlined } from '@ant-design/icons';
 import { jsPDF } from 'jspdf';
 
 const { Title, Text } = Typography;
@@ -90,19 +90,89 @@ function ApprovalPending() {
 
 
     return (
-        <Layout style={{ minHeight: '100vh', backgroundColor: '#F9FAFB' }}>
+        <Layout style={{  backgroundColor: '#fff' }}>
+            {/* Navbar */}
             <Navbar />
-            <Layout style={{ padding: '20px 50px', backgroundColor: '#F9FAFB' }}>
+
+            {/* Layout หลักของหน้า */}
+            <Layout style={{ padding: '0px 40px', marginTop: '110px', backgroundColor: '#fff' }}>
+                {/* Sidebar */}
                 <Sidebar />
-                <Layout style={{ padding: '0 30px', backgroundColor: '#F9FAFB' }}>
-                    <Navigation />
+
+                {/* Layout ด้านขวาหลัก */}
+                <Layout style={{ marginTop: '20px', backgroundColor: '#fff' }}>
+                    {/* Breadcrumb */}
+                    {/* ไอคอนหลัก */}
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center", // จัดให้อยู่กลางแนวตั้ง
+                            margin: '0 100px'
+
+                        }}
+                    >
+                        {/* ไอคอนหลัก */}
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: "40px",
+                                height: "40px",
+                                backgroundColor: "#d9e8d2", // สีพื้นหลังไอคอน
+                                borderRadius: "50%", // รูปทรงกลม
+                                marginRight: "10px", // ระยะห่างระหว่างไอคอนและข้อความ
+                            }}
+                        >
+                            <HomeOutlined style={{ fontSize: "20px", color: "#4caf50" }} />
+                        </div>
+
+                        {/* Breadcrumb */}
+                        <Breadcrumb separator=">">
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: "500",
+                                        fontSize: "14px",
+                                        color: "#666", // สีข้อความหลัก
+                                    }}
+                                >
+                                    ระบบจองรถ
+                                </span>
+                            </Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: "500",
+                                        fontSize: "14px",
+                                        color: "#666", // สีข้อความรอง
+                                    }}
+                                >
+                                    ค้นหารถ
+                                </span>
+                            </Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: "500",
+                                        fontSize: "14px",
+                                        color: "#333", // สีข้อความรอง
+                                    }}
+                                >
+                                    กรอกรายละเอียด
+                                </span>
+                            </Breadcrumb.Item>
+                            
+                        </Breadcrumb>
+                    </div>
+
                     <Content
                         style={{
-                            margin: '20px 0',
+                            marginTop: '21px',
                             padding: '24px',
-                            backgroundColor: '#FFFFFF',
-                            borderRadius: '12px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                            backgroundColor: '#fff',
+                            borderRadius: '8px',
+
                         }}
                     >
                         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -151,48 +221,48 @@ function ApprovalPending() {
                                         marginBottom: '20px',
                                     }}>
                                         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                                        <img
-                                        src={carDetails?.image_url ? `http://localhost:5182${carDetails.image_url}` : null}
-                                        alt="Car"
-                                        style={{
-                                            width: '200px',
-                                            height: '100px',
-                                            borderRadius: '8px',
-                                            objectFit: 'cover',
-                                            marginRight: '16px',
-                                            border: '1px solid #E0E0E0',
-                                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                                        }}
-                                    />
+                                            <img
+                                                src={carDetails?.image_url ? `http://localhost:5182${carDetails.image_url}` : null}
+                                                alt="Car"
+                                                style={{
+                                                    width: '200px',
+                                                    height: '100px',
+                                                    borderRadius: '8px',
+                                                    objectFit: 'cover',
+                                                    marginRight: '16px',
+                                                    border: '1px solid #E0E0E0',
+                                                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                                }}
+                                            />
                                             <div style={{ flexGrow: 1 }}>
-                                            {carDetails ? (
-                                           <>
-                                            <Text
-                                            
-                                                    style={{
-                                                        fontSize: '18px',
-                                                        fontWeight: '600',
-                                                        color: '#2C3E50',
-                                                        marginBottom: '8px',
-                                                    }}
-                                                >
-                                                    {carDetails.brand}
-                                                </Text>
-                                                <div
-                                                    style={{
-                                                        fontSize: '14px',
-                                                        color: '#7F8C8D',
-                                                        lineHeight: '1.6',
-                                                    }}
-                                                >
-                                                    <p style={{ margin: 0 }}>รถรุ่น: {carDetails.model}</p>
-                                                    <p style={{ margin: 0 }}>ป้ายทะเบียน: {carDetails.license_plate}</p>
-                                                    <p style={{ margin: 0 }}>จำนวนที่นั่ง: {carDetails.seating_capacity} ที่นั่ง</p>
-                                                </div>
-                                            </>
-                                            ) : (
-                                                <p>กำลังโหลดข้อมูลรถ...</p>  // ข้อความระหว่างโหลดข้อมูล
-                                            )}
+                                                {carDetails ? (
+                                                    <>
+                                                        <Text
+
+                                                            style={{
+                                                                fontSize: '18px',
+                                                                fontWeight: '600',
+                                                                color: '#2C3E50',
+                                                                marginBottom: '8px',
+                                                            }}
+                                                        >
+                                                            {carDetails.brand}
+                                                        </Text>
+                                                        <div
+                                                            style={{
+                                                                fontSize: '14px',
+                                                                color: '#7F8C8D',
+                                                                lineHeight: '1.6',
+                                                            }}
+                                                        >
+                                                            <p style={{ margin: 0 }}>รถรุ่น: {carDetails.model}</p>
+                                                            <p style={{ margin: 0 }}>ป้ายทะเบียน: {carDetails.license_plate}</p>
+                                                            <p style={{ margin: 0 }}>จำนวนที่นั่ง: {carDetails.seating_capacity} ที่นั่ง</p>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <p>กำลังโหลดข้อมูลรถ...</p>  // ข้อความระหว่างโหลดข้อมูล
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -202,7 +272,7 @@ function ApprovalPending() {
                                         {/* ฟอร์ม 1 */}
                                         <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
                                             <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
-                                            หมายเลขการจอง:
+                                                หมายเลขการจอง:
                                             </label>
                                             <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
                                                 {bookingData.booking_number || 'N/A'}
@@ -212,20 +282,20 @@ function ApprovalPending() {
                                         {/* ฟอร์ม 2 */}
                                         <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
                                             <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
-                                            วันที่-เวลาการจอง:
+                                                วันที่-เวลาการจอง:
                                             </label>
                                             <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
-                                                { `${bookingData.booking_date } ${bookingData.booking_time}` || 'N/A'}
+                                                {`${bookingData.booking_date} ${bookingData.booking_time}` || 'N/A'}
                                             </span>
-                                           
+
                                         </div>
                                         <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', alignItems: 'center', width: '48%' }}>
                                             <label style={{ fontWeight: 'bold', color: '#333', fontSize: '14px', width: 'auto' }}>
-                                            วันที่-เวลาการคืน:
+                                                วันที่-เวลาการคืน:
                                             </label>
                                             <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
-                                                {`${bookingData.return_date} ${bookingData.return_time}`  || 'N/A'}
-                                            </span>    
+                                                {`${bookingData.return_date} ${bookingData.return_time}` || 'N/A'}
+                                            </span>
                                         </div>
 
                                         {/* ฟอร์ม 3 */}
@@ -234,7 +304,7 @@ function ApprovalPending() {
                                                 จุดประสงค์:
                                             </label>
                                             <span style={{ fontSize: '14px', color: '#666', flexGrow: 1 }}>
-                                                {bookingData.purpose|| 'ไม่ได้ระบุ'}
+                                                {bookingData.purpose || 'ไม่ได้ระบุ'}
                                             </span>
                                         </div>
 
