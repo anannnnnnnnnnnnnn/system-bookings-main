@@ -21,9 +21,9 @@ namespace YourNamespace.Models
         [Required]
         public int car_id { get; set; }
 
-        public DateTime? booking_date { get; set; }  // วันที่จอง
+        public  DateOnly? booking_date { get; set; }  // วันที่จอง
         public TimeSpan? booking_time { get; set; }
-        public DateTime? return_date { get; set; }  // วันที่คืน
+        public  DateOnly? return_date { get; set; }  // วันที่คืน
         public TimeSpan? return_time { get; set; }
         public string purpose { get; set; } = "ไม่ได้ระบุ";
         public string destination { get; set; } = "ไม่ได้ระบุ";

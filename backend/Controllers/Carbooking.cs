@@ -53,24 +53,6 @@ namespace YourNamespace.Controllers
             return Ok(cars);
         }
 
-        [HttpGet("{confirmation_id}")]
-        public async Task<IActionResult> GetBookingByConfirmationId(int confirmation_id)
-        {
-            // ค้นหาการจองที่มี confirmation_id ตรงกับ id
-            var carbooking = await _context.Carbookings
-                                           .Where(b => b.confirmation_id == confirmation_id)
-                                           .FirstOrDefaultAsync();
-            if (carbooking == null)
-            {
-                return NotFound(new { message = "Booking not found" });
-            }
-
-            return Ok(carbooking);  // คืนค่าข้อมูลการจองที่พบ
-        }
-
-
-
-
         [HttpGet]
         public async Task<IActionResult> GetBookings()
         {
@@ -101,52 +83,83 @@ namespace YourNamespace.Controllers
                 return BadRequest(new { message = "Validation failed", errors });
             }
 
-            // แปลงวันที่จองและคืนเป็น UTC+7
-            carbooking.booking_date = carbooking.booking_date?.AddHours(7);
-            carbooking.return_date = carbooking.return_date?.AddHours(7);
+            if (carbooking.booking_date == null || carbooking.return_date == null)
+            {
+                return BadRequest(new { message = "Booking date and return date are required." });
+            }
 
-            // ตรวจสอบว่าเลขที่การจองมีหรือไม่
+            // แปลง DateOnly เป็น DateTime และเพิ่มเวลาเข้าไป
+            var bookingStart = carbooking.booking_date.Value.ToDateTime(TimeOnly.FromTimeSpan(carbooking.booking_time ?? TimeSpan.Zero));
+            var bookingEnd = carbooking.return_date.Value.ToDateTime(TimeOnly.FromTimeSpan(carbooking.return_time ?? TimeSpan.Zero));
+
+            if (bookingStart >= bookingEnd)
+            {
+                return BadRequest(new { message = "Return date and time must be after booking date and time." });
+            }
+
+            var carBookings = await _context.Carbookings
+                .Where(b => b.car_id == carbooking.car_id && b.status == 1)
+                .ToListAsync();
+
+            // ตรวจสอบว่าช่วงเวลาจองทับซ้อนกันหรือไม่
+            var isOverlapping = carBookings
+                .Any(b =>
+                {
+                    var existingStart = b.booking_date.Value.ToDateTime(TimeOnly.FromTimeSpan(b.booking_time ?? TimeSpan.Zero));
+                    var existingEnd = b.return_date.Value.ToDateTime(TimeOnly.FromTimeSpan(b.return_time ?? TimeSpan.Zero));
+
+                    // Log ข้อมูลเพื่อ Debug
+                    Console.WriteLine($"New Booking: {bookingStart} - {bookingEnd}");
+                    Console.WriteLine($"Existing Booking: {existingStart} - {existingEnd}");
+
+                    return bookingStart < existingEnd && bookingEnd > existingStart;
+                });
+
+            if (isOverlapping)
+            {
+                return BadRequest(new { message = "This car is already booked for the selected time slot." });
+            }
+
             if (string.IsNullOrEmpty(carbooking.booking_number))
             {
                 carbooking.booking_number = "BN" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
             }
 
-            // ตั้งค่าสถานะการจองเป็น 1 (รออนุมัติ)
-            carbooking.status = 1;
+            if (carbooking.confirmation_id == 0)
+            {
+                carbooking.confirmation_id = new Random().Next(100000, 999999);
+            }
 
-            // ตั้งค่าเวลาสร้างและอัปเดต
+            carbooking.status = 1;
             carbooking.created_at = DateTime.UtcNow;
             carbooking.updated_at = DateTime.UtcNow;
 
-            // บันทึกการจอง
             _context.Carbookings.Add(carbooking);
-
-            // ตรวจสอบสถานะรถและทำการเปลี่ยนแปลงสถานะ
-            var car = await _context.Cars.FirstOrDefaultAsync(c => c.car_id == carbooking.car_id && c.status == 1);
-            if (car == null)
-            {
-                return BadRequest(new { message = "Car is not available for booking." });
-            }
-
-            // เปลี่ยนสถานะรถเป็นไม่พร้อมใช้งาน
-            car.status = 2;
-
-            // บันทึกข้อมูลไปยังฐานข้อมูล
             await _context.SaveChangesAsync();
 
-            // ตรวจสอบว่า confirmation_id ถูกสร้างหรือไม่
-            if (carbooking.confirmation_id == 0) // สมมุติว่า confirmation_id เป็น int และ 0 คือค่าดีฟอลต์
+            return CreatedAtAction(nameof(GetBookingByConfirmationId),
+                                    new { confirmation_id = carbooking.confirmation_id },
+                                    new
+                                    {
+                                        message = "Booking created successfully",
+                                        confirmation_id = carbooking.confirmation_id,
+                                        booking = carbooking
+                                    });
+        }
+
+        [HttpGet("{confirmation_id}")]
+        public async Task<IActionResult> GetBookingByConfirmationId(int confirmation_id)
+        {
+            // ค้นหาการจองที่มี confirmation_id ตรงกับ id
+            var carbooking = await _context.Carbookings
+                                           .Where(b => b.confirmation_id == confirmation_id)
+                                           .FirstOrDefaultAsync();
+            if (carbooking == null)
             {
-                return BadRequest(new { message = "Failed to create confirmation_id." });
+                return NotFound(new { message = "Booking not found" });
             }
 
-            return CreatedAtAction(nameof(GetBookingByConfirmationId), new { id = carbooking.confirmation_id }, new
-            {
-                message = "Booking created successfully",
-                confirmation_id = carbooking.confirmation_id, // ส่งค่า confirmation_id กลับใน Response
-                booking = carbooking
-            });
-
+            return Ok(carbooking);  // คืนค่าข้อมูลการจองที่พบ
         }
 
         [HttpPut("{id}/approve")]
@@ -204,50 +217,5 @@ namespace YourNamespace.Controllers
             return Ok(new { message = "Booking cancelled successfully." });
         }
 
-        // POST: api/bookings
-        // [HttpPost]
-        // public async Task<IActionResult> CreateBooking([FromBody] Booking booking)
-        // {
-        //     // ตรวจสอบว่ารถว่างหรือไม่
-        //     var car = await _context.Cars.FirstOrDefaultAsync(c => c.car_id == booking.car_id && c.status == 1);
-        //     if (car == null)
-        //     {
-        //         return BadRequest(new { message = "Car is not available for booking." });
-        //     }
-
-        //     // เพิ่มการจองใหม่
-        //     _context.booking_confirmations.Add(booking);
-
-        //     // เปลี่ยนสถานะรถเป็นไม่ว่าง
-        //     car.status = 2;
-
-        //     await _context.SaveChangesAsync();
-
-        //     return CreatedAtAction(nameof(GetAllBookings), new { id = booking.confirmation_id }, booking);
-        // }
-
-        // // DELETE: api/bookings/{id}
-        // [HttpDelete("{id}")]
-        // public async Task<IActionResult> CancelBooking(int id)
-        // {
-        //     var booking = await _context.booking_confirmations.FirstOrDefaultAsync(b => b.confirmation_id == id);
-
-        //     if (booking == null)
-        //     {
-        //         return NotFound(new { message = "Booking not found." });
-        //     }
-
-        //     // เปลี่ยนสถานะรถกลับเป็นว่าง
-        //     var car = await _context.Cars.FirstOrDefaultAsync(c => c.car_id == booking.car_id);
-        //     if (car != null)
-        //     {
-        //         car.status = 1; // ตั้งสถานะรถกลับเป็น "ว่าง"
-        //     }
-
-        //     _context.booking_confirmations.Remove(booking);
-        //     await _context.SaveChangesAsync();
-
-        //     return Ok(new { message = "Booking cancelled successfully." });
-        // }
     }
 }

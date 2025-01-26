@@ -1,6 +1,6 @@
-  'use client';
+'use client';
 import React, { useState, useEffect } from 'react';
-import Sidebar from './components/sidebar';
+import Sidebar from '../../car/components/sidebar';
 import Navbar from '@/app/users/home/navbar';
 import { Layout, Breadcrumb, Spin, Row, Col, Card, Typography, Divider } from 'antd';
 import { HomeOutlined, } from '@ant-design/icons';
@@ -19,7 +19,7 @@ const kanit = Kanit({
 
 function CarBooking() {
     // ใช้ useBreakpoint จาก Grid
-    const screens = Grid.useBreakpoint();
+    const screens = Grid.useBreakpoint();   
     const [cars, setCars] = useState([]); // เก็บข้อมูลรถ
     const [loading, setLoading] = useState(true); // สำหรับสถานะโหลดข้อมูล
     const router = useRouter(); // เรียกใช้ Router
@@ -120,6 +120,7 @@ function CarBooking() {
                                 </Breadcrumb.Item>
                             </Breadcrumb>
                         </div>
+
 
                         {/* Content */}
                         <Content
