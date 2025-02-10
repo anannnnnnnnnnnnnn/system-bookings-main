@@ -121,7 +121,7 @@ function ResourceManagement() {
             console.error('Error:', error);
         }
     };
-    
+
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
@@ -133,7 +133,7 @@ function ResourceManagement() {
             // เพิ่มไฟล์ภาพถ้ามี
             if (previewImage?.file) {
                 formData.append('image_url', previewImage.file.originFileObj);
-            }            
+            }
 
             if (editingRecord) {
                 // Update
@@ -191,6 +191,9 @@ function ResourceManagement() {
                     ]}
                 >
                     <Form form={form} layout="vertical">
+                        <Form.Item name="brand" label="ยี่ห้อ" rules={[{ required: true, message: 'กรุณากรอกยี่ห้อ' }]}>
+                            <Input />
+                        </Form.Item>
                         <Form.Item name="brand" label="ยี่ห้อ" rules={[{ required: true, message: 'กรุณากรอกยี่ห้อ' }]}>
                             <Input />
                         </Form.Item>

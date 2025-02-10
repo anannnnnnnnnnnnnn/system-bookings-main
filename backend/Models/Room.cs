@@ -8,7 +8,7 @@ namespace YourNamespace.Models
         public int room_id { get; set; }  // Primary Key
 
         [Required]  // ระบุว่า room_name ห้ามเป็น NULL
-        public string room_name { get; set; }
+        public string? room_name { get; set; }
 
         [Required]  // ระบุว่า capacity ห้ามเป็น NULL
         public int capacity { get; set; }
@@ -16,7 +16,8 @@ namespace YourNamespace.Models
         public string? equipment { get; set; }  // สามารถเป็น NULL ได้
 
         [Required]  // ระบุว่า location ห้ามเป็น NULL
-        public string location { get; set; }
+        public string? location { get; set; }
+        public string? room_img { get; set; }
 
         public int status { get; set; } = 1;  // มีค่าเริ่มต้นเป็น 1
 

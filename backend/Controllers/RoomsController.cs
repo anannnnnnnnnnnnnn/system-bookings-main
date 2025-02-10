@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using YourNamespace.Data;
 using YourNamespace.Models;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace RoomNamespace.Controllers
 {
@@ -10,29 +13,50 @@ namespace RoomNamespace.Controllers
     public class RoomsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public RoomsController(AppDbContext context)
+        public RoomsController(AppDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
-        // POST: api/rooms
+        // POST: api/rooms (เพิ่มห้องพร้อมรูปภาพ)
         [HttpPost]
-        public async Task<IActionResult> CreateRoom([FromBody] RoomRequest request)
+        public async Task<IActionResult> CreateRoom([FromForm] RoomRequest request, IFormFile? image)
         {
-            // ตรวจสอบฟิลด์ที่จำเป็น
             if (string.IsNullOrEmpty(request.room_name) || string.IsNullOrEmpty(request.location))
             {
                 return BadRequest(new { message = "room_name and location are required." });
             }
 
-            // สร้าง Room object และบันทึกลงในฐานข้อมูล
+            string? imagePath = null;
+            if (image != null)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var fileName = $"{Guid.NewGuid()}_{image.FileName}"; // ป้องกันไฟล์ซ้ำ
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await image.CopyToAsync(stream);
+                }
+
+                imagePath = "/images/" + fileName; // ใช้ไฟล์ที่สร้างใหม่
+            }
+
             var room = new Room
             {
                 room_name = request.room_name,
+                equipment = request.equipment ?? string.Empty,
                 capacity = request.capacity ?? 0,
-                equipment = request.equipment,
                 location = request.location,
+                room_img = imagePath,
                 status = request.status ?? 1,
                 created_at = DateTime.UtcNow,
                 updated_at = DateTime.UtcNow
@@ -41,11 +65,7 @@ namespace RoomNamespace.Controllers
             _context.Rooms.Add(room);
             await _context.SaveChangesAsync();
 
-            return Ok(new
-            {
-                message = "Room created successfully",
-                room = room
-            });
+            return Ok(new { message = "Room created successfully", room });
         }
 
         // GET: api/rooms
@@ -53,12 +73,10 @@ namespace RoomNamespace.Controllers
         public async Task<IActionResult> GetRooms()
         {
             var rooms = await _context.Rooms.ToListAsync();
-
             if (rooms == null || rooms.Count == 0)
             {
                 return NotFound(new { message = "No rooms found." });
             }
-
             return Ok(rooms);
         }
 
@@ -67,18 +85,16 @@ namespace RoomNamespace.Controllers
         public async Task<IActionResult> GetRoomById(int id)
         {
             var room = await _context.Rooms.FindAsync(id);
-
             if (room == null)
             {
                 return NotFound(new { message = "Room not found." });
             }
-
             return Ok(room);
         }
 
-        // PUT: api/rooms/{id}
+        // PUT: api/rooms/{id} (อัปเดตรูปภาพได้ด้วย)
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRoom(int id, [FromBody] RoomRequest request)
+        public async Task<IActionResult> UpdateRoom(int id, [FromForm] RoomRequest request, IFormFile? image)
         {
             var room = await _context.Rooms.FindAsync(id);
             if (room == null)
@@ -92,6 +108,11 @@ namespace RoomNamespace.Controllers
             room.location = request.location ?? room.location;
             room.status = request.status ?? room.status;
             room.updated_at = DateTime.UtcNow;
+
+            if (image != null)
+            {
+                room.room_img = await SaveImage(image);
+            }
 
             _context.Rooms.Update(room);
             await _context.SaveChangesAsync();
@@ -114,9 +135,26 @@ namespace RoomNamespace.Controllers
 
             return Ok(new { message = "Room deleted successfully" });
         }
+
+        private async Task<string> SaveImage(IFormFile image)
+        {
+            var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await image.CopyToAsync(fileStream);
+            }
+
+            return "/uploads/" + uniqueFileName;
+        }
     }
 
-    // Model สำหรับรับคำขอ (Request) สำหรับข้อมูลห้องประชุม
     public class RoomRequest
     {
         public string? room_name { get; set; }

@@ -1,14 +1,16 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Layout, Breadcrumb, Typography, DatePicker, Divider, Button, Input, Radio, Modal, message } from 'antd';
+import { Layout, Breadcrumb, Typography, DatePicker, Divider, Button, Input, Radio, Modal, Select } from 'antd';
 import { HomeOutlined } from '@ant-design/icons'; // อย่าลืม import HomeOutlined
 import Sidebar from '../../components/sidebar';
 import Navbar from '@/app/users/home/navbar';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation'; // Add this line
 import axios from 'axios'; // Add this line at the top of the file
+import moment from 'moment';
 
 
+const { Option } = Select;
 const { Content } = Layout; // เพิ่มการ import Content
 const { Title } = Typography;
 const { Text } = Typography; // ใช้ Text จาก Typography
@@ -29,8 +31,11 @@ export const CarBooking = () => {
         purpose: '',
         destination: '',
         passengers: '',
-        driverRequired: ''
+        driverRequired: '',
+        booking_time: '',
+        return_time: '',
     });
+
     const [userFullName, setUserFullName] = useState('');
     const [userPosition, setUserPosition] = useState('');
     const [department, setDepartment] = useState('');
@@ -41,7 +46,7 @@ export const CarBooking = () => {
     const [endTime, setEndTime] = useState('');
     const router = useRouter();  // ใช้ useRouter
 
-    const unavailableTimes = ['08:00', '14:00']; // ตัวอย่างเวลาไม่พร้อมใช้งาน
+    const unavailableTimes = ['']; // ตัวอย่างเวลาไม่พร้อมใช้งาน
 
     const handleTimeSelect = (time) => {
         setFormData((prev) => {
@@ -112,11 +117,20 @@ export const CarBooking = () => {
                 } finally {
                     setLoading(false); // ปิดสถานะการโหลด
                 }
-            };  
-
+            };
             fetchCarDetails();
         }
     }, [carId]);
+    const createDateTime = (date, time) => {
+        if (!date || !time) return null;
+        if (typeof date !== 'string') {
+            date = date.toISOString().split('T')[0];
+        }
+        const [hours, minutes] = time.split(':');
+        if (!hours || !minutes) return null;
+        const [year, month, day] = date.split('-');
+        return new Date(year, month - 1, day, hours, minutes);
+    };
 
     if (loading) return <p>กำลังโหลดข้อมูล...</p>;
     if (error) return <p>เกิดข้อผิดพลาด: {error}</p>;
@@ -126,36 +140,16 @@ export const CarBooking = () => {
     };
 
     const handleConfirm = async () => {
-        // ตรวจสอบว่ามีค่าที่จำเป็นครบหรือไม่
-        if (!formData.purpose || !formData.destination || !startDate || !startTime || !endDate || !endTime || !carId) {
-            alert('กรุณากรอกข้อมูลให้ครบถ้วน!');
-            return;
-        }
+        // เพิ่มการ log เพื่อตรวจสอบค่าของตัวแปรก่อน
+        console.log(formData.purpose, formData.destination, startDate, formData.booking_time, endDate, formData.return_time, carId);
 
-        const createDateTime = (date, time) => {
-            if (typeof date !== 'string') {
-                date = date.toISOString().split('T')[0]; // แปลงเป็น ISO string และตัดแค่วันที่
-            }
-
-            const [hours, minutes] = time.split(':');
-            const [year, month, day] = date.split('-');
-            return new Date(year, month - 1, day, hours, minutes);
-        };
-
-        const startTimeValid = createDateTime(startDate, startTime);
-        const endTimeValid = createDateTime(endDate, endTime);
+        const startTimeValid = createDateTime(startDate, formData.booking_time);
+        const endTimeValid = createDateTime(endDate, formData.return_time);
 
         if (isNaN(startTimeValid.getTime()) || isNaN(endTimeValid.getTime()) || startTimeValid >= endTimeValid) {
             alert('กรุณาตรวจสอบวันที่และเวลาให้ถูกต้อง!');
             return;
         }
-
-        const formatTimeSpan = (date) => {
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const seconds = String(date.getSeconds()).padStart(2, '0');
-            return `${hours}:${minutes}:${seconds}`;
-        };
 
         const generateBookingNumber = () => {
             const now = new Date();
@@ -167,15 +161,15 @@ export const CarBooking = () => {
             car_id: carId,
             full_name: userFullName || 'ไม่ได้ระบุ',
             booking_date: startDate,
-            booking_time: formatTimeSpan(startTimeValid),
+            booking_time: formData.booking_time ? formData.booking_time + ':00' : null,
             return_date: endDate,
-            return_time: formatTimeSpan(endTimeValid),
+            return_time: formData.return_time ? formData.return_time + ':00' : null,
             purpose: formData.purpose,
             destination: formData.destination,
             passenger_count: formData.passengers ? parseInt(formData.passengers, 10) : null,
             department: department || 'ไม่ได้ระบุ',
             driver_required: formData.driverRequired === 'yes' ? 1 : 0,
-            status: 1,
+            booking_status: 1,
         };
 
         // ส่งข้อมูลไปยัง API
@@ -272,10 +266,21 @@ export const CarBooking = () => {
                                     style={{
                                         fontWeight: '500',
                                         fontSize: '14px',
-                                        color: '#333', // สีข้อความรอง
+                                        color: '#666', // สีข้อความรอง
                                     }}
                                 >
                                     เลือกรถที่ต้องการจอง
+                                </span>
+                            </Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#333', // สีข้อความรอง
+                                    }}
+                                >
+                                    กรอกรายละเอียกการจอง
                                 </span>
                             </Breadcrumb.Item>
                         </Breadcrumb>
@@ -394,80 +399,48 @@ export const CarBooking = () => {
                                     }
                                 }}
                                 placeholder={["วันที่ต้องการจอง", "วันที่สิ้นสุดการจอง"]}
-                                style={{ width: '90%' }}
+                                style={{ flexGrow: 1 }} // ใช้ flexGrow เพื่อให้มันขยายเต็มพื้นที่ที่เหลือ
+                                disabledDate={(current) => current && current < moment().endOf('day')} // ไม่ให้เลือกวันก่อนวันนี้
                             />
                         </div>
+
                         {/* ในส่วนเลือกวันที่ */}
-                        <Divider />
-                        <div style={{ margin: '0px' }}>
-                            <h2
-                                style={{
-                                    marginBottom: '16px',
-                                    fontWeight: 'bold',
-                                    fontSize: '20px',
-                                    color: '#4D4D4D',
-                                }}
-                            >
-                                เลือกเวลาที่ต้องการจอง
-                            </h2>
-                            {[
-                                { times: ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00'] },
-                                { times: ['13:00', '14:00', '15:00', '16:00', '17:00', '18:00'] }
-                            ].map((section, sectionIndex) => (
-                                <div key={sectionIndex} style={{ marginBottom: '20px' }}>
-                                    <p
-                                        style={{
-                                            fontWeight: 'bold',
-                                            fontSize: '16px',
-                                            marginBottom: '12px',
-                                            color: '#4D4D4D',
-                                            fontFamily: 'Arial, sans-serif',
-                                            textTransform: 'uppercase',
-                                            margin: '20px 50px'
-                                        }}
-                                    >
-                                        {section.label}
-                                    </p>
-                                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', margin: '0 50px' }}>
-                                        {section.times.map((time, index) => {
-                                            const isSelected = formData.selectedTime.includes(time);
-                                            const selectedIndex = formData.selectedTime.indexOf(time);
+                        <div style={{ margin: '20px' }}>
+                            <div style={{ display: 'flex', gap: '20px', justifyContent: 'space-between' }}>
+                                {/* Dropdown เลือกเวลาจอง */}
+                                <Select
+                                    style={{ flexGrow: 1 }} // ทำให้ dropdown นี้ขยายเต็มพื้นที่
+                                    placeholder="เลือกเวลาจอง"
+                                    onChange={(value) => {
+                                        console.log("เลือกเวลาจอง:", value); // Debug
+                                        setFormData((prev) => ({ ...prev, booking_time: value, return_time: null }));
+                                    }}
+                                    value={formData.booking_time || undefined}
+                                >
+                                    {['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'].map((time) => (
+                                        <Option key={time} value={time}>
+                                            {time}
+                                        </Option>
+                                    ))}
+                                </Select>
 
-                                            // ปุ่มที่เลือกครบ 2 ปุ่มแล้วจะไม่สามารถเลือกได้
-                                            const isDisabled = formData.selectedTime.length >= 2 && !isSelected;
-
-                                            // กำหนดสีตามการเลือก (ปุ่มแรกสีเขียว, ปุ่มที่สองสีแดง)
-                                            let buttonStyle = {
-                                                borderRadius: '10px',
-                                                width: '100px',
-                                                height: '30px',
-                                                fontWeight: 'bold',
-                                                padding: '8px 18px',
-                                                border: isSelected ? '2px solid' : '2px solid #ccc',
-                                                backgroundColor: isSelected
-                                                    ? selectedIndex === 0
-                                                        ? '#478D00' // สีเขียวสำหรับปุ่มแรก
-                                                        : '#FF4D4F'  // สีแดงสำหรับปุ่มที่สอง
-                                                    : isDisabled ? '#f5f5f5' : '#ffffff', // สีเทาสำหรับปุ่มที่ไม่สามารถเลือกได้
-                                                color: isSelected ? '#fff' : isDisabled ? '#a9a9a9' : '#333',
-                                                cursor: isDisabled ? 'not-allowed' : 'pointer',
-                                                transition: 'all 0.3s ease',
-                                            };
-                                            return (
-                                                <Button
-                                                    key={index}
-                                                    type={isSelected ? 'primary' : 'default'}
-                                                    disabled={unavailableTimes.includes(time) || isDisabled}
-                                                    style={buttonStyle}
-                                                    onClick={() => handleTimeSelect(time)}
-                                                >
-                                                    {time}
-                                                </Button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            ))}
+                                {/* Dropdown เลือกเวลาคืน */}
+                                <Select
+                                    style={{ flexGrow: 1 }} // ทำให้ dropdown นี้ขยายเต็มพื้นที่
+                                    placeholder="เลือกเวลาคืน"
+                                    onChange={(value) => setFormData({ ...formData, return_time: value })}
+                                    value={formData.return_time || undefined}
+                                    disabled={!formData.booking_time} // ปิดการใช้งานจนกว่าจะเลือกเวลาจองก่อน
+                                >
+                                    {['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00']
+                                        .filter((time) => !formData.booking_time || time > formData.booking_time) // แสดงเฉพาะเวลาที่มากกว่าเวลาจอง
+                                        .map((time) => (
+                                            <Option key={time} value={time}>
+                                                {time}
+                                            </Option>
+                                        ))}
+                                </Select>
+                            </div>
                         </div>
                         {/* ส่วนเลือกเวลา */}
 
@@ -477,11 +450,11 @@ export const CarBooking = () => {
                         <div style={{ maxWidth: '700px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px', justifyContent: 'center', margin: '0 100px' }}>
                             <div>
                                 <label style={{ fontWeight: 'bold' }}>วันที่-เวลาการจอง</label>
-                                <Input value={`${formatDate(startDate)} ${startTime}`} disabled />
+                                <Input value={`${formatDate(startDate)} ${formData.booking_time || ''}`} disabled />
                             </div>
                             <div>
                                 <label style={{ fontWeight: 'bold' }}>วันที่-เวลาการคืน</label>
-                                <Input value={`${formatDate(endDate)} ${endTime}`} disabled />
+                                <Input value={`${formatDate(endDate)}  ${formData.return_time || ''}`} disabled />
                             </div>
                             <div>
                                 <label style={{ fontWeight: 'bold' }}>ชื่อ-สกุล</label>
@@ -624,8 +597,8 @@ export const CarBooking = () => {
                                 )}
                                 <Divider />
                                 {[
-                                    { label: 'วันที่-เวลาการจอง', value: `${formatDate(startDate)} ${startTime}` },
-                                    { label: 'วันที่-เวลาการคืน', value: `${formatDate(endDate)} ${endTime}` },
+                                    { label: 'วันที่-เวลาการจอง', value: `${formatDate(startDate)} ${formData.booking_time || ''}` },
+                                    { label: 'วันที่-เวลาการคืน', value: `${formatDate(endDate)}  ${formData.return_time || ''}` },
                                     { label: 'ชื่อ-สกุล', value: userFullName },
                                     { label: 'ตำแหน่ง/แผนก', value: department },
                                     { label: 'จุดประสงค์การใช้งาน', value: formData.purpose },

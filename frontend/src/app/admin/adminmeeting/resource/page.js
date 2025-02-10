@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../component/sidebar';
 import Navbar from '../component/navbar';
-import Navigation from '../component/navigation';
-import { Layout, Table, Button, Modal, Form, Input, Select, Tag, Divider,message  } from 'antd';
+import { Layout, Table, Button, Modal, Form, Input, Select, Tag, message, Upload } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 const { Content } = Layout;
@@ -14,6 +14,11 @@ function MeetingRoomManagement() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
     const [form] = Form.useForm();
+    const [imageFile, setImageFile] = useState(null);
+
+    useEffect(() => {
+        fetchRooms();
+    }, []);
 
     const fetchRooms = async () => {
         try {
@@ -24,118 +29,104 @@ function MeetingRoomManagement() {
         }
     };
 
-    useEffect(() => {
-        fetchRooms();
-    }, []);
-
     const handleAdd = () => {
         setEditingRecord(null);
         form.resetFields();
+        setImageFile(null);
         setIsModalVisible(true);
     };
 
-    const handleDelete = async (room_id) => { // ใช้ room_id แทน
+    const handleDelete = async (room_id) => {
         if (window.confirm('คุณแน่ใจหรือไม่ว่าจะลบห้องประชุมนี้?')) {
             try {
-                // ทำการลบห้องประชุมจาก API
                 await axios.delete(`http://localhost:5182/api/rooms/${room_id}`);
-                message.success('ลบข้อมูลห้องประชุมสำเร็จ');
-                
-                // รีเฟรชข้อมูลห้องประชุม
-                fetchRooms(); 
+                message.success('ลบข้อมูลสำเร็จ');
+                fetchRooms();
             } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการลบข้อมูลห้องประชุม:', error);
                 message.error('เกิดข้อผิดพลาดในการลบข้อมูล');
             }
         }
-    };  
-    
+    };
+
     const handleEdit = (record) => {
         setEditingRecord(record);
         form.setFieldsValue({
             room_name: record.room_name,
-            capacity: record.capacity,
+            capacity: Number(record.capacity), // แปลงเป็นตัวเลข
             equipment: record.equipment,
             location: record.location,
-            status: record.status === 1 ? 'พร้อมใช้งาน' : 'ซ่อมบำรุง', // แปลงสถานะ
+            status: record.status || 1, // กำหนดค่าเริ่มต้นถ้าไม่มี
         });
         setIsModalVisible(true);
     };
 
+
     const handleSubmit = async (values) => {
-        if (editingRecord) {
-            // แปลงค่า status จากข้อความที่เลือกในฟอร์มกลับเป็นตัวเลข
-            const updatedValues = {
-                ...values,
-                status: values.status === 'พร้อมใช้งาน' ? 1 : 2,
-            };
+        console.log('Form values:', values); // ตรวจสอบค่าก่อนส่ง
 
-            try {
-                // ตรวจสอบว่า API ของคุณใช้ `room_id` หรือ `key`
-                await axios.put(`http://localhost:5182/api/rooms/${editingRecord.room_id || editingRecord.key}`, updatedValues);
+        if (!values.capacity) {
+            message.error('ค่าความจุห้องประชุมหายไป');
+            return;
+        }
 
-                // อัพเดทข้อมูลใน state
-                setData((prevData) =>
-                    prevData.map((item) =>
-                        item.key === editingRecord.key ? { ...item, ...updatedValues } : item
-                    )
-                );
-                setIsModalVisible(false); // ปิด Modal
-            } catch (error) {
-                console.error('Error updating room:', error);
+        const formData = new FormData();
+        formData.append('room_name', values.room_name);
+        formData.append('capacity', values.capacity);
+        formData.append('equipment', values.equipment ?? '');
+        formData.append('location', values.location ?? '');
+        formData.append('status', values.status ?? 1); // ถ้า `undefined` ให้เป็น `1`
+
+        if (imageFile) {
+            formData.append('image', imageFile);
+        }
+
+        try {
+            if (editingRecord) {
+                await axios.put(`http://localhost:5182/api/rooms/${editingRecord.room_id}`, formData);
+                message.success('แก้ไขข้อมูลสำเร็จ');
+            } else {
+                await axios.post('http://localhost:5182/api/rooms', formData);
+                message.success('เพิ่มห้องประชุมสำเร็จ');
             }
-        } else {
-            // เพิ่มข้อมูลห้องใหม่
-            try {
-                const response = await axios.post('http://localhost:5182/api/rooms', {
-                    room_name: values.room_name,
-                    capacity: values.capacity,
-                    equipment: values.equipment,
-                    location: values.location,
-                    status: values.status === 'พร้อมใช้งาน' ? 1 : 2, // ส่งสถานะเป็นตัวเลข
-                });
-
-                setData((prevData) => [
-                    ...prevData,
-                    { ...values, key: response.data.room.key }, // เพิ่มห้องใหม่
-                ]);
-                setIsModalVisible(false); // ปิด Modal
-            } catch (error) {
-                console.error('Error adding room:', error);
-            }
+            setIsModalVisible(false);
+            fetchRooms();
+        } catch (error) {
+            console.error('Error:', error);
+            message.error('เกิดข้อผิดพลาด');
         }
     };
 
-
-    const statusTypes = {
-        1: 'พร้อมใช้งาน',
-        2: 'ปิดปรับปรุง',
+    const handleFileChange = ({ file }) => {
+        setImageFile(file);
     };
 
     const columns = [
         {
             title: 'NO',
             key: 'no',
-            render: (_, __, index) => index + 1, // แสดงเลขลำดับที่เริ่มจาก 1
+            render: (_, __, index) => index + 1,
             width: '5%',
             align: 'center',
         },
         {
             title: 'รูปภาพ',
-            dataIndex: 'roomImage',
-            key: 'roomImage',
-            render: (image) => <img src={image} alt="Room" style={{ width: 80, height: 60, objectFit: 'cover' }} />,
-            width: '15%',
+            dataIndex: 'room_img',
+            key: 'room_img',
+            render: (image) => (
+                <img src={image ? `http://localhost:5182${image}` : '/default-room.png'}
+                    alt="Room"
+                    style={{ width: 80, height: 60, objectFit: 'cover' }} />
+            ),
         },
         {
             title: 'ชื่อห้องประชุม',
-            dataIndex: 'room_name', // ถ้าในฐานข้อมูลเป็น 'room_name'
+            dataIndex: 'room_name',
             key: 'room_name',
         },
         {
-            title: 'รายละเอียดห้อง',
+            title: 'รายละเอียด',
             key: 'roomDetails',
-            render: (text, record) => (
+            render: (_, record) => (
                 <div>
                     <p><strong>ความจุ:</strong> {record.capacity} คน</p>
                     <p><strong>อุปกรณ์:</strong> {record.equipment}</p>
@@ -147,9 +138,9 @@ function MeetingRoomManagement() {
             title: 'สถานะ',
             dataIndex: 'status',
             key: 'status',
-            render: (text, record) => (
-                <Tag color={record.status === 1 ? 'green' : 'red'}>
-                    {record.status === 1 ? 'พร้อมใช้งาน' : 'ซ่อมบำรุง'}
+            render: (status) => (
+                <Tag color={status === 1 ? 'green' : 'red'}>
+                    {status === 1 ? 'พร้อมใช้งาน' : 'ซ่อมบำรุง'}
                 </Tag>
             ),
         },
@@ -158,88 +149,63 @@ function MeetingRoomManagement() {
             key: 'action',
             render: (_, record) => (
                 <div style={{ display: 'flex', gap: '8px' }}>
-                    <Button
-                        type="primary"
-                        onClick={() => handleEdit(record)}
-                        size="small"
-                        style={{ background: '#029B36', border: 'none' }}
-                    >
-                        แก้ไข
-                    </Button>
-                    <Button
-                        danger
-                        onClick={() => handleDelete(record.room_id)} // ใช้ record.room_id แทน
-                        size="small"
-                    >
-                        ลบ
-                    </Button>
+                    <Button type="primary" onClick={() => handleEdit(record)} size="small">แก้ไข</Button>
+                    <Button danger onClick={() => handleDelete(record.room_id)} size="small">ลบ</Button>
                 </div>
             ),
-        },        
+        },
     ];
 
     return (
-        <Layout style={{ minHeight: '100vh', backgroundColor: '#ffff' }}>
+        <Layout style={{ minHeight: '100vh' }}>
             <Navbar />
-            <Layout style={{ padding: '0px 50px', marginTop: '80px', backgroundColor: '#ffff' }}>
+            <Layout style={{ padding: '0 50px', marginTop: '80px' }}>
                 <Sidebar />
-                <Layout style={{ padding: '0px 20px', backgroundColor: '#ffff' }}>
-                    <Navigation />
-                    <Content style={{
-                        marginTop: '21px',
-                        padding: '24px',
-                        backgroundColor: '#fff',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                    }}>
-                        <div style={{ maxWidth: '800px', margin: '40px auto' }}>
-                            <h2>การจัดการห้องประชุม</h2>
-                            <Divider />
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-                                <Button type="primary" style={{ background: '#029B36', border: 'none' }} onClick={handleAdd}>
-                                    เพิ่มข้อมูลห้องประชุม
-                                </Button>
-                            </div>
-                            <Table columns={columns} dataSource={data} pagination={false} />
-                            <Modal
-                                title={editingRecord ? 'แก้ไขข้อมูลห้องประชุม' : 'เพิ่มข้อมูลห้องประชุม'}
-                                visible={isModalVisible}
-                                onCancel={() => setIsModalVisible(false)}
-                                footer={null}
-                                centered
-                                width={500}
-                            >
-                                <Form form={form} onFinish={handleSubmit} layout="vertical">
-                                    <Form.Item label="ชื่อห้องประชุม" name="room_name" rules={[{ required: true, message: 'กรุณาใส่ชื่อห้องประชุม' }]}>
-                                        <Input placeholder="เช่น ห้องประชุม A" />
-                                    </Form.Item>
-                                    <Form.Item label="ความจุ" name="capacity" rules={[{ required: true, message: 'กรุณาใส่ความจุของห้อง' }]}>
-                                        <Input type="number" min={1} max={100} />
-                                    </Form.Item>
-                                    <Form.Item label="อุปกรณ์ในห้อง" name="equipment" rules={[{ required: true, message: 'กรุณาระบุอุปกรณ์ในห้องประชุม' }]}>
-                                        <Input placeholder="เช่น โปรเจคเตอร์, กระดานไวท์บอร์ด" />
-                                    </Form.Item>
-                                    <Form.Item label="สถานที่" name="location" rules={[{ required: true, message: 'กรุณาระบุสถานที่ห้องประชุม' }]}>
-                                        <Input placeholder="เช่น ชั้น 3 อาคาร A" />
-                                    </Form.Item>
-                                    <Form.Item label="สถานะ" name="status" rules={[{ required: true, message: 'กรุณาเลือกสถานะห้องประชุม' }]}>
-                                        <Select placeholder="เลือกสถานะ">
-                                            <Option value={1}>พร้อมใช้งาน</Option>
-                                            <Option value={2}>ซ่อมบำรุง</Option>
-                                        </Select>
-                                    </Form.Item>
+                <Content style={{ padding: '24px', backgroundColor: '#fff' }}>
+                    <h2>การจัดการห้องประชุม</h2>
+                    <Button type="primary" onClick={handleAdd}>เพิ่มห้องประชุม</Button>
+                    <Table columns={columns} dataSource={data} pagination={false} rowKey="room_id" />
+                    <Modal title={editingRecord ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูล'} open={isModalVisible} onCancel={() => setIsModalVisible(false)} footer={null}>
+                        <Form form={form} onFinish={handleSubmit} layout="vertical">
+                            <Form.Item label="ชื่อห้องประชุม" name="room_name" rules={[{ required: true, message: 'กรุณากรอกชื่อห้องประชุม' }]}>
+                                <Input />
+                            </Form.Item>
+                            <Form.Item label="ประเภทห้อง" name="capacity" rules={[{ required: true, message: 'กรุณากรอกความจุห้อง' }]}>
+                                <Input type="number" />
+                            </Form.Item>
 
-                                    <Form.Item>
-                                        <Button type="primary" htmlType="submit" block>บันทึก</Button>
-                                    </Form.Item>
-                                </Form>
-                            </Modal>
-                        </div>
-                    </Content>
-                </Layout>
+                            <Form.Item label="ความจุ" name="capacity" rules={[{ required: true, message: 'กรุณากรอกความจุห้อง' }]}>
+                                <Input type="number" />
+                            </Form.Item>
+                            <Form.Item label="อุปกรณ์" name="equipment" rules={[{ required: true, message: 'กรุณากรอกอุปกรณ์ที่มีในห้อง' }]}>
+                                <Input />
+                            </Form.Item>
+                            <Form.Item label="สถานที่" name="location" rules={[{ required: true, message: 'กรุณากรอกตำแหน่งห้อง' }]}>
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                label="สถานะ"
+                                name="status"
+                                rules={[{ required: true, message: 'กรุณาเลือกสถานะ' }]}
+                                initialValue={1}
+                            >
+                                <Select>
+                                    <Option value={1}>พร้อมใช้งาน</Option>
+                                    <Option value={2}>ซ่อมบำรุง</Option>
+                                </Select>
+                            </Form.Item>
+                            <Form.Item label="อัปโหลดรูปภาพ">
+                                <Upload beforeUpload={() => false} onChange={handleFileChange} listType="picture">
+                                    <Button icon={<UploadOutlined />}>เลือกไฟล์</Button>
+                                </Upload>
+                            </Form.Item>
+                            <Button type="primary" htmlType="submit">บันทึก</Button>
+                        </Form>
+
+                    </Modal>
+                </Content>
             </Layout>
         </Layout>
     );
 }
-
 export default MeetingRoomManagement;

@@ -51,7 +51,7 @@ namespace YourNamespace.Controllers
                 return NotFound(new { message = "Booking not found" });
 
             // อัปเดตสถานะและเวลาอัปเดตล่าสุด
-            booking.status = newStatus;
+            booking.booking_status = newStatus;
             booking.updated_at = DateTime.UtcNow;
 
             await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงลงฐานข้อมูล

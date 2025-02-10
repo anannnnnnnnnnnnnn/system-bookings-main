@@ -87,7 +87,7 @@ function SelectSystem() {
               }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-              onClick={() => navigate('/users/home/meetingroom')}
+              onClick={() => navigate('/user/home/meetingroom/complete')}
             >
               <TeamOutlined style={{ fontSize: '48px', color: '#73d13d', marginBottom: '15px' }} />
               <Title level={4} style={{

@@ -110,7 +110,6 @@ const ToursPage = () => {
       });
   };
 
-
   const handleDelete = (car_id) => {
     axios.delete(`http://localhost:5182/api/cars/${car_id}`)
       .then((response) => {

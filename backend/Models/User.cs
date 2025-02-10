@@ -11,9 +11,6 @@ namespace YourNamespace.Models
     public string? phone_number { get; set; }
     public int role { get; set; }
     public string? department { get; set; }
-
-
-        
-        // public string? RefreshToken { get; set; } // Refresh Token (ถ้าใช้)
+     public string? profile_picture { get; set; } // ฟิลด์ใหม่สำหรับเก็บรูปภาพ
     }
 }

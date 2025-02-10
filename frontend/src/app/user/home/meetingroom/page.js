@@ -115,118 +115,15 @@ function CarBooking() {
                                             color: '#333', // สีข้อความรอง
                                         }}
                                     >
-                                        เลือกรถที่ต้องการจอง
+                                        ปฎิทิน
                                     </span>
                                 </Breadcrumb.Item>
                             </Breadcrumb>
                         </div>
 
                         {/* Content */}
-                        <Content
-                            style={{
-                                background: '#ffffff', // พื้นหลังสีขาว
-                                marginTop: '10px',
-                                marginLeft: '50px',
-                                padding: '20px',
-                                borderRadius: '8px',
-                            }}
-                        >
-                            <Title
-                                level={2}
-                                style={{
-                                    marginBottom: '24px',
-                                    fontSize: screens.xs ? '20px' : '28px',
-                                    color: '#666',
-                                }}
-                            >
-                                เลือกรถที่ต้องการจอง
-                            </Title>
-                            {/* ตรวจสอบสถานะโหลดข้อมูล */}
-                            {loading ? (
-                                <Spin tip="กำลังโหลดข้อมูล..." />
-                            ) : (
-                                <Row gutter={[24, 24]} style={{ backgroundColor: '#ffffff', padding: '10px' }}>
-                                    {cars.map((car) => (
-                                        <Col xs={24} sm={12} md={12} key={car.id}>
-                                            <Card
-                                                hoverable
-                                                cover={
-                                                    <img
-                                                        alt={car.name}
-                                                        src={`http://localhost:5182${car.image_url}`}
-                                                        style={{
-                                                            height: '250px',
-                                                            objectFit: 'cover',
-                                                            borderTopLeftRadius: '8px',
-                                                            borderTopRightRadius: '8px',
-                                                        }}
-                                                    />
-                                                }
-                                                style={{
-                                                    borderRadius: '8px',
-                                                    overflow: 'hidden',
-                                                    backgroundColor: '#ffffff',
-                                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', // เพิ่มเงา
-                                                    transition: 'transform 0.3s ease-in-out',
-                                                }}
-                                                bodyStyle={{ padding: '16px' }}
-                                                onMouseEnter={(e) =>
-                                                    e.currentTarget.style.transform = 'scale(1.02)' // เอฟเฟกต์ขยายเมื่อ hover
-                                                }
-                                                onMouseLeave={(e) =>
-                                                    e.currentTarget.style.transform = 'scale(1)' // กลับสู่ขนาดเดิมเมื่อเลิก hover
-                                                }
-                                            >
-                                                <Card.Meta
-                                                    title={
-                                                        <span style={{ fontWeight: 'bold', fontSize: '20px', color: '#4CAF50' }}>
-                                                            {car.brand}
-                                                        </span>
-                                                    }
-                                                    description={
-                                                        <span style={{ fontSize: '14px', color: '#666' }}>{car.details}</span>
-                                                    }
-                                                />
-                                                <div style={{ marginTop: '10px' }}>
-                                                    <p style={{ fontSize: '14px', margin: '5px 0' }}>
-                                                        <strong>รุ่น:</strong> {car.model}
-                                                    </p>
-                                                    <p style={{ fontSize: '14px', margin: '5px 0' }}>
-                                                        <strong>ป้ายทะเบียน:</strong> {car.license_plate}
-                                                    </p>
-                                                    <p style={{ fontSize: '14px', margin: '5px 0' }}>
-                                                        <strong>ผู้โดยสาร:</strong> {car.seating_capacity} คน
-                                                    </p>
-                                                    <p
-                                                        style={{
-                                                            fontSize: '14px',
-                                                            color: car.status === 1 ? '#4CAF50' : '#FF4D4F',
-                                                            fontWeight: 'bold',
-                                                        }}
-                                                    >
-                                                        <strong style={{ color: '#333' }}>สถานะ:</strong> {car.status === 1 ? 'ว่าง' : 'ไม่ว่าง'}
-                                                    </p>
-                                                    <button
-                                                        style={{
-                                                            marginTop: '10px',
-                                                            padding: '10px 20px',
-                                                            backgroundColor: '#4CAF50',
-                                                            color: '#fff',
-                                                            border: 'none',
-                                                            borderRadius: '4px',
-                                                            cursor: 'pointer',
-                                                            fontSize: '14px',
-                                                        }}
-                                                        onClick={() => handleSelectCar(car)} // ส่งทั้ง car object ไป
-                                                    >
-                                                        จองรถ
-                                                    </button>
-                                                </div>
-                                            </Card>
-                                        </Col>
-                                    ))}
-                                </Row>
-                            )}
+                        <Content>
+                          
                         </Content>
                     </Layout>
                 </Layout>

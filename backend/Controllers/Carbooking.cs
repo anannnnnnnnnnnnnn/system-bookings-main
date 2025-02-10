@@ -4,6 +4,7 @@ using YourNamespace.Data;
 using YourNamespace.Models;
 using Newtonsoft.Json; // นำเข้าไลบรารี
 
+
 namespace YourNamespace.Controllers
 {
     [ApiController]
@@ -88,32 +89,30 @@ namespace YourNamespace.Controllers
                 return BadRequest(new { message = "Booking date and return date are required." });
             }
 
-            // แปลง DateOnly เป็น DateTime และเพิ่มเวลาเข้าไป
-            var bookingStart = carbooking.booking_date.Value.ToDateTime(TimeOnly.FromTimeSpan(carbooking.booking_time ?? TimeSpan.Zero));
-            var bookingEnd = carbooking.return_date.Value.ToDateTime(TimeOnly.FromTimeSpan(carbooking.return_time ?? TimeSpan.Zero));
+            var bookingStart = carbooking.booking_date.Value.Add(carbooking.booking_time ?? TimeSpan.Zero);
+            var bookingEnd = carbooking.return_date.Value.Add(carbooking.return_time ?? TimeSpan.Zero);
 
             if (bookingStart >= bookingEnd)
             {
                 return BadRequest(new { message = "Return date and time must be after booking date and time." });
             }
 
+            // ตรวจสอบว่ารถมีอยู่จริงหรือไม่
+            var carExists = await _context.Cars.AnyAsync(c => c.car_id == carbooking.car_id);
+            if (!carExists)
+            {
+                return BadRequest(new { message = "Car not found." });
+            }
+
             var carBookings = await _context.Carbookings
-                .Where(b => b.car_id == carbooking.car_id && b.status == 1)
+                .Where(b => b.car_id == carbooking.car_id && b.booking_status == 1)
                 .ToListAsync();
 
-            // ตรวจสอบว่าช่วงเวลาจองทับซ้อนกันหรือไม่
             var isOverlapping = carBookings
                 .Any(b =>
-                {
-                    var existingStart = b.booking_date.Value.ToDateTime(TimeOnly.FromTimeSpan(b.booking_time ?? TimeSpan.Zero));
-                    var existingEnd = b.return_date.Value.ToDateTime(TimeOnly.FromTimeSpan(b.return_time ?? TimeSpan.Zero));
-
-                    // Log ข้อมูลเพื่อ Debug
-                    Console.WriteLine($"New Booking: {bookingStart} - {bookingEnd}");
-                    Console.WriteLine($"Existing Booking: {existingStart} - {existingEnd}");
-
-                    return bookingStart < existingEnd && bookingEnd > existingStart;
-                });
+                    b.booking_date.HasValue && b.return_date.HasValue &&
+                    b.booking_date.Value.Add(b.booking_time ?? TimeSpan.Zero) < bookingEnd &&
+                    b.return_date.Value.Add(b.return_time ?? TimeSpan.Zero) > bookingStart);
 
             if (isOverlapping)
             {
@@ -127,12 +126,19 @@ namespace YourNamespace.Controllers
 
             if (carbooking.confirmation_id == 0)
             {
-                carbooking.confirmation_id = new Random().Next(100000, 999999);
+                var lastBooking = await _context.Carbookings
+                    .OrderByDescending(b => b.confirmation_id)
+                    .FirstOrDefaultAsync();
+
+                carbooking.confirmation_id = (lastBooking?.confirmation_id ?? 0) + 1;
             }
 
-            carbooking.status = 1;
+            carbooking.booking_status = 1;
             carbooking.created_at = DateTime.UtcNow;
             carbooking.updated_at = DateTime.UtcNow;
+
+            // ✅ แก้ปัญหา: อย่าแนบ Car
+            carbooking.Car = null;
 
             _context.Carbookings.Add(carbooking);
             await _context.SaveChangesAsync();
@@ -146,6 +152,7 @@ namespace YourNamespace.Controllers
                                         booking = carbooking
                                     });
         }
+
 
         [HttpGet("{confirmation_id}")]
         public async Task<IActionResult> GetBookingByConfirmationId(int confirmation_id)
@@ -165,33 +172,33 @@ namespace YourNamespace.Controllers
         [HttpPut("{id}/approve")]
         public async Task<IActionResult> ApproveBooking(int id)
         {
-            var Carbooking = await _context.Carbookings.FindAsync(id);
-            if (Carbooking == null) return NotFound();
+            var carbooking = await _context.Carbookings.FindAsync(id);
+            if (carbooking == null) return NotFound();
 
-            if (Carbooking.status != 1)
+            if (carbooking.booking_status != 1)
             {
                 return BadRequest(new { message = "Booking is not in pending status" });
             }
 
-            Carbooking.status = 2; // อัปเดตสถานะ
+            carbooking.booking_status = 2; // อัปเดตสถานะ
             await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลง
 
             return Ok(new { message = "Booking approved" });
         }
 
-
         [HttpPut("{id}/reject")]
-        public async Task<IActionResult> RejectBooking(int id)
+        public async Task<IActionResult> RejectBooking(int id, [FromBody] RejectBookingDto rejectDto)
         {
             var booking = await _context.Carbookings.FindAsync(id);
             if (booking == null) return NotFound();
 
-            booking.status = 3; // ไม่อนุมัติ
+            booking.booking_status = 3; // เปลี่ยนสถานะเป็น "ปฏิเสธ"
+            booking.reject_reason = rejectDto.RejectReason; // บันทึกเหตุผลปฏิเสธ
+            booking.updated_at = DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
-            return Ok(new { message = "Booking rejected" });
+            return Ok(new { message = "Booking rejected", reject_reason = booking.reject_reason });
         }
-
-
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> CancelBooking(int id)
@@ -217,5 +224,26 @@ namespace YourNamespace.Controllers
             return Ok(new { message = "Booking cancelled successfully." });
         }
 
+        [HttpGet("unavailable-times")]
+        public IActionResult GetUnavailableTimes(int carId, DateTime bookingDate)
+        {
+            // ดึงข้อมูลการจองของรถในวันเดียวกัน
+            var bookings = _context.Carbookings
+                .Where(b => b.car_id == carId && b.booking_date == bookingDate.Date) // เปรียบเทียบเฉพาะวันที่
+                .Select(b => new
+                {
+                    startTime = b.booking_time, // เวลาเริ่มต้นจอง
+                    endTime = b.return_time    // เวลาคืนรถ
+                })
+                .ToList();
+
+            // ส่งรายการเวลาที่ไม่ว่างกลับไป
+            return Ok(bookings);
+        }
     }
+    public class RejectBookingDto
+    {
+        public string RejectReason { get; set; } = string.Empty;
+    }
+
 }

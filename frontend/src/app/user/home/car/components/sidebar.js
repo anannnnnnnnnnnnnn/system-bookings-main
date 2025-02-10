@@ -41,13 +41,13 @@ function Sidebar() {
         }}
       >
         <Menu.Item key="1" icon={<CarOutlined />}>
+          <Link href="/user/home/car">หน้าหลัก</Link>
+        </Menu.Item>
+        <Menu.Item key="2" icon={<CarOutlined />}>
           <Link href="/user/home/car/complete">จองรถ</Link>
         </Menu.Item>
-        <Menu.Item key="2" icon={<HomeOutlined />}>
-          <Link href="/users/home/car">ปฎิทิน</Link>
-        </Menu.Item>
-        <Menu.Item key="3" icon={<InfoCircleOutlined />}>
-          <Link href="/users/home/car/detail">รายละเอียด</Link>
+        <Menu.Item key="3" icon={<HomeOutlined />}>
+          <Link href="/user/home/car/recore">ประวัติการจอง</Link>
         </Menu.Item>
       </Menu>
     </>

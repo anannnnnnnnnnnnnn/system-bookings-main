@@ -41,13 +41,10 @@ function Sidebar() {
         }}
       >
         <Menu.Item key="1" icon={<CarOutlined />}>
-          <Link href="/user/home/car/complete">จองรถ</Link>
+          <Link href="/user/home/meetingroom/complete">จองรถ</Link>
         </Menu.Item>
         <Menu.Item key="2" icon={<HomeOutlined />}>
-          <Link href="/users/home/car">ปฎิทิน</Link>
-        </Menu.Item>
-        <Menu.Item key="3" icon={<InfoCircleOutlined />}>
-          <Link href="/users/home/car/detail">รายละเอียด</Link>
+          <Link href="/user/home/meetingroom">ปฎิทิน</Link>
         </Menu.Item>
       </Menu>
     </>
@@ -63,11 +60,12 @@ function Sidebar() {
           collapsed={collapsed}
           style={{
             backgroundColor: '#fff',
-            height:'500px',
+            height: '500px',
             boxShadow:
-              '0px 4px 8px rgba(0, 0, 0, 0.1), 0px -4px 8px rgba(0, 0, 0, 0.1), 4px 0px 8px rgba(0, 0, 0, 0.1), -4px 0px 8px rgba(0, 0, 0, 0.1)', // เงาทุกด้าน
-            borderRadius: '10px', // มุมโค้ง
+              '0px 4px 8px rgba(0, 0, 0, 0.1), 0px -4px 8px rgba(0, 0, 0, 0.1), 4px 0px 8px rgba(0, 0, 0, 0.1), -4px 0px 8px rgba(0, 0, 0, 0.1)',
+            borderRadius: '10px',
             overflow: 'hidden',
+            border: '3px solid #black', // 🔹 เพิ่มเส้นขอบสีเขียว
           }}
         >
           {sidebarContent}
@@ -89,18 +87,31 @@ function Sidebar() {
             }}
           />
           <Drawer
-            width="75%" // เปลี่ยนขนาด Drawer เพื่อให้เหมาะสมกับหน้าจอเล็ก
+            width="75%"
             placement="left"
             onClose={toggleDrawer}
             visible={visible}
-            bodyStyle={{ padding: 0 }}
-            headerStyle={{ background: '#fafafa' }}
+            bodyStyle={{
+              padding: 0,
+              border: '2px solid #478d00', // 🔹 เพิ่มเส้นขอบสีเขียว
+            }}
+            headerStyle={{
+              background: '#fafafa',
+              borderBottom: '2px solid #478d00', // 🔹 เพิ่มเส้นขอบด้านล่างของ header
+            }}
           >
+
             {sidebarContent}
           </Drawer>
         </>
       )}
       <style jsx global>{`
+        .ant-layout-sider {
+    border: 2px solid #black !important; /* 🔹 เส้นขอบ Sider */
+  }
+  .ant-drawer-content {
+    border: 2px solid #black !important; /* 🔹 เส้นขอบ Drawer */
+  }
         .ant-menu-item-selected {
           background-color: #478d00 !important; /* สีเขียวเมื่อ active */
           color: #ffffff !important; /* ตัวอักษรสีขาว */
@@ -116,10 +127,10 @@ function Sidebar() {
         .ant-menu-item a {
           color: #000000; /* ตัวอักษรสีดำเมื่อไม่ได้เลือก */
         }
+          
       `}</style>
     </>
   );
 }
 
 export default Sidebar;
-  

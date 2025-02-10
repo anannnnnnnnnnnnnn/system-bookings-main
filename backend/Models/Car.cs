@@ -19,5 +19,9 @@ namespace YourNamespace.Models
 
         public DateTime created_at { get; set; } = DateTime.UtcNow;  // ค่าเริ่มต้นเป็น current_timestamp()
         public DateTime updated_at { get; set; } = DateTime.UtcNow;  // ค่าเริ่มต้นเป็น current_timestamp() และ ON UPDATE CURRENT_TIMESTAMP()
+
+        // เพิ่มคอลัมน์ประเภทของรถ
+        public int type { get; set; }  // ประเภทของรถ (1=รถทั่วไป, 2=รถตู้, 3=รถกระบะ)
+        
     }
 }

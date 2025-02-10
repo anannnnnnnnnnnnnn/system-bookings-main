@@ -4,15 +4,19 @@ import { FlagOutlined, UserOutlined, SettingOutlined, LogoutOutlined, DownOutlin
 
 const { Header } = Layout;
 
-const Navbar = () => {
-    const [userFullName, setUserFullName] = useState(null); // สถานะสำหรับเก็บชื่อผู้ใช้
+const Navbar = ({ onUserFullNameChange }) => {  // รับ prop จาก ApproveBookings
+    const [userFullName, setUserFullName] = useState(null);
 
     useEffect(() => {
         const storedFullName = localStorage.getItem("userFullName");
         if (storedFullName) {
-            setUserFullName(storedFullName); // ถ้ามีชื่อผู้ใช้ใน localStorage ก็ให้แสดง
+            setUserFullName(storedFullName);
+            if (typeof onUserFullNameChange === 'function') {
+                onUserFullNameChange(storedFullName);  // เรียกใช้ฟังก์ชันถ้ามี
+            }
         }
-    }, []);
+    }, [onUserFullNameChange]);
+
 
     // ฟังก์ชันที่ใช้สำหรับออกจากระบบ
     const handleLogout = () => {
@@ -120,7 +124,7 @@ const Navbar = () => {
                             <SettingOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
                         </Dropdown>
                     </div>
-                    
+
                     {/* ชื่อผู้ใช้งานและสถานะ */}
                     <Dropdown overlay={userMenu} trigger={["click"]}>
                         <div
