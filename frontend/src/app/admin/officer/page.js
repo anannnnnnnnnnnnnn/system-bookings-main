@@ -1,6 +1,11 @@
 'use client'
 import { useState, useEffect } from "react";
-import { Table, message, Layout, Typography, Button, Modal, Select, Card, Col, Row, Space } from "antd";
+import { Table, message, Layout, Typography, Button, Modal, Select, Card, Col, Row, Space, } from "antd";
+import Navbar from "@/app/users/home/navbar";
+import dayjs from 'dayjs';
+import 'dayjs/locale/th'; // นำเข้า locale ภาษาไทย
+
+dayjs.locale('th'); // ตั้งค่าให้ dayjs ใช้ภาษาไทย
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -39,29 +44,45 @@ const ApproveBookings = () => {
   };
 
   const updateBookingStatus = async (confirmationId) => {
-    try {
-      const res = await fetch(`http://localhost:5182/api/bookings/update-status/${confirmationId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-      });
+    Modal.confirm({
+      title: "ยืนยันการคืนรถ",
+      content: "คุณแน่ใจหรือไม่ว่าต้องการคืนรถ?",
+      okText: "ยืนยัน",
+      cancelText: "ยกเลิก",
+      onOk: async () => {
+        try {
+          const res = await fetch(`http://localhost:5182/api/bookings/update-status/${confirmationId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+          });
 
-      if (res.ok) {
-        message.success("อัปเดตสถานะเรียบร้อยแล้ว");
-        fetchBookings();
-      } else {
-        const errorData = await res.json();
-        message.error(errorData.message);
+          if (res.ok) {
+            message.success("อัปเดตสถานะเรียบร้อยแล้ว");
+            fetchBookings();
+          } else {
+            const errorData = await res.json();
+            message.error(errorData.message);
+          }
+        } catch (error) {
+          message.error("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
+        }
       }
-    } catch (error) {
-      message.error("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
-    }
+    });
   };
 
   // กรองข้อมูลตาม filterStatus
   const filteredBookings = bookings.filter(booking => booking.booking_status === filterStatus);
 
   const columns = [
-    { title: "วันที่จอง", dataIndex: "booking_date", key: "booking_date" },
+    {
+      title: "วันที่จองและคืน",
+      key: "booking_dates",
+      render: (text, record) => {
+        const bookingDate = dayjs(record.booking_date).format("DD MMM YYYY");
+        const returnDate = dayjs(record.return_date).format("DD MMM YYYY");
+        return `${bookingDate} - ${returnDate}`;
+      },
+    },
     { title: "ชื่อผู้จอง", dataIndex: "full_name", key: "full_name" },
     { title: "หมายเลขการจอง", dataIndex: "confirmation_id", key: "confirmation_id" },
     { title: "จุดหมาย", dataIndex: "destination", key: "destination" },
@@ -88,18 +109,24 @@ const ApproveBookings = () => {
         <Button
           type="primary"
           style={{ backgroundColor: 'purple', borderColor: '#ffff' }}
-          onClick={() => updateBookingStatus(record.confirmation_id)}
+          onClick={(e) => {
+            e.stopPropagation(); // ป้องกัน Modal รายละเอียดขึ้นมา
+            updateBookingStatus(record.confirmation_id);
+          }}
           disabled={record.booking_status !== 2}
         >
           คืนรถ
         </Button>
+
       ),
     }
   ];
 
   // ฟังก์ชันเปิด Modal และกำหนดข้อมูลแถวที่ถูกคลิก
   const handleRowClick = async (record) => {
-    setSelectedBooking(record);  // เก็บข้อมูลการจองที่คลิก
+    if (!record) return;
+
+    setSelectedBooking(record); // เก็บข้อมูลการจองที่คลิก
 
     try {
       const res = await fetch(`http://localhost:5182/api/users/by-name?full_name=${record.full_name}`);
@@ -116,7 +143,7 @@ const ApproveBookings = () => {
       if (userData && userData.length > 0) {
         setSelectedBooking((prev) => ({
           ...prev,
-          user: userData[0],  // เพิ่มข้อมูลผู้ใช้เข้าไปใน selectedBooking
+          user: userData[0], // เพิ่มข้อมูลผู้ใช้เข้าไปใน selectedBooking
         }));
       } else {
         message.error("ไม่พบข้อมูลผู้ใช้");
@@ -132,121 +159,166 @@ const ApproveBookings = () => {
 
 
 
+
   return (
-    <Layout style={{ padding: "20px", backgroundColor: "#fff" }}>
-      <Title level={4}>การอนุมัติการจอง</Title>
+    <Layout style={{ backgroundColor: '#fff' }}>
+      {/* Navbar */}
+      <Navbar />
 
-      {/* Dropdown Filter */}
-      <div style={{ marginBottom: '20px' }}>
-        <Select
-          value={filterStatus}
-          onChange={(value) => setFilterStatus(value)}
-          style={{ width: 200 }}
+      <Layout style={{ padding: "30px", backgroundColor: "#fff", marginTop: '80px' }}>
+        <Title level={4}>การอนุมัติการจอง</Title>
+
+        {/* Dropdown Filter */}
+        <div style={{ marginBottom: '20px' }}>
+          <Select
+            value={filterStatus}
+            onChange={(value) => setFilterStatus(value)}
+            style={{ width: 200 }}
+          >
+            <Option value={2}>อนุมัติแล้ว</Option>
+            <Option value={4}>คืนรถแล้ว</Option>
+          </Select>
+        </div>
+
+        {/* ตารางแสดงข้อมูล */}
+        <Table
+          dataSource={filteredBookings}
+          columns={columns}
+          rowKey="confirmation_id"
+          loading={loading}
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record),
+          })}
+        />
+
+        {/* Modal สำหรับแสดงรายละเอียด */}
+        <Modal
+          title="รายละเอียดการจอง"
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          footer={null}
+          width={900}
+          bodyStyle={{
+            padding: '20px',
+            overflowY: 'auto',
+            backgroundColor: '#ffffff',
+          }}
         >
-          <Option value={2}>อนุมัติแล้ว</Option>
-          <Option value={4}>คืนรถแล้ว</Option>
-        </Select>
-      </div>
-
-      {/* ตารางแสดงข้อมูล */}
-      <Table
-        dataSource={filteredBookings}
-        columns={columns}
-        rowKey="confirmation_id"
-        loading={loading}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record),
-        })}
-      />
-
-      {/* Modal สำหรับแสดงรายละเอียด */}
-      <Modal
-        title="รายละเอียดการจอง"
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        footer={null}
-        width={600}
-        style={{ top: 20 }}
-      >
-        {selectedBooking && (
-          <div>
-            {/* ข้อมูลผู้ใช้ */}
-            {selectedBooking.user && (
-              <div style={{ marginBottom: '15px', padding: '20px', backgroundColor: '#fafafa', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
-                <Row gutter={16}>
-                  {/* ข้อมูลภาพผู้ใช้ */}
-                  <Col xs={24} sm={8} md={6}>
+          {selectedBooking && (
+            <Row gutter={16}>
+              {/* ข้อมูลผู้จอง */}
+              {selectedBooking.user && (
+                <Col span={8}>
+                  <Text strong style={{ fontSize: '16px', marginBottom: '8px' }}>ข้อมูลผู้จอง</Text>
+                  <div
+                    style={{
+                      padding: '15px',
+                      borderRadius: '8px',
+                      backgroundColor: '#fff',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      marginBottom: '15px',
+                    }}
+                  >
                     <img
                       src={`http://localhost:5182${selectedBooking.user.profile_picture}`}
                       alt="Profile"
-                      style={{ width: '75%', height: 'auto', borderRadius: '50%' }}
+                      style={{
+                        width: '70px',
+                        height: '70px',
+                        borderRadius: '50%',
+                        marginBottom: '10px',
+                      }}
                     />
-                  </Col>
-                  {/* ข้อมูลผู้ใช้ */}
-                  <Col xs={24} sm={16} md={18}>
-                    <div style={{ marginBottom: '10px' }}>
-                      <Text strong style={{ fontSize: '14px' }}>อีเมล์: {selectedBooking.user.email}</Text>
-                    </div>
-                    <div style={{ marginBottom: '10px' }}>
-                      <Text strong style={{ fontSize: '14px' }}>หมายเลขโทรศัพท์: {selectedBooking.user.phone_number}</Text>
-                    </div>
-                    <div style={{ marginBottom: '10px' }}>
-                      <Text strong style={{ fontSize: '14px' }}>แผนก: {selectedBooking.user.department}</Text>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-            )}
+                    <Space direction="vertical" size={8} style={{ width: '100%', textAlign: 'center' }}>
+                      <div><Text strong>ชื่อ:</Text> <Text>{selectedBooking.full_name}</Text></div>
+                      <div><Text strong>อีเมล:</Text> <Text>{selectedBooking.user.email}</Text></div>
+                      <div><Text strong>เบอร์โทร:</Text> <Text>{selectedBooking.user.phone_number}</Text></div>
+                      <div><Text strong>แผนก:</Text> <Text>{selectedBooking.user.department}</Text></div>
+                    </Space>
+                  </div>
+                </Col>
+              )}
 
-            {/* ข้อมูลรถที่จอง */}
-            {selectedBooking.carDetails && (
-              <div style={{ marginBottom: '20px', padding: '20px', backgroundColor: '#fafafa', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
-                <Row gutter={16}>
-                  {/* ข้อมูลภาพรถ */}
-                  <Col xs={24} sm={8} md={6}>
-                    <img
-                      src={`http://localhost:5182${selectedBooking.carDetails.image_url}`}
-                      alt="Car"
-                      style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
-                    />
-                  </Col>
+              {/* ข้อมูลการจอง */}
+              <Col span={16}>
+                <Text strong style={{ fontSize: '16px', marginBottom: '8px' }}>รายละเอียดการจอง</Text>
+                <div
+                  style={{
+                    backgroundColor: '#fff',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                    marginBottom: '15px',
+                  }}
+                >
                   {/* ข้อมูลรถ */}
-                  <Col xs={24} sm={16} md={18}>
-                    <div style={{ marginBottom: '10px' }}>
-                      <Text strong style={{ fontSize: '14px' }}>รถที่จอง: {selectedBooking.carDetails.brand} {selectedBooking.carDetails.model}</Text>
-                    </div>
-                    <div style={{ marginBottom: '10px' }}>
-                      <Text strong style={{ fontSize: '14px' }}>ทะเบียนรถ: {selectedBooking.carDetails.license_plate}</Text>
-                    </div>
-                    <div style={{ marginBottom: '10px' }}>
-                      <Text strong style={{ fontSize: '14px' }}>ปีผลิต: {selectedBooking.carDetails.year}</Text>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-            )}
+                  {selectedBooking.carDetails && (
+                    <Row gutter={[8, 8]}>
+                      <Col span={8}>
+                        <img
+                          src={`http://localhost:5182${selectedBooking.carDetails.image_url}`}
+                          alt="Car"
+                          style={{
+                            width: '100%',
+                            height: 'auto',
+                            maxWidth: '120px', // ลดขนาดภาพ
+                            borderRadius: '8px',
+                            objectFit: 'cover',
+                            marginBottom: '10px',
+                            marginLeft: '20px'
+                          }}
+                        />
+                      </Col>
+                      <Col span={16}>
+                        <Row gutter={12}>
+                          <Col span={12}>
+                            <div><Text strong>รหัสรถ:</Text> <Text>{selectedBooking.carDetails.car_id}</Text></div>
+                            <div><Text strong>ยี่ห้อ:</Text> <Text>{selectedBooking.carDetails.brand}</Text></div>
+                            <div><Text strong>รุ่น:</Text> <Text>{selectedBooking.carDetails.model}</Text></div>
+                          </Col>
+                          <Col span={12}>
+                            <div><Text strong>ทะเบียนรถ:</Text> <Text>{selectedBooking.carDetails.license_plate}</Text></div>
+                            <div><Text strong>ประเภทเชื้อเพลิง:</Text>
+                              <Text>{selectedBooking.carDetails.fuel_type === 1 ? 'น้ำมัน' : selectedBooking.carDetails.fuel_type === 2 ? 'ไฟฟ้า' : 'แก๊ส'}</Text>
+                            </div>
+                            <div><Text strong>ความจุที่นั่ง:</Text> <Text>{selectedBooking.carDetails.seating_capacity}</Text></div>
+                          </Col>
+                        </Row>
+                      </Col>
+                    </Row>
+                  )}
+                </div>
 
-            {/* ข้อมูลการจอง */}
-            <div style={{ padding: '20px', backgroundColor: '#fafafa', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
-              <div style={{ marginBottom: '10px' }}>
-                <Text strong style={{ fontSize: '14px' }}>หมายเลขการจอง: {selectedBooking.confirmation_id}</Text>
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <Text strong style={{ fontSize: '14px' }}>ชื่อผู้จอง: {selectedBooking.full_name}</Text>
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <Text strong style={{ fontSize: '14px' }}>วันที่จอง: {selectedBooking.booking_date}</Text>
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <Text strong style={{ fontSize: '14px' }}>จุดหมาย: {selectedBooking.destination}</Text>
-              </div>
-              <div style={{ marginBottom: '10px' }}>
-                <Text strong style={{ fontSize: '14px' }}>สถานะ: {selectedBooking.booking_status === 2 ? "อนุมัติแล้ว" : "คืนรถแล้ว"}</Text>
-              </div>
-            </div>
-          </div>
-        )}
-      </Modal>
+                {/* รายละเอียดการจอง */}
+                <Text strong style={{ fontSize: '16px', marginBottom: '8px' }}>ข้อมูลการจอง</Text>
+                <div
+                  style={{
+                    backgroundColor: '#fff',
+                    padding: '15px',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <Row gutter={[16, 16]}>
+                    {/* หมายเลขการจอง */}
+                    <Col span={12}>
+                      <div><Text strong>หมายเลขการจอง:</Text> <Text>{selectedBooking.booking_number}</Text></div>
+                      <div><Text strong>วันที่จอง:</Text> <Text>{new Date(selectedBooking.booking_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</Text></div>
+                    </Col>
+
+                    <Col span={12}>
+                      <div><Text strong>วันที่คืนรถ:</Text> <Text>{new Date(selectedBooking.return_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</Text></div>
+                    </Col>
+                  </Row>
+                </div>
+              </Col>
+            </Row>
+          )}
+        </Modal>
+      </Layout>
     </Layout>
   );
 };

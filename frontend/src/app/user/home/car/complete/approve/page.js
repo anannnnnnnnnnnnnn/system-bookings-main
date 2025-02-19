@@ -47,7 +47,7 @@ export default function ConfirmationPage() {
     }, [confirmation_id]);
 
     const handleBackToBooking = () => {
-        router.push('/user/hoome/car'); // เปลี่ยนเส้นทางกลับไปยังหน้าจอง
+        router.push('/user/home/car'); // เปลี่ยนเส้นทางกลับไปยังหน้าจอง
     };
 
     const handleShowRejectionReason = () => {

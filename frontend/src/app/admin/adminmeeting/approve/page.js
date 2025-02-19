@@ -1,238 +1,282 @@
-'use client';
-import React, { useState } from "react";
-import { Layout, Table, Button, Select, Input, DatePicker, Divider, Modal, Form } from "antd";
+'use client'
+import React, { useState, useEffect } from "react";
+import { Layout, Table, Button, Typography, Modal, Breadcrumb, Tag, Row, Col, Card, Statistic } from "antd";
+import { HomeOutlined, TeamOutlined, UserOutlined, IdcardOutlined, CarFilled, ToolOutlined } from '@ant-design/icons';
 import Sidebar from "../component/sidebar";
-import Navbar from "../component/navbar";
-import Navigation from "../component/navigation";
+import Navbar from "@/app/users/home/navbar";
 
 const { Content } = Layout;
-const { Option } = Select;
+const { Title } = Typography;
 
 function Approve() {
-    const [data, setData] = useState([
-        {
-            key: "1",
-            status: "รออนุมัติ",
-            reservationNumber: "REV58020001",
-            roomName: "ห้องประชุม A",
-            bookingDate: "05 ก.พ. 67 - 05 ก.พ. 67",
-            bookingTime: "09:00 - 12:00",
-            purpose: "ประชุมเกี่ยวกับโครงการใหม่",
-        },
-        {
-            key: "2",
-            status: "อนุมัติ",
-            reservationNumber: "REV58020002",
-            roomName: "ห้องประชุม B",
-            bookingDate: "05 ก.พ. 67 - 05 ก.พ. 67",
-            bookingTime: "13:00 - 15:00",
-            purpose: "สัมมนาทางธุรกิจ",
-        },
-        {
-            key: "3",
-            status: "รออนุมัติ",
-            reservationNumber: "REV58020003",
-            roomName: "ห้องประชุม C",
-            bookingDate: "10 ก.พ. 67 - 11 ก.พ. 67",
-            bookingTime: "10:00 - 12:00",
-            purpose: "การอบรมภายในองค์กร",
-        },
-        {
-            key: "4",
-            status: "รออนุมัติ",
-            reservationNumber: "REV58020004",
-            roomName: "ห้องประชุม D",
-            bookingDate: "15 ก.พ. 67 - 15 ก.พ. 67",
-            bookingTime: "14:00 - 17:00",
-            purpose: "การประชุมทางวิชาการ",
-        },
-        {
-            key: "5",
-            status: "รออนุมัติ",
-            reservationNumber: "REV58020005",
-            roomName: "ห้องประชุม E",
-            bookingDate: "20 ก.พ. 67 - 21 ก.พ. 67",
-            bookingTime: "09:00 - 12:00",
-            purpose: "การประชุมผู้บริหาร",
-        },
-    ]);
+    const [data, setData] = useState([]);
+    const [statusCount, setStatusCount] = useState({
+        pending: 0,
+        approved: 0,
+        rejected: 0,
+        completed: 0,
+        canceled: 0,
+    });
 
-    const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-    const [isEditModalVisible, setIsEditModalVisible] = useState(false); // Modal สำหรับแก้ไข
-    const [selectedRow, setSelectedRow] = useState(null);
-    const [form] = Form.useForm(); // ฟอร์มสำหรับแก้ไข
+    useEffect(() => {
+        fetch("http://localhost:5182/api/roombookings")
+            .then((response) => response.json())
+            .then((data) => {
+                const sortedData = data.sort((a, b) => new Date(b.booking_date) - new Date(a.booking_date));
+                setData(sortedData);
 
-    const handleRowClick = (record) => {
-        setSelectedRow(record);
-        setIsDetailModalVisible(true);
-    };
+                const statusCounts = {
+                    pending: 0,
+                    approved: 0,
+                    rejected: 0,
+                    completed: 0,
+                    canceled: 0,
+                };
 
-    const handleEditClick = (record) => {
-        setSelectedRow(record);
-        form.setFieldsValue(record); // ตั้งค่าฟอร์มจากข้อมูลในแถว
-        setIsEditModalVisible(true); // เปิด Modal แก้ไข
-    };
+                data.forEach(item => {
+                    switch (item.booking_status) {
+                        case 1:
+                            statusCounts.pending++;
+                            break;
+                        case 2:
+                            statusCounts.approved++;
+                            break;
+                        case 3:
+                            statusCounts.rejected++;
+                            break;
+                        case 4:
+                            statusCounts.completed++;
+                            break;
+                        case 5:
+                            statusCounts.canceled++;
+                            break;
+                        default:
+                            break;
+                    }
+                });
 
-    const handleSaveEdit = () => {
-        const updatedData = data.map(item =>
-            item.key === selectedRow.key ? { ...item, ...form.getFieldsValue() } : item
-        );
-        setData(updatedData);
-        setIsEditModalVisible(false); // ปิด Modal หลังจากบันทึก
-    };
+                setStatusCount(statusCounts);
+            })
+            .catch((error) => console.error("Error fetching data:", error));
+    }, []);
 
     const columns = [
-
-
+        {
+            title: "สถานะ",
+            dataIndex: "booking_status",
+            key: "booking_status",
+            render: (status) => {
+                let statusText = "";
+                let color = "";
+                switch (status) {
+                    case 1:
+                        statusText = "รออนุมัติ";
+                        color = "orange";
+                        break;
+                    case 2:
+                        statusText = "อนุมัติแล้ว";
+                        color = "green";
+                        break;
+                    case 3:
+                        statusText = "ไม่อนุมัติ";
+                        color = "red";
+                        break;
+                    case 4:
+                        statusText = "เสร็จสิ้น";
+                        color = "blue";
+                        break;
+                    case 5:
+                        statusText = "ยกเลิกการจอง";
+                        color = "gray";
+                        break;
+                    default:
+                        statusText = "ไม่ระบุ";
+                        color = "default";
+                }
+                return <Tag color={color}>{statusText}</Tag>;
+            },
+        },
         {
             title: "เลขที่ใบจอง",
-            dataIndex: "reservationNumber",
-            key: "reservationNumber",
+            dataIndex: "roombooking_number",
+            key: "roombooking_number",
         },
         {
-            title: "ชื่อห้องประชุม",
-            dataIndex: "roomName",
-            key: "roomName",
+            title: "วันที่จองและคืน",
+            key: "bookingDetails",
+            render: (record) => {
+                const formatDate = (date) => {
+                    return date
+                        ? new Date(date).toLocaleDateString("th-TH", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                        })
+                        : "ไม่ระบุ";
+                };
+
+                return (
+                    <span>
+                        <strong>วันที่จอง:</strong> {formatDate(record.booking_date)} <br />
+                        <strong>วันที่คืน:</strong> {formatDate(record.return_date)}
+                    </span>
+                );
+            },
         },
         {
-            title: "วันที่จอง",
-            dataIndex: "bookingDate",
-            key: "bookingDate",
+            title: "ช่วงเวลาที่จอง",
+            dataIndex: "booking_times",
+            key: "booking_times",
         },
+
         {
-            title: "เวลา",
-            dataIndex: "bookingTime",
-            key: "bookingTime", // Add this column for booking time
-        },
-        {
-            title: "จองใช้งานเพื่อ",
-            dataIndex: "purpose",
-            key: "purpose",
-        },
-        {
-            title: "แก้ไข",
-            key: "edit",
-            render: (text, record) => (
-                <Button
-                    type="primary"
-                    size="small"
-                    onClick={() => handleEditClick(record)}
-                    style={{ background: '#029B36' }}
-                >
-                    แก้ไข
-                </Button>
-            ),
+            title: "ชื่อผู้จอง",
+            dataIndex: "full_name",
+            key: "full_name",
         },
     ];
 
     return (
-        <Layout style={{ minHeight: '100vh', backgroundColor: '#ffff' }}>
+        <Layout style={{ backgroundColor: '#fff' }}>
             <Navbar />
-            <Layout style={{ padding: '0px 50px', marginTop: '80px', backgroundColor: '#ffff' }}>
+
+            <Layout style={{ padding: '0px 40px', marginTop: '110px', backgroundColor: '#fff' }}>
                 <Sidebar />
-                <Layout style={{ padding: '0px 20px', backgroundColor: '#ffff' }}>
-                    <Navigation />
-                    <Content
+
+                <Layout style={{ marginTop: '20px', backgroundColor: '#fff' }}>
+                    <div
                         style={{
-                            marginTop: '21px',
-                            padding: '24px',
-                            backgroundColor: '#fff',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                            backgroundColor: '#ffff'
+                            display: 'flex',
+                            alignItems: 'center',
+                            margin: '0 70px',
                         }}
                     >
-                        <div style={{ fontFamily: 'var(--font-kanit)', maxWidth: "800px", margin: "0 auto" }}>
-                            <div
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '40px',
+                                height: '40px',
+                                backgroundColor: '#d9e8d2',
+                                borderRadius: '50%',
+                                marginRight: '10px',
+                            }}
+                        >
+                            <HomeOutlined style={{ fontSize: '20px', color: '#4caf50' }} />
+                        </div>
+
+                        <Breadcrumb separator=">">
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#666',
+                                    }}
+                                >
+                                    ระบบจองรถ
+                                </span>
+                            </Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#666',
+                                    }}
+                                >
+                                    เลือกรถที่ต้องการจอง
+                                </span>
+                            </Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#333',
+                                    }}
+                                >
+                                    กรอกรายละเอียกการจอง
+                                </span>
+                            </Breadcrumb.Item>
+                        </Breadcrumb>
+                    </div>
+                    <Content style={{
+                        background: '#ffffff',
+                        marginTop: '10px',
+                        marginLeft: '50px',
+                        padding: '20px',
+                        borderRadius: '8px',
+                    }}>
+                        <div style={{ fontFamily: 'var(--font-kanit)', maxWidth: '900px', margin: '0 auto' }}></div>
+                        <div style={{ marginBottom: '30px' }}>
+                            <Title
+                                level={2}
                                 style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    marginBottom: '16px',
+                                    marginBottom: '24px',
+                                    color: '#666',
                                 }}
                             >
-                                <h2 style={{ margin: 0 }}>หน้ารออนุมัติ</h2>
+                                สถิติการจอง
+                            </Title>
 
-                            </div>
-                            <Divider />
-                            <div style={{ marginBottom: "16px", display: "flex", gap: "8px" }}>
-                                <Select
-                                    placeholder="==ทุกสถานะ=="
-                                    style={{ width: "200px" }}
-                                    allowClear
-                                >
-                                    <Option value="อนุมัติ">อนุมัติ</Option>
-                                    <Option value="รออนุมัติ">รออนุมัติ</Option>
-                                    <Option value="ไม่อนุมัติ">ไม่อนุมัติ</Option>
-                                </Select>
-                                <DatePicker placeholder="จากวันที่จอง" style={{ width: "200px" }} />
-                                <DatePicker placeholder="ถึงวันที่" style={{ width: "200px" }} />
-                                <Input
-                                    placeholder="ค้นหา..."
-                                    style={{ width: "200px" }}
-                                />
-                                <Button type="primary" style={{ background: '#029B36' }}>ค้นหา</Button>
-                            </div>
-
-                            <Table
-                                columns={columns}
-                                dataSource={data}
-                                pagination={false}
-                                onRow={(record) => ({
-                                    onClick: (e) => {
-                                        if (!e.target.closest("button")) {
-                                            handleRowClick(record);
-                                        }
-                                    },
-                                })}
-                                rowClassName="clickable-row"
-                                style={{ cursor: "pointer" }}
-                            />
+                            <Row gutter={[24, 24]} style={{ justifyContent: 'center' }}>
+                                <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                                    <Card bordered={false} style={{ backgroundColor: '#a5d6a7', borderRadius: '8px' }}>
+                                        <Statistic
+                                            title="รออนุมัติ"
+                                            value={statusCount.pending}
+                                            prefix={<CarFilled style={{ color: '#388e3c' }} />}
+                                            valueStyle={{ color: '#1b5e20', fontWeight: 'bold' }}
+                                        />
+                                    </Card>
+                                </Col>
+                                <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                                    <Card bordered={false} style={{ backgroundColor: '#c5e1a5', borderRadius: '8px' }}>
+                                        <Statistic
+                                            title="อนุมัติแล้ว"
+                                            value={statusCount.approved}
+                                            prefix={<UserOutlined style={{ color: '#388e3c' }} />}
+                                            valueStyle={{ color: '#2e7d32', fontWeight: 'bold' }}
+                                        />
+                                    </Card>
+                                </Col>
+                                <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                                    <Card bordered={false} style={{ backgroundColor: '#aed581', borderRadius: '8px' }}>
+                                        <Statistic
+                                            title="ไม่อนุมัติ"
+                                            value={statusCount.rejected}
+                                            prefix={<IdcardOutlined style={{ color: '#388e3c' }} />}
+                                            valueStyle={{ color: '#1b5e20', fontWeight: 'bold' }}
+                                        />
+                                    </Card>
+                                </Col>
+                                <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                                    <Card bordered={false} style={{ backgroundColor: '#81c784', borderRadius: '8px' }}>
+                                        <Statistic
+                                            title="ยกเลิกการจอง"
+                                            value={statusCount.canceled}
+                                            prefix={<ToolOutlined style={{ color: '#388e3c' }} />}
+                                            valueStyle={{ color: '#1b5e20', fontWeight: 'bold' }}
+                                        />
+                                    </Card>
+                                </Col>
+                            </Row>
                         </div>
+                        <Title
+                            level={2}
+                            style={{
+                                marginBottom: '24px',
+                                color: '#666',
+                            }}
+                        >
+                            ข้อมูลการจอง
+                        </Title>
+                        <Table columns={columns} dataSource={data} rowKey="id" pagination={false} />
                     </Content>
                 </Layout>
             </Layout>
-
-            {/* Modal Details */}
-            <Modal
-                title="รายละเอียดการจอง"
-                visible={isDetailModalVisible}
-                onCancel={() => setIsDetailModalVisible(false)}
-                footer={null}
-            >
-                <div>
-                    <p><strong>เลขที่ใบจอง:</strong> {selectedRow?.reservationNumber}</p>
-                    <p><strong>ชื่อห้องประชุม:</strong> {selectedRow?.roomName}</p>
-                    <p><strong>วันที่จอง:</strong> {selectedRow?.bookingDate}</p>
-                    <p><strong>เวลา:</strong> {selectedRow?.bookingTime}</p>
-                    <p><strong>จองใช้งานเพื่อ:</strong> {selectedRow?.purpose}</p>
-                </div>
-            </Modal>
-
-            {/* Edit Modal */}
-            <Modal
-                title="แก้ไขข้อมูล"
-                visible={isEditModalVisible}
-                onCancel={() => setIsEditModalVisible(false)}
-                onOk={handleSaveEdit}
-            >
-                <Form form={form} layout="vertical">
-                    <Form.Item label="เลขที่ใบจอง" name="reservationNumber">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="ชื่อห้องประชุม" name="roomName">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="วันที่จอง" name="bookingDate">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="เวลา" name="bookingTime">
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="จองใช้งานเพื่อ" name="purpose">
-                        <Input />
-                    </Form.Item>
-                </Form>
-            </Modal>
         </Layout>
     );
 }

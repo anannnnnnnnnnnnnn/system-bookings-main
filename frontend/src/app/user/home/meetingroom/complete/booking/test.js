@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/sidebar';
 import Navbar from '@/app/users/home/navbar';
-import { Layout, Breadcrumb, Spin, Row, Col, Card, Typography, Button, message, Modal, Timeline, Tag, Select } from 'antd';
+import { Layout, Breadcrumb, Spin, Row, Col, Card, Typography, Button, message, Modal, Timeline, Tag, Divider, Select } from 'antd';
 import { HomeOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { Content } from 'antd/lib/layout/layout';
 import { Kanit } from 'next/font/google';
@@ -18,6 +18,7 @@ dayjs.extend(timezone);
 dayjs.locale("th"); // ✅ ตั้งค่า locale เป็นไทย
 
 const { Title } = Typography;
+const { Option } = Select;
 
 const kanit = Kanit({
     subsets: ['latin', 'thai'],
@@ -37,17 +38,18 @@ function RoomBooking() {
     const [isRoomInfoModalOpen, setIsRoomInfoModalOpen] = useState(false);
     const [filteredRooms, setFilteredRooms] = useState([]);
 
-    
-
     useEffect(() => {
         const fetchRooms = async () => {
             try {
                 const response = await fetch('http://localhost:5182/api/rooms');
+
                 if (!response.ok) {
                     throw new Error('Error fetching room data');
                 }
+
                 const data = await response.json();
                 setRooms(data);
+                setFilteredRooms(data); // เริ่มต้นแสดงห้องประชุมทั้งหมด
             } catch (error) {
                 console.error('Fetch error:', error);
                 message.error('ไม่สามารถดึงข้อมูลห้องประชุมได้');
@@ -82,7 +84,6 @@ function RoomBooking() {
             const response = await fetch(`http://localhost:5182/api/rooms/date?roomId=${room.room_id}`);
             if (!response.ok) throw new Error('ไม่สามารถดึงข้อมูลการจองได้');
             const data = await response.json();
-            console.log(data); // ตรวจสอบข้อมูลที่ได้รับ
             setBookingTimes(data);
         } catch (error) {
             console.error(error);
@@ -92,7 +93,25 @@ function RoomBooking() {
             setLoadingTimes(false);
         }
     };
-    
+
+    const fetchRoomDetails = async (roomId) => {
+        try {
+            const response = await fetch(`http://localhost:5182/api/rooms/${roomId}`);
+            if (!response.ok) {
+                throw new Error('ไม่สามารถดึงข้อมูลห้องประชุมได้');
+            }
+            const data = await response.json();
+            setSelectedRoom(data);
+            setIsRoomInfoModalOpen(true);
+        } catch (error) {
+            console.error(error);
+            message.error('เกิดข้อผิดพลาดในการดึงข้อมูล');
+        }
+    };
+
+    const showroomInfoModal = (room) => {
+        fetchRoomDetails(room.room_id);
+    };
 
     const handleRoomTypeChange = (value) => {
         setRoomType(value); // อัปเดตค่า roomType เมื่อมีการเลือก
@@ -101,11 +120,11 @@ function RoomBooking() {
     const getRoomType = (type) => {
         switch (type) {
             case 1:
-                return 'ห้องประชุมขนาดเล็ก';
+                return 'ห้องประชุมทั่วไป';
             case 2:
-                return 'ห้องประชุมขนาดกลาง';
+                return 'ห้องประชุมใหญ่';
             case 3:
-                return 'ห้องประชุมขขนาดใหญ่';
+                return 'ห้องประชุมวีไอพี';
             default:
                 return 'ไม่ระบุประเภท';
         }
@@ -149,7 +168,6 @@ function RoomBooking() {
                                 fontSize: screens.xs ? '20px' : '28px',
                                 color: '#666',
                             }}>เลือกห้องประชุมที่ต้องการจอง</Title>
-
                             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: '-20px', marginRight: '20px' }}>
                                 <Select
                                     value={roomType}
@@ -158,12 +176,11 @@ function RoomBooking() {
                                     placeholder="เลือกประเภทของห้องประชุม"
                                 >
                                     <Option value="">ทั้งหมด</Option>
-                                    <Option value="1">ห้องประชุมขาดเล็ก</Option>
-                                    <Option value="2">ห้องประชุมขนาดกลาง</Option>
-                                    <Option value="3">ห้องประชุมขนาดใหญ่</Option>
+                                    <Option value="1">ห้องประชุมทั่วไป</Option>
+                                    <Option value="2">ห้องประชุมใหญ่</Option>
+                                    <Option value="3">ห้องประชุมวีไอพี</Option>
                                 </Select>
                             </div>
-
                             {loading ? (
                                 <Spin tip="กำลังโหลดข้อมูล..." />
                             ) : (
@@ -208,13 +225,9 @@ function RoomBooking() {
                                                             }}>
                                                                 รายละเอียดห้องประชุม
                                                                 <InfoCircleOutlined
-                                                                    onClick={() => {
-                                                                        setSelectedRoom(room);
-                                                                        setIsRoomInfoModalOpen(true); // เปิดโมดัลเมื่อคลิก
-                                                                    }}
+                                                                    onClick={() => showroomInfoModal(room)}  // เรียกฟังก์ชันนี้เมื่อคลิก
                                                                     style={{ cursor: 'pointer', color: '#4CAF50', fontSize: '18px' }}
                                                                 />
-
                                                             </span>
                                                         </div>
                                                     }
@@ -242,14 +255,13 @@ function RoomBooking() {
                                                             marginTop: '10px',
                                                             width: '100%',
                                                             backgroundColor: '#4CAF50',
-                                                            color: '#fff',
-                                                            border: 'none',
-                                                            backgroundColor: room.status === 1 ? '#4CAF50' : '#BDBDBD',
-                                                            cursor: room.status === 1 ? 'pointer' : 'not-allowed',
+                                                            color: 'white',
+                                                            fontSize: '14px',
                                                         }}
+                                                        type="primary"
                                                         onClick={() => handleSelectRoom(room)}
                                                     >
-                                                        จองห้องประชุมนี้
+                                                        จองห้องประชุม
                                                     </Button>
                                                 </div>
                                             </Card>
@@ -257,71 +269,30 @@ function RoomBooking() {
                                     ))}
                                 </Row>
                             )}
-                            <Modal
-                                title={`เวลาจองของ ${selectedRoom?.room_name || 'ห้องประชุม'}`}
-                                open={isModalVisible}
-                                onCancel={() => setIsModalVisible(false)}
-                                footer={<Button type="primary" onClick={() => setIsModalVisible(false)}>ปิด</Button>}
-                                centered
-                                width={500}
-                            >
-                                {loadingTimes ? <Spin tip="กำลังโหลดข้อมูล..." /> : (
-                                    bookingTimes.length > 0 ? (
-                                        <Timeline mode="left">
-                                            {bookingTimes.map((booking, index) => (
-                                                <Timeline.Item key={index} color="green">
-                                                    <Card size="small">
-                                                        <p><Tag color="green">วันที่จอง</Tag><strong>{dayjs.utc(booking.roomBookingDate).tz("Asia/Bangkok").format("DD MMMM YYYY")}</strong></p>
-                                                        <p><Tag color="orange">วันที่คืนห้อง</Tag><strong>{dayjs.utc(booking.roomReturnDate).tz("Asia/Bangkok").format("DD MMMM YYYY")}</strong></p>
-                                                        <p><Tag color="red">เวลา</Tag>{booking.roomBookingTime}</p>
-                                                    </Card>
-                                                </Timeline.Item>
-                                            ))}
-                                        </Timeline>
-                                    ) : <p>ห้องประชุมนี้ยังไม่มีการจอง</p>
-                                )}
-                            </Modal>
-
-                            {/* Modal แสดงข้อมูลห้องประชุม */}
-                            <Modal
-                                title="รายละเอียดห้องประชุม"
-                                open={isRoomInfoModalOpen}
-                                onCancel={() => setIsRoomInfoModalOpen(false)}
-                                footer={null}
-                                centered
-                                width={380}
-                                style={{
-                                    borderRadius: '12px',
-                                    overflow: 'hidden',
-                                    padding: '10px',
-                                }}
-                            >
-                                <div style={{ textAlign: 'center', padding: '20px' }}>
-                                    {/* ภาพของห้องประชุม */}
-                                    <img
-                                        alt={selectedRoom?.room_name}
-                                        src={`http://localhost:5182${selectedRoom?.room_img}`}
-                                        style={{
-                                            width: '100%',
-                                            maxWidth: '200px',
-                                            height: '150px',
-                                            objectFit: 'cover',
-                                            borderRadius: '10px',
-                                        }}
-                                    />
-                                    <div style={{ marginTop: '20px', textAlign: 'left' }}>
-                                        <p><strong>ชื่อห้อง: </strong>{selectedRoom?.room_name}</p>
-                                        <p><strong>ประเภทห้อง: </strong>{getRoomType(selectedRoom?.room_type)}</p>
-                                        <p><strong>จำนวนที่นั่ง: </strong>{selectedRoom?.capacity} คน</p>
-                                        <p><strong>สถานที่: </strong>{selectedRoom?.location} คน</p>
-                                        <p><strong>สถานะ: </strong>{selectedRoom?.status === 1 ? 'สามารถจองได้' : 'ไม่สามารถจองได้'}</p>
-                                    </div>
-                                </div>
-                            </Modal>
                         </Content>
                     </Layout>
                 </Layout>
             </Layout>
+
+            {/* Modal for Room Info */}
+            <Modal
+                visible={isRoomInfoModalOpen}
+                title="ข้อมูลห้องประชุม"
+                onCancel={() => setIsRoomInfoModalOpen(false)}
+                footer={null}
+                width={800}
+            >
+                {selectedRoom ? (
+                    <div>
+                        <p><strong>ชื่อห้องประชุม:</strong> {selectedRoom.room_name}</p>
+                        <p><strong>ประเภท:</strong> {getRoomType(selectedRoom.room_type)}</p>
+                        <p><strong>รายละเอียด:</strong> {selectedRoom.room_description}</p>
+                        <p><strong>ความจุ:</strong> {selectedRoom.capacity} คน</p>
+                    </div>
+                ) : (
+                    <Spin tip="กำลังโหลดข้อมูล..." />
+                )}
+            </Modal>
         </main>
     );
 }

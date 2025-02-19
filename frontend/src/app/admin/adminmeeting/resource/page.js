@@ -1,13 +1,14 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../component/sidebar';
-import Navbar from '../component/navbar';
-import { Layout, Table, Button, Modal, Form, Input, Select, Tag, message, Upload } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import Navbar from '@/app/users/home/navbar';
+import { Layout, Table, Button, Modal, Form, Input, Select, Tag, message, Upload,Breadcrumb,Typography } from 'antd';
+import { UploadOutlined,HomeOutlined, } from '@ant-design/icons';
 import axios from 'axios';
 
 const { Content } = Layout;
 const { Option } = Select;
+const { Title } = Typography;
 
 function MeetingRoomManagement() {
     const [data, setData] = useState([]);
@@ -149,7 +150,7 @@ function MeetingRoomManagement() {
             key: 'action',
             render: (_, record) => (
                 <div style={{ display: 'flex', gap: '8px' }}>
-                    <Button type="primary" onClick={() => handleEdit(record)} size="small">แก้ไข</Button>
+                    <Button type="primary" onClick={() => handleEdit(record)} size="small" style={{ backgroundColor: 'green', borderColor: 'green', color: 'white' }}>แก้ไข</Button>
                     <Button danger onClick={() => handleDelete(record.room_id)} size="small">ลบ</Button>
                 </div>
             ),
@@ -157,53 +158,207 @@ function MeetingRoomManagement() {
     ];
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
+        <Layout style={{ backgroundColor: '#fff' }}>
             <Navbar />
-            <Layout style={{ padding: '0 50px', marginTop: '80px' }}>
+
+            <Layout style={{ padding: '0px 40px', marginTop: '110px', backgroundColor: '#fff' }}>
                 <Sidebar />
-                <Content style={{ padding: '24px', backgroundColor: '#fff' }}>
-                    <h2>การจัดการห้องประชุม</h2>
-                    <Button type="primary" onClick={handleAdd}>เพิ่มห้องประชุม</Button>
-                    <Table columns={columns} dataSource={data} pagination={false} rowKey="room_id" />
-                    <Modal title={editingRecord ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูล'} open={isModalVisible} onCancel={() => setIsModalVisible(false)} footer={null}>
-                        <Form form={form} onFinish={handleSubmit} layout="vertical">
-                            <Form.Item label="ชื่อห้องประชุม" name="room_name" rules={[{ required: true, message: 'กรุณากรอกชื่อห้องประชุม' }]}>
-                                <Input />
-                            </Form.Item>
-                            <Form.Item label="ประเภทห้อง" name="capacity" rules={[{ required: true, message: 'กรุณากรอกความจุห้อง' }]}>
-                                <Input type="number" />
-                            </Form.Item>
 
-                            <Form.Item label="ความจุ" name="capacity" rules={[{ required: true, message: 'กรุณากรอกความจุห้อง' }]}>
-                                <Input type="number" />
-                            </Form.Item>
-                            <Form.Item label="อุปกรณ์" name="equipment" rules={[{ required: true, message: 'กรุณากรอกอุปกรณ์ที่มีในห้อง' }]}>
-                                <Input />
-                            </Form.Item>
-                            <Form.Item label="สถานที่" name="location" rules={[{ required: true, message: 'กรุณากรอกตำแหน่งห้อง' }]}>
-                                <Input />
-                            </Form.Item>
-                            <Form.Item
-                                label="สถานะ"
-                                name="status"
-                                rules={[{ required: true, message: 'กรุณาเลือกสถานะ' }]}
-                                initialValue={1}
-                            >
-                                <Select>
-                                    <Option value={1}>พร้อมใช้งาน</Option>
-                                    <Option value={2}>ซ่อมบำรุง</Option>
-                                </Select>
-                            </Form.Item>
-                            <Form.Item label="อัปโหลดรูปภาพ">
-                                <Upload beforeUpload={() => false} onChange={handleFileChange} listType="picture">
-                                    <Button icon={<UploadOutlined />}>เลือกไฟล์</Button>
-                                </Upload>
-                            </Form.Item>
-                            <Button type="primary" htmlType="submit">บันทึก</Button>
-                        </Form>
+                <Layout style={{ marginTop: '20px', backgroundColor: '#fff' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center', // จัดให้อยู่กลางแนวตั้ง
+                            margin: '0 70px',
+                        }}
+                    >
+                        {/* ไอคอนหลัก */}
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '40px',
+                                height: '40px',
+                                backgroundColor: '#d9e8d2', // สีพื้นหลังไอคอน
+                                borderRadius: '50%', // รูปทรงกลม
+                                marginRight: '10px', // ระยะห่างระหว่างไอคอนและข้อความ
+                            }}
+                        >
+                            <HomeOutlined style={{ fontSize: '20px', color: '#4caf50' }} />
+                        </div>
 
-                    </Modal>
-                </Content>
+                        {/* Breadcrumb */}
+                        <Breadcrumb separator=">">
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#666', // สีข้อความหลัก
+                                    }}
+                                >
+                                    ระบบจองรถ
+                                </span>
+                            </Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#666', // สีข้อความรอง
+                                    }}
+                                >
+                                    เลือกรถที่ต้องการจอง
+                                </span>
+                            </Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#333', // สีข้อความรอง
+                                    }}
+                                >
+                                    กรอกรายละเอียกการจอง
+                                </span>
+                            </Breadcrumb.Item>
+                        </Breadcrumb>
+                    </div>
+                    <Content style={{
+                        background: '#ffffff', // พื้นหลังสีขาว
+                        marginTop: '10px',
+                        marginLeft: '50px',
+                        padding: '20px',
+                        borderRadius: '8px',
+                    }}>
+                        <Title
+                            level={2}
+                            style={{
+                                marginBottom: '10px',
+                                color: '#666',
+                            }}
+                        >
+                            เพิ่มห้องประชุม
+                        </Title>
+                        <Button type="primary" onClick={handleAdd} style={{ backgroundColor: 'green', borderColor: 'green', color: 'white' }}>เพิ่มห้องประชุม</Button>
+                        <Table columns={columns} dataSource={data} pagination={false} rowKey="room_id" />
+                        <Modal
+                            title={editingRecord ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูล'}
+                            open={isModalVisible}
+                            onCancel={() => setIsModalVisible(false)}
+                            footer={null}
+                            width={600}
+                            style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)', // จัดให้มันอยู่กลาง
+                                maxWidth: '90%',
+                                height: '500px',
+                            }}
+                            bodyStyle={{ overflowY: 'auto' }}
+                        >
+                            <Form form={form} onFinish={handleSubmit} layout="horizontal">
+                                <Form.Item
+                                    label="ชื่อห้องประชุม"
+                                    name="room_name"
+                                    rules={[{ required: true, message: 'กรุณากรอกชื่อห้องประชุม' }]}
+                                    labelCol={{ span: 6 }}  // กำหนดขนาดของ label
+                                    wrapperCol={{ span: 18 }} // กำหนดขนาดของ input
+                                    style={{ marginBottom: 8 }}
+                                >
+                                    <Input />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="ประเภทห้อง"
+                                    name="room_type"
+                                    rules={[{ required: true, message: 'กรุณาเลือกประเภทห้อง' }]}
+                                    initialValue={1}
+                                    labelCol={{ span: 6 }}
+                                    wrapperCol={{ span: 18 }}
+                                    style={{ marginBottom: 8 }}
+                                >
+                                    <Select>
+                                        <Option value={1}>ห้องขนาดเล็ก</Option>
+                                        <Option value={2}>ห้องขนาดใหญ่</Option>
+                                    </Select>
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="ความจุ"
+                                    name="capacity"
+                                    rules={[{ required: true, message: 'กรุณากรอกความจุห้อง' }]}
+                                    labelCol={{ span: 6 }}
+                                    wrapperCol={{ span: 18 }}
+                                    style={{ marginBottom: 8 }}
+                                >
+                                    <Input type="number" />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="อุปกรณ์"
+                                    name="equipment"
+                                    rules={[{ required: true, message: 'กรุณากรอกอุปกรณ์ที่มีในห้อง' }]}
+                                    labelCol={{ span: 6 }}
+                                    wrapperCol={{ span: 18 }}
+                                    style={{ marginBottom: 8 }}
+                                >
+                                    <Input />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="สถานที่"
+                                    name="location"
+                                    rules={[{ required: true, message: 'กรุณากรอกตำแหน่งห้อง' }]}
+                                    labelCol={{ span: 6 }}
+                                    wrapperCol={{ span: 18 }}
+                                    style={{ marginBottom: 8 }}
+                                >
+                                    <Input />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="สถานะ"
+                                    name="status"
+                                    rules={[{ required: true, message: 'กรุณาเลือกสถานะ' }]}
+                                    initialValue={1}
+                                    labelCol={{ span: 6 }}
+                                    wrapperCol={{ span: 18 }}
+                                    style={{ marginBottom: 8 }}
+                                >
+                                    <Select>
+                                        <Option value={1}>พร้อมใช้งาน</Option>
+                                        <Option value={2}>ซ่อมบำรุง</Option>
+                                    </Select>
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="อัปโหลดรูปภาพ"
+                                    labelCol={{ span: 6 }}
+                                    wrapperCol={{ span: 18 }}
+                                    style={{ marginBottom: 8 }}
+                                >
+                                    <Upload beforeUpload={() => false} onChange={handleFileChange} listType="picture">
+                                        <Button icon={<UploadOutlined />}>เลือกไฟล์</Button>
+                                    </Upload>
+                                </Form.Item>
+
+                                <Form.Item wrapperCol={{ span: 24, offset: 6 }}>
+                                    <Button
+                                        type="primary"
+                                        htmlType="submit"
+                                        style={{ backgroundColor: 'green', borderColor: 'green', color: 'white' }} // ปรับสีปุ่ม
+                                    >
+                                        บันทึก
+                                    </Button>
+                                </Form.Item>
+                            </Form>
+
+                        </Modal>
+                    </Content>
+                </Layout>
             </Layout>
         </Layout>
     );

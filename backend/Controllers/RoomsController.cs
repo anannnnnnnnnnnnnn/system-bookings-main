@@ -153,6 +153,40 @@ namespace RoomNamespace.Controllers
 
             return "/uploads/" + uniqueFileName;
         }
+
+        [HttpGet("date")]
+        public async Task<IActionResult> GetBookingDatesAndTimesByRoom([FromQuery] int roomId)
+        {
+            try
+            {
+                var today = DateTime.Today; // เวลาปัจจุบัน (ตามเซิร์ฟเวอร์)
+
+                var bookings = await _context.RoomBookings
+                    .Where(b => b.room_id == roomId
+                                && b.booking_date != null
+                                && b.return_date != null
+                                && b.return_date >= today)
+                    .Select(b => new
+                    {
+                        roomBookingDate = b.booking_date,
+                        roomReturnDate = b.return_date,
+                        roomBookingTime = b.booking_times,
+                    })
+                    .ToListAsync();
+
+                if (bookings == null || bookings.Count == 0)
+                {
+                    return NotFound("ไม่พบข้อมูลการจองสำหรับห้องนี้.");
+                }
+
+                return Ok(bookings);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 
     public class RoomRequest

@@ -41,8 +41,13 @@ function Sidebar() {
                 }}
             >
                 <Menu.Item key="1" icon={<HomeOutlined />} style={{ fontSize: '18px' }}>
-                    <Link href="/admin/admincar">
-                        หน้าหลัก
+                    <Link href="/admin/manager/car">
+                        อนุมัติรถ
+                    </Link>
+                </Menu.Item>
+                <Menu.Item key="2" icon={<HomeOutlined />} style={{ fontSize: '18px' }}>
+                    <Link href="/admin/manager/meetingroom">
+                        อนุมัติห้องปรชุม 
                     </Link>
                 </Menu.Item>
             </Menu>

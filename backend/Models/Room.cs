@@ -21,6 +21,8 @@ namespace YourNamespace.Models
 
         public int status { get; set; } = 1;  // มีค่าเริ่มต้นเป็น 1
 
+        public int room_type { get; set; }        
+
         public DateTime created_at { get; set; } = DateTime.UtcNow;  // ค่าเริ่มต้นเป็น current_timestamp()
         public DateTime updated_at { get; set; } = DateTime.UtcNow;  // ค่าเริ่มต้นเป็น current_timestamp() และ ON UPDATE CURRENT_TIMESTAMP()
     }

@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Layout, Breadcrumb, Typography, DatePicker, Divider, Button, Input, Radio, Modal, Select } from 'antd';
+import { Layout, Breadcrumb, Typography, DatePicker, Divider, Button, Input, Radio, Modal, Select, Form } from 'antd';
 import { HomeOutlined } from '@ant-design/icons'; // อย่าลืม import HomeOutlined
 import Sidebar from '../../components/sidebar';
 import Navbar from '@/app/users/home/navbar';
@@ -9,6 +9,14 @@ import { useRouter } from 'next/navigation'; // Add this line
 import axios from 'axios'; // Add this line at the top of the file
 import moment from 'moment';
 
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc"; // เพิ่ม plugin สำหรับ utc
+import timezone from "dayjs/plugin/timezone"; // เพิ่ม plugin สำหรับ timezone
+import "dayjs/locale/th"; // ภาษาไทย
+
+dayjs.extend(utc); // เพิ่มการใช้ plugin UTC
+dayjs.extend(timezone); // เพิ่มการใช้ plugin Timezone
+dayjs.locale("th"); // ตั้งค่า locale เป็นไทย
 
 const { Option } = Select;
 const { Content } = Layout; // เพิ่มการ import Content
@@ -23,6 +31,7 @@ export const CarBooking = () => {
     const [carDetails, setCarDetails] = useState(null); // สำหรับเก็บข้อมูลรถ
     const [loading, setLoading] = useState(true); // สำหรับสถานะการโหลดข้อมูล
     const [error, setError] = useState(null); // สำหรับเก็บข้อผิดพลาด
+    const [form] = Form.useForm();
     const [formData, setFormData] = useState({
         selectedTime: [],
         bookingNumber: '',
@@ -36,16 +45,21 @@ export const CarBooking = () => {
         return_time: '',
     });
 
+    // แสดงผลการใช้ข้อมูลจาก useForm
+    const handleSubmit = (values) => {
+        console.log("Form Submitted:", values);
+    };
+
+
+
     const [userFullName, setUserFullName] = useState('');
     const [userPosition, setUserPosition] = useState('');
     const [department, setDepartment] = useState('');
-
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const router = useRouter();  // ใช้ useRouter
-
     const unavailableTimes = ['']; // ตัวอย่างเวลาไม่พร้อมใช้งาน
 
     const handleTimeSelect = (time) => {
@@ -211,6 +225,13 @@ export const CarBooking = () => {
                 }
             });
     };
+    const formatDateThai = (date) => {
+        return date ? new Date(date).toLocaleDateString('th-TH', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        }) : '';
+    };
 
     return (
         <Layout style={{ backgroundColor: '#fff' }}>
@@ -309,7 +330,7 @@ export const CarBooking = () => {
                         <div style={{ padding: '12px' }}>
                             <div
                                 style={{
-                                    width: "800px",
+                                    width: "700px",
                                     display: 'flex',
                                     alignItems: 'center',
                                     border: '1px solid #E0E0E0',
@@ -378,33 +399,31 @@ export const CarBooking = () => {
 
                         <Divider />
                         <div style={{ flex: 1, minWidth: '100px' }}>
-                            <Title style={{
-                                marginBottom: '16px',
-                                fontWeight: 'bold',
-                                fontSize: '20px',
-                                color: '#4D4D4D'
-                            }}>เวลาที่การจอง</Title>
+                            <Title level={3} style={{ color: '#4D4D4D' }}>เลือกวันที่จองและคืน</Title>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', margin: '0 50px' }}>
-                            <DatePicker.RangePicker
-                                format="YYYY-MM-DD"
-                                value={startDate && endDate ? [startDate, endDate] : null}
-                                onChange={(dates) => {
-                                    if (dates) {
-                                        setStartDate(dates[0]);
-                                        setEndDate(dates[1]);
-                                    } else {
-                                        setStartDate(null);
-                                        setEndDate(null);
-                                    }
-                                }}
-                                placeholder={["วันที่ต้องการจอง", "วันที่สิ้นสุดการจอง"]}
-                                style={{ flexGrow: 1 }} // ใช้ flexGrow เพื่อให้มันขยายเต็มพื้นที่ที่เหลือ
-                                disabledDate={(current) => current && current < moment().endOf('day')} // ไม่ให้เลือกวันก่อนวันนี้
-                            />
-                        </div>
+                        <DatePicker.RangePicker
+                            format="YYYY-MM-DD"
+                            value={startDate && endDate ? [startDate, endDate] : null}
+                            onChange={(dates) => {
+                                if (dates) {
+                                    setStartDate(dates[0].startOf('day')); // กำหนดเวลาเป็น 00:00:00
+                                    setEndDate(dates[1].startOf('day')); // กำหนดเวลาเป็น 00:00:00
+                                } else {
+                                    setStartDate(null);
+                                    setEndDate(null);
+                                }
+                            }}
+                            placeholder={["วันที่ต้องการจอง", "วันที่สิ้นสุดการจอง"]}
+                            style={{ width: '90%' }}
+                            disabledDate={(current) => {
+                                // Disable all dates before tomorrow
+                                return current && current < dayjs().locale('th').tz("Asia/Bangkok").add(1, 'day').startOf('day');
+                            }}
+                        />
+
 
                         {/* ในส่วนเลือกวันที่ */}
+                        <Title level={3} style={{ color: '#4D4D4D' }}>เลือกเวลาจองและคืน</Title>
                         <div style={{ margin: '20px' }}>
                             <div style={{ display: 'flex', gap: '20px', justifyContent: 'space-between' }}>
                                 {/* Dropdown เลือกเวลาจอง */}
@@ -425,6 +444,7 @@ export const CarBooking = () => {
                                 </Select>
 
                                 {/* Dropdown เลือกเวลาคืน */}
+                                {/* Dropdown เลือกเวลาคืน */}
                                 <Select
                                     style={{ flexGrow: 1 }} // ทำให้ dropdown นี้ขยายเต็มพื้นที่
                                     placeholder="เลือกเวลาคืน"
@@ -433,73 +453,110 @@ export const CarBooking = () => {
                                     disabled={!formData.booking_time} // ปิดการใช้งานจนกว่าจะเลือกเวลาจองก่อน
                                 >
                                     {['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00']
-                                        .filter((time) => !formData.booking_time || time > formData.booking_time) // แสดงเฉพาะเวลาที่มากกว่าเวลาจอง
                                         .map((time) => (
                                             <Option key={time} value={time}>
                                                 {time}
                                             </Option>
                                         ))}
                                 </Select>
+
                             </div>
                         </div>
                         {/* ส่วนเลือกเวลา */}
+                        <Divider />
 
-                        <Title level={2} style={{ color: '#2C3E50', fontWeight: '600', marginBottom: '20px', fontSize: '24px' }}>
-                            กรอกรายละเอียดการจอง
-                        </Title>
-                        <div style={{ maxWidth: '700px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px', justifyContent: 'center', margin: '0 100px' }}>
-                            <div>
-                                <label style={{ fontWeight: 'bold' }}>วันที่-เวลาการจอง</label>
-                                <Input value={`${formatDate(startDate)} ${formData.booking_time || ''}`} disabled />
-                            </div>
-                            <div>
-                                <label style={{ fontWeight: 'bold' }}>วันที่-เวลาการคืน</label>
-                                <Input value={`${formatDate(endDate)}  ${formData.return_time || ''}`} disabled />
-                            </div>
-                            <div>
-                                <label style={{ fontWeight: 'bold' }}>ชื่อ-สกุล</label>
-                                <Input value={userFullName || ''} disabled />
-                            </div>
-                            <div>
-                                <label style={{ fontWeight: 'bold' }}>ตำแหน่ง/แผนก</label>
-                                <Input value={department || ''} disabled />
-                            </div>
-                            <div>
-                                <label style={{ fontWeight: 'bold' }}>จุดประสงค์การใช้งาน</label>
-                                <TextArea name="purpose" rows={2} placeholder="กรุณาระบุจุดประสงค์" onChange={handleChange} style={{ height: '30px' }} />
-                            </div>
-                            <div>
-                                <label style={{ fontWeight: 'bold' }}>ปลายทาง</label>
-                                <TextArea
+                        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+                            <Title level={3} style={{ color: '#4D4D4D' }}>กรอกรายละเอียกการจอง</Title>
+                            <div style={{ maxWidth: '900px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px', justifyContent: 'center', margin: '20px' }}>
+                                <div>
+                                    <label style={{ fontWeight: 'bold' }}>วันที่-เวลาการจอง</label>
+                                    <Input
+                                        value={`${formatDateThai(startDate)} เวลา : ${formData.booking_time || ''}`}
+                                        readOnly
+                                        style={{
+                                            backgroundColor: '#fff',  // ทำให้พื้นหลังดูนุ่มนวล
+                                            border: '1px solid #d9d9d9',  // กำหนดเส้นขอบให้ดูเบาลง
+                                            color: '#333',  // กำหนดสีตัวอักษร
+                                            cursor: 'not-allowed',  // ทำให้รู้ว่ามันไม่สามารถแก้ไขได้
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ fontWeight: 'bold' }}>วันที่-เวลาการคืน</label>
+                                    <Input
+                                        value={`${formatDateThai(endDate)} เวลา :  ${formData.return_time || ''}`}
+                                        readOnly
+                                        style={{
+                                            backgroundColor: '#ffff',
+                                            border: '1px solid #d9d9d9',
+                                            color: '#333',
+                                            cursor: 'not-allowed',
+                                        }}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label style={{ fontWeight: 'bold' }}>ชื่อ-สกุล</label>
+                                    <Input value={userFullName || ''} readOnly
+                                        style={{
+                                            backgroundColor: '#fff',  // ทำให้พื้นหลังดูนุ่มนวล
+                                            border: '1px solid #d9d9d9',  // กำหนดเส้นขอบให้ดูเบาลง
+                                            color: '#333',  // กำหนดสีตัวอักษร
+                                            cursor: 'not-allowed',  // ทำให้รู้ว่ามันไม่สามารถแก้ไขได้
+                                        }} />
+                                </div>
+                                <div>
+                                    <label style={{ fontWeight: 'bold' }}>ตำแหน่ง/แผนก</label>
+                                    <Input value={department || ''} readOnly
+                                        style={{
+                                            backgroundColor: '#fff',  // ทำให้พื้นหลังดูนุ่มนวล
+                                            border: '1px solid #d9d9d9',  // กำหนดเส้นขอบให้ดูเบาลง
+                                            color: '#333',  // กำหนดสีตัวอักษร
+                                            cursor: 'not-allowed',  // ทำให้รู้ว่ามันไม่สามารถแก้ไขได้
+                                        }} />
+                                </div>
+                                <Form.Item
+                                    label="จุดประสงค์การใช้งาน"
+                                    name="purpose"
+                                    rules={[{ required: true, message: "กรุณาระบุจุดประสงค์" }]}
+                                >
+                                    <TextArea name="purpose" rows={2} placeholder="กรุณาระบุจุดประสงค์" onChange={handleChange} style={{ height: '30px' }} />
+                                </Form.Item>
+                                <Form.Item
+                                    label="จุดประสงค์การใช้งาน"
                                     name="destination"
-                                    placeholder="กรุณาระบุปลายทาง"
-                                    onChange={handleChange}
-                                    style={{ height: '30px' }}
-                                />
+                                    rules={[{ required: true, message: "กรุณาระบุปลายทาง" }]}
+                                >
+                                    <TextArea name="destination" rows={2} placeholder="กรุณาระบุปลายทาง" onChange={handleChange} style={{ height: '30px' }} />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label="ต้องการพนักงานขับรถ"
+                                    name="driverRequired"
+                                    rules={[{ required: true, message: "กรุณาเลือกต้องการมีคนขับหรือไม" }]}
+                                >
+                                    <Radio.Group name="driverRequired" value={formData.driverRequired} onChange={handleChange} style={{ marginTop: '8px', margin: '8px 20px' }}>
+                                        <Radio value="yes">ต้องการ</Radio>
+                                        <Radio value="no">ไม่ต้องการ</Radio>
+                                    </Radio.Group>
+                                </Form.Item>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <label style={{ fontWeight: 'bold' }}>ต้องการพนักงานขับรถ</label>
-                                <Radio.Group name="driverRequired" value={formData.driverRequired} onChange={handleChange} style={{ marginTop: '8px', margin: '8px 20px' }}>
-                                    <Radio value="yes">ต้องการ</Radio>
-                                    <Radio value="no">ไม่ต้องการ</Radio>
-                                </Radio.Group>
+                            <div style={{ textAlign: 'right', marginTop: '24px' }}>
+                                <Button
+                                    type="primary"
+                                    onClick={() => setIsModalVisible(true)}
+                                    style={{
+                                        backgroundColor: '#28a745',
+                                        borderColor: '#28a745',
+                                        fontWeight: 'bold',
+                                        padding: '10px 20px',
+                                        borderRadius: '8px',
+                                    }}
+                                >
+                                    ถัดไป
+                                </Button>
                             </div>
-                        </div>
-                        <div style={{ textAlign: 'right', marginTop: '24px' }}>
-                            <Button
-                                type="primary"
-                                onClick={() => setIsModalVisible(true)}
-                                style={{
-                                    backgroundColor: '#28a745',
-                                    borderColor: '#28a745',
-                                    fontWeight: 'bold',
-                                    padding: '10px 20px',
-                                    borderRadius: '8px',
-                                }}
-                            >
-                                ถัดไป
-                            </Button>
-                        </div>
+                        </Form>
                         {/* Modal for booking confirmation */}
                         <Modal
                             title={
@@ -597,8 +654,8 @@ export const CarBooking = () => {
                                 )}
                                 <Divider />
                                 {[
-                                    { label: 'วันที่-เวลาการจอง', value: `${formatDate(startDate)} ${formData.booking_time || ''}` },
-                                    { label: 'วันที่-เวลาการคืน', value: `${formatDate(endDate)}  ${formData.return_time || ''}` },
+                                    { label: 'วันที่-เวลาการจอง', value: `${formatDateThai(startDate)} ${formData.booking_time || ''}` },
+                                    { label: 'วันที่-เวลาการคืน', value: `${formatDateThai(endDate)}  ${formData.return_time || ''}` },
                                     { label: 'ชื่อ-สกุล', value: userFullName },
                                     { label: 'ตำแหน่ง/แผนก', value: department },
                                     { label: 'จุดประสงค์การใช้งาน', value: formData.purpose },

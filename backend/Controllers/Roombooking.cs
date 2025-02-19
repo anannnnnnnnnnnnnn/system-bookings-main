@@ -58,6 +58,11 @@ namespace YourNamespace.Controllers
                 }
             }
 
+            if (string.IsNullOrEmpty(booking.roombooking_number))
+            {
+                booking.roombooking_number = "BN" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            }
+
             // กำหนดโซนเวลาเป็นไทย
             TimeZoneInfo thaiZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             DateTime thaiNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, thaiZone);
@@ -70,6 +75,7 @@ namespace YourNamespace.Controllers
 
             return Ok(new { message = "Booking created successfully", booking });
         }
+
         private List<(TimeSpan start, TimeSpan end)> ParseBookingTimes(string bookingTimes)
         {
             var result = new List<(TimeSpan, TimeSpan)>();
@@ -93,11 +99,11 @@ namespace YourNamespace.Controllers
 
             return result;
         }
+
         private bool IsTimeOverlap((TimeSpan start, TimeSpan end) newBooking, (TimeSpan start, TimeSpan end) existingBooking)
         {
             return newBooking.start < existingBooking.end && newBooking.end > existingBooking.start;
         }
-
 
 
         // ดึงรายการจองห้องทั้งหมด

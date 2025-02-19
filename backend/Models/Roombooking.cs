@@ -6,7 +6,7 @@ public class RoomBooking
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int roombooking_id { get; set; } // Primary Key, Auto Increment
+    public int roombooking_id { get; set; }
 
     [Required]
     [MaxLength(20)]
@@ -22,14 +22,12 @@ public class RoomBooking
     [Required]
     public DateTime booking_date { get; set; }
 
-
     [Required]
     public DateTime return_date { get; set; }
-    
-    [Required]
-    [MaxLength(100)] // จำกัดความยาวของ string
-    public string booking_times { get; set; } = ""; // เช่น "10:00-11:00,14:00-15:00"
 
+    [Required]
+    [MaxLength(100)]
+    public string booking_times { get; set; } = "";
 
     public string meeting_topic { get; set; } = "ไม่ได้ระบุ";
 
@@ -44,5 +42,5 @@ public class RoomBooking
     public DateTime updated_at { get; set; } = DateTime.UtcNow;
 
     public int? booking_status { get; set; } = 1;
-
+     public string? roomreject_reason { get; set; }  // เพิ่มฟิลด์นี้
 }

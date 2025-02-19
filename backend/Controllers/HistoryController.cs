@@ -122,8 +122,6 @@ namespace YourNamespace.Controllers
                 return StatusCode(500, new { message = "เกิดข้อผิดพลาดในการดึงข้อมูล", error = ex.Message });
             }
         }
-
-
         [HttpPut("{id}/cancel")]
         public async Task<IActionResult> CancelBooking(int id)
         {

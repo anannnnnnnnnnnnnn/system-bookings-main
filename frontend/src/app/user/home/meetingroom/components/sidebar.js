@@ -40,11 +40,14 @@ function Sidebar() {
           borderRight: 'none',
         }}
       >
-        <Menu.Item key="1" icon={<CarOutlined />}>
-          <Link href="/user/home/meetingroom/complete">จองรถ</Link>
+        <Menu.Item key="1" icon={<HomeOutlined />}>
+          <Link href="/user/home/meetingroom">หน้าหลัก</Link>
         </Menu.Item>
-        <Menu.Item key="2" icon={<HomeOutlined />}>
-          <Link href="/user/home/meetingroom">ปฎิทิน</Link>
+        <Menu.Item key="2" icon={<CarOutlined />}>
+          <Link href="/user/home/meetingroom/complete">จองห้องประชุม</Link>
+        </Menu.Item>
+        <Menu.Item key="3" icon={<CarOutlined />}>
+          <Link href="/user/home/meetingroom/roomhistory">ประวัติการจอง</Link>
         </Menu.Item>
       </Menu>
     </>

@@ -7,6 +7,14 @@ import Navbar from '@/app/users/home/navbar';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc"; // เพิ่ม plugin สำหรับ utc
+import timezone from "dayjs/plugin/timezone"; // เพิ่ม plugin สำหรับ timezone
+import "dayjs/locale/th"; // ภาษาไทย
+
+dayjs.extend(utc); // เพิ่มการใช้ plugin UTC
+dayjs.extend(timezone); // เพิ่มการใช้ plugin Timezone
+dayjs.locale("th"); // ตั้งค่า locale เป็นไทย
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -23,17 +31,22 @@ export const MeetingRoomBooking = () => {
         selectedTime: [],
         bookingNumber: '',
         bookingDate: '',
-        username: '',
-        purpose: '',
+        returnDate: '',
+        userFullName: '',  // เปลี่ยนจาก username เป็น userFullName
         department: '',
-        attendees: ''
+        meeting_topic: '',
+        attendee_count: ''
     });
+
     const [userFullName, setUserFullName] = useState('');
+    const [userEmail, setUserEmail] = useState('');
     const [department, setDepartment] = useState('');
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [unavailableTimes, setUnavailableTimes] = useState([]);
     const router = useRouter();
+    const formattedBookingDate = dayjs(formData.bookingDate).locale('th').format('D MMM YYYY');
+    const formattedReturnDate = dayjs(formData.returnDate).locale('th').format('D MMM YYYY');
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -45,6 +58,13 @@ export const MeetingRoomBooking = () => {
                         const data = await response.json();
                         setUserFullName(data.full_name || '');
                         setDepartment(data.department || '');
+
+                        // ตั้งค่า userFullName ใน formData
+                        setFormData((prev) => ({
+                            ...prev,
+                            userFullName: data.full_name || '',  // กำหนด userFullName ให้กับ formData
+                            department: data.department || ''
+                        }));
                     } else {
                         console.error('Failed to fetch user');
                     }
@@ -55,6 +75,7 @@ export const MeetingRoomBooking = () => {
         };
         fetchUserData();
     }, []);
+
 
     useEffect(() => {
         if (roomId) {
@@ -78,6 +99,7 @@ export const MeetingRoomBooking = () => {
     }, [roomId]);
 
     const handleChange = (e) => {
+
         const { name, value } = e.target || e;
         setFormData((prev) => ({
             ...prev,
@@ -100,39 +122,52 @@ export const MeetingRoomBooking = () => {
         });
     };
 
-
     const handleConfirm = async () => {
-        if (!formData.purpose || !formData.department || !formData.attendees || !roomId) {
+        console.log("Form Data:", formData); // ตรวจสอบค่าที่ส่งไป
+
+        // ตรวจสอบว่ามีค่าครบถ้วนหรือไม่
+        if (!formData.meeting_topic || !formData.department || !formData.attendee_count || !roomId) {
             alert('กรุณากรอกข้อมูลให้ครบถ้วน!');
             return;
         }
+
+        // ตรวจสอบและตั้งค่าให้กับ formData
         const bookingData = {
-            booking_number: `BN${new Date().getTime()}`,
+            roombooking_number: generateBookingNumber(),  // เพิ่มหมายเลขการจองที่สร้างเอง
+            full_name: formData.userFullName || 'ไม่ได้ระบุ',
             room_id: roomId,
-            full_name: userFullName || 'ไม่ได้ระบุ',
             booking_date: formData.bookingDate,
-            purpose: formData.purpose,
-            department: department || 'ไม่ได้ระบุ',
-            attendees_count: formData.attendees ? parseInt(formData.attendees, 10) : null,
-            booking_status: 1,
+            return_date: formData.returnDate,
+            meeting_topic: formData.meeting_topic || 'ไม่ได้ระบุ',
+            attendee_count: formData.attendee_count ? parseInt(formData.attendee_count, 10) : 0,
+            department: formData.department || 'ไม่ได้ระบุ',
+            booking_times: formData.selectedTime.join(','),
+            additional_equipment: formData.additionalEquipment || [],
+            username: formData.userFullName || 'ไม่ได้ระบุ',
         };
 
+        console.log("Sending Booking Data:", bookingData); // ตรวจสอบค่าที่จะส่งไป API
+
         // ส่งข้อมูลไปยัง API
-        axios.post('http://localhost:5182/api/bookings', bookingData)
+        axios.post('http://localhost:5182/api/roombookings', bookingData)
             .then((response) => {
-                if (response.status === 201) {
-                    const confirmation_id = response.data.confirmation_id;
+                console.log("API Response:", response); // ตรวจสอบข้อมูลที่ตอบกลับจาก API
+
+                // ตรวจสอบว่า response สำเร็จหรือไม่
+                if (response.status === 201 || response.status === 200) {
                     Modal.success({
                         title: 'การจองสำเร็จ!',
                         content: 'ข้อมูลการจองของคุณถูกบันทึกเรียบร้อยแล้ว',
                         onOk: () => {
-                            router.push(`/user/home/meeting/complete/approve?confirmation_id=${confirmation_id}`);
+                            // เมื่อกดปุ่ม OK ใน modal ให้ไปยังหน้าถัดไปโดยไม่ต้องส่งข้อมูลอะไรไป
+                            router.push(`/user/home/meetingroom`);
                         },
                     });
                 } else {
+                    // ถ้า response ไม่ใช่ 201 หรือ 200
                     Modal.error({
                         title: 'การจองไม่สำเร็จ',
-                        content: 'โปรดลองอีกครั้ง',
+                        content: `โปรดลองอีกครั้ง (สถานะ API: ${response.status})`,
                     });
                 }
             })
@@ -143,10 +178,22 @@ export const MeetingRoomBooking = () => {
                     content: 'ไม่สามารถบันทึกข้อมูลได้',
                 });
             });
+
     };
+
+    // ฟังก์ชันสร้างหมายเลขการจอง
+    const generateBookingNumber = () => {
+        const timestamp = new Date().getTime(); // ใช้เวลาเป็นตัวแปร
+        return `BN-${timestamp}`;  // รูปแบบการจองที่สร้างโดยใช้เวลาปัจจุบัน
+    };
+
 
     if (loading) return <p>กำลังโหลดข้อมูล...</p>;
     if (error) return <p>เกิดข้อผิดพลาด: {error}</p>;
+
+    const handleback = () => {
+        router.push(`/user/home/meetingroom/complete`);
+    };
 
     return (
         <Layout style={{ backgroundColor: '#fff' }}>
@@ -211,6 +258,7 @@ export const MeetingRoomBooking = () => {
                         </div>
 
                         <Divider />
+                        <Title level={3} style={{ color: '#4D4D4D' }}>เลือกวันที่จองและคืน</Title>
                         <DatePicker.RangePicker
                             format="YYYY-MM-DD"
                             value={startDate && endDate ? [startDate, endDate] : null}
@@ -219,11 +267,17 @@ export const MeetingRoomBooking = () => {
                                 setEndDate(dates?.[1] || null);
                                 setFormData((prev) => ({
                                     ...prev,
-                                    bookingDate: dates ? `${dates[0]?.format("YYYY-MM-DD")} - ${dates[1]?.format("YYYY-MM-DD")}` : ''
+                                    bookingDate: dates?.[0]?.format("YYYY-MM-DD") || '',  // วันที่จอง
+                                    returnDate: dates?.[1]?.format("YYYY-MM-DD") || ''   // วันที่คืน
                                 }));
                             }}
                             placeholder={["วันที่ต้องการจอง", "วันที่สิ้นสุดการจอง"]}
                             style={{ width: '90%' }}
+                            disabledDate={(current) => {
+                                // Disable all dates before tomorrow
+                                return current && current < dayjs().locale('th').tz("Asia/Bangkok").add(1, 'day').startOf('day');
+                            }}
+                            locale="th"  // ตั้งค่า locale เป็นไทย
                         />
                         <Divider />
                         <Title level={3} style={{ color: '#4D4D4D' }}>เลือกเวลาที่ต้องการจอง</Title>
@@ -280,15 +334,16 @@ export const MeetingRoomBooking = () => {
                                 gridTemplateColumns: '1fr 1fr',
                                 gap: '16px',
                                 marginBottom: '16px',
-                                margin: '20px 50px',
+                                margin: '20px 20px',
                             }}
                         >
                             <div>
-                                <label style={{ fontWeight: 'bold', fontSize: '14px' }}>วันที่จอง</label>
+                                <label style={{ fontWeight: 'bold', fontSize: '14px' }}>วันที่จองและคืน</label>
                                 <p style={{ margin: '8px 0', fontSize: '14px', color: '#555' }}>
-                                    {formData.bookingDate}
+                                    {formattedBookingDate} ถึง {formattedReturnDate}
                                 </p>
                             </div>
+
 
                             <div>
                                 <label style={{ fontWeight: 'bold', fontSize: '14px' }}>เวลา</label>
@@ -300,8 +355,8 @@ export const MeetingRoomBooking = () => {
                             <div>
                                 <label style={{ fontWeight: 'bold', fontSize: '14px' }}>วัตถุประสงค์</label>
                                 <Input
-                                    name="objective"
-                                    value={formData.objective}
+                                    name="meeting_topic"
+                                    value={formData.meeting_topic}
                                     onChange={handleChange}
                                     style={{ fontSize: '14px' }}
                                 />
@@ -310,8 +365,8 @@ export const MeetingRoomBooking = () => {
                             <div>
                                 <label style={{ fontWeight: 'bold', fontSize: '14px' }}>จำนวนผู้เข้าร่วม</label>
                                 <Input
-                                    type="number"
-                                    name="capacity"
+                                    type="attendee_count"
+                                    name="attendee_count"
                                     placeholder="จำนวนผู้เข้าร่วมประชุม"
                                     onChange={handleChange}
                                     style={{ fontSize: '14px' }}
@@ -353,6 +408,23 @@ export const MeetingRoomBooking = () => {
                         >
                             <Button
                                 type="primary"
+                                onClick={handleback}  // เรียกใช้ handleback ฟังก์ชันโดยตรง
+                                style={{
+                                    backgroundColor: '#ffff',
+                                    borderRadius: '8px',
+                                    fontWeight: 'bold',
+                                    padding: '10px 24px',
+                                    fontSize: '14px',
+                                    border: '1px solid black',
+                                    color: 'black',
+                                    transition: 'all 0.3s ease',
+                                }}
+                            >
+                                ย้อนกลับ
+                            </Button>
+
+                            <Button
+                                type="primary"
                                 onClick={() => setIsModalVisible(true)}
                                 style={{
                                     backgroundColor: '#478D00',
@@ -375,10 +447,9 @@ export const MeetingRoomBooking = () => {
                                         textAlign: 'center',
                                         color: '#029B36',
                                         fontWeight: 'bold',
-                                        fontSize: '20px', // ขนาดเล็กลง
+                                        fontSize: '20px',
                                     }}
                                 >
-
                                     ยืนยันการจอง
                                 </div>
                             }
@@ -388,39 +459,99 @@ export const MeetingRoomBooking = () => {
                             centered
                             okText="ยืนยันการจอง"
                             cancelText="ยกเลิก"
-                            width={400} // ความกว้างเล็กลง
+                            width={400}
                             style={{
                                 borderRadius: '10px',
                                 overflow: 'hidden',
                             }}
                             bodyStyle={{
-                                padding: '16px', // ระยะห่างภายในลดลง
+                                padding: '16px',
                                 fontFamily: 'var(--font-kanit)',
                             }}
                         >
                             <div
                                 style={{
-                                    fontSize: '14px', // ขนาดข้อความเล็กลง
-                                    lineHeight: '1.6', // ลดระยะห่างระหว่างบรรทัด
+                                    fontSize: '14px',
+                                    lineHeight: '1.6',
                                     color: '#4A4A4A',
                                 }}
                             >
+                                <Divider style={{ borderColor: '#E0E0E0', margin: '16px 0' }} />
+
+                                {roomDetails && (
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            border: '1px solid #E0E0E0',
+                                            borderRadius: '10px',
+                                            padding: '10px',
+                                            backgroundColor: '#FFFFFF',
+                                            marginBottom: '16px',
+                                            transition: 'box-shadow 0.3s ease, transform 0.2s ease',
+                                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                                        }}
+                                    >
+                                        {/* รูปภาพรถ */}
+                                        <img
+                                            src={`http://localhost:5182${roomDetails.room_img}`}
+                                            alt="Car"
+                                            style={{
+                                                width: '100px',
+                                                height: '70px',
+                                                borderRadius: '8px',
+                                                objectFit: 'cover',
+                                                marginRight: '16px',
+                                                border: '1px solid #E0E0E0',
+                                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                                            }}
+                                        />
+                                        {/* ข้อมูลรถ */}
+                                        <div style={{ flex: 1 }}>
+                                            <>
+                                                <Text
+                                                    style={{
+                                                        fontSize: '14px',
+                                                        fontWeight: '600',
+                                                        color: '#2C3E50',
+                                                        marginBottom: '5px',
+                                                    }}
+                                                >
+                                                    {roomDetails.room_name}
+                                                </Text>
+                                                <div
+                                                    style={{
+                                                        fontSize: '10px',
+                                                        color: '#7F8C8D',
+                                                        lineHeight: '1.6',
+                                                    }}
+                                                >
+                                                    <p style={{ margin: 0 }}>อุปกรณ์ห้อง: {roomDetails.equipment}</p>
+                                                    <p style={{ margin: 0 }}>จำนวนที่นั่ง: {roomDetails.capacity} ที่นั่ง</p>
+                                                </div>
+                                            </>
+                                        </div>
+                                    </div>
+                                )}
+                                <Divider />
+
                                 {[
-                                    { label: 'ชื่อห้อง', value: roomDetails.room_name||'-' },
+                                    { label: 'ชื่อห้อง', value: roomDetails.room_name || '-' },
+                                    { label: 'วันที่จอง', value: formData.bookingDate || '' },
+                                    { label: 'วันที่คืน', value: formData.returnDate || '' },
                                     { label: 'ช่วงเวลาที่จอง', value: formData.selectedTime?.join(', ') || '-' },
-                                    { label: 'หัวข้อการประชุม', value: formData.objective || '-' },
-                                    { label: 'จำนวนผู้เข้าร่วม', value: formData.capacity || '-' },
+                                    { label: 'หัวข้อการประชุม', value: formData.meeting_topic || '-' },
+                                    { label: 'จำนวนผู้เข้าร่วม', value: formData.attendee_count || '-' },
                                     { label: 'อุปกรณ์เสริม', value: formData.additionalEquipment?.join(', ') || 'ไม่มี' },
-                                    { label: 'ชื่อผู้จอง', value: formData.username || '-' },
-                                    { label: 'อีเมล', value: formData.email || '-' },
-                                    { label: 'เบอร์โทรศัพท์', value: formData.contactNumber || '-' },
+                                    { label: 'ชื่อผู้จอง', value: userFullName || '-' },
+                                    { label: 'แผนก', value: department || '-' },
                                 ].map((item, index) => (
                                     <div
                                         key={index}
                                         style={{
-                                            marginBottom: '12px', // ลดระยะห่างด้านล่าง
-                                            paddingBottom: '8px', // ลด padding
-                                            borderBottom: index !== 7 ? '1px solid #E0E0E0' : 'none', // เส้นคั่นบาง
+                                            marginBottom: '12px',
+                                            paddingBottom: '8px',
+                                            borderBottom: index !== 5 ? '1px solid #E0E0E0' : 'none',
                                         }}
                                     >
                                         <p
@@ -428,7 +559,7 @@ export const MeetingRoomBooking = () => {
                                                 margin: 0,
                                                 display: 'flex',
                                                 justifyContent: 'space-between',
-                                                fontSize: '13px', // ปรับขนาดข้อความในแต่ละบรรทัด
+                                                fontSize: '13px',
                                             }}
                                         >
                                             <strong style={{ color: '#555', fontWeight: 'bold' }}>{item.label}:</strong>

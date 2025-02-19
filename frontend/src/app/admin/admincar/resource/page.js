@@ -1,85 +1,181 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Layout, Table, Button, Modal, Form, Input, Select, Tag, Image, message, Upload } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import Sidebar from '../component/sidebar';
+import Navbar from '@/app/users/home/navbar';
+import { Layout, Table, Button, Modal, Form, Input, Select, Tag, message, Upload, Breadcrumb,Typography } from 'antd';
+import { UploadOutlined, HomeOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 const { Content } = Layout;
 const { Option } = Select;
+const { Title } = Typography;
 
-function ResourceManagement() {
+function CarManagement() {
+    const [data, setData] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
     const [form] = Form.useForm();
-    const [previewImage, setPreviewImage] = useState(null);
-    const [data, setData] = useState([]);
+    const [imageFile, setImageFile] = useState(null);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get('http://localhost:5182/api/cars');
-                const formattedData = response.data.map((item, index) => ({
-                    ...item,
-                    key: item.id,
-                    no: index + 1,
-                }));
-                setData(formattedData);
-            } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
-            }
-        };
-        fetchData();
+        fetchCars();
     }, []);
 
-    const fuelTypes = {
-        1: 'น้ำมัน',
-        2: 'ไฟฟ้า',
-        3: 'อื่นๆ'
+    const fetchCars = async () => {
+        try {
+            const response = await axios.get('http://localhost:5182/api/cars');
+            setData(response.data);
+        } catch (error) {
+            console.error('Error fetching cars:', error);
+        }
     };
 
-    const statusTypes = {
-        1: 'ใช้งานปกติ',
-        2: 'ไม่พร้อมใช้งาน'
+    const handleAdd = () => {
+        setEditingRecord(null);
+        form.resetFields();
+        setImageFile(null);
+        setIsModalVisible(true);
+    };
+
+    const handleDelete = async (car_id) => {
+        if (window.confirm('คุณแน่ใจหรือไม่ว่าจะลบข้อมูลรถคันนี้?')) {
+            try {
+                await axios.delete(`http://localhost:5182/api/cars/${car_id}`);
+                message.success('ลบข้อมูลสำเร็จ');
+                fetchCars();
+            } catch (error) {
+                message.error('เกิดข้อผิดพลาดในการลบข้อมูล');
+            }
+        }
+    };
+
+    const handleEdit = (record) => {
+        setEditingRecord(record);
+        form.setFieldsValue({
+            brand: record.brand,
+            model: record.model,
+            license_plate: record.license_plate,
+            seating_capacity: record.seating_capacity,
+            fuel_type: record.fuel_type || 1,
+            status: record.status || 1,
+            type: record.type || 1,
+        });
+        setIsModalVisible(true);
+    };
+
+    const handleSubmit = async (values) => {
+        const seatingCapacity = parseInt(values.seating_capacity, 10);
+        if (!seatingCapacity) {
+            message.error('ค่าความจุที่นั่งหายไป');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('brand', values.brand);
+        formData.append('model', values.model);
+        formData.append('license_plate', values.license_plate);
+        formData.append('seating_capacity', seatingCapacity);
+        formData.append('fuel_type', values.fuel_type);
+        formData.append('status', values.status);
+        formData.append('type', values.type);
+
+        // ส่งรูปภาพใหม่ถ้ามีการเลือกไฟล์
+        if (imageFile) {
+            formData.append('image', imageFile);
+        } else if (editingRecord && editingRecord.image_url) {
+            // ถ้าไม่มีการเลือกไฟล์ใหม่ ให้ใช้รูปภาพเดิม
+            formData.append('image_url', editingRecord.image_url); // ส่ง URL รูปภาพเดิมไป
+        }
+
+        try {
+            if (editingRecord) {
+                // แก้ไขข้อมูล
+                formData.append('car_id', editingRecord.car_id);
+                await axios.put(`http://localhost:5182/api/cars/${editingRecord.car_id}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                message.success('แก้ไขข้อมูลสำเร็จ');
+            } else {
+                // เพิ่มข้อมูลใหม่
+                await axios.post('http://localhost:5182/api/cars', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                message.success('เพิ่มข้อมูลรถยนต์สำเร็จ');
+            }
+
+            // หลังจากเพิ่มหรือแก้ไขข้อมูลเสร็จแล้ว ให้ปิด modal และดึงข้อมูลรถยนต์ใหม่
+            setIsModalVisible(false);
+            fetchCars();  // ฟังก์ชันที่ดึงข้อมูลรถยนต์ทั้งหมดมาแสดง
+        } catch (error) {
+            console.error('Error:', error.response ? error.response.data : error); // เช็คข้อมูลที่ส่งกลับจาก API
+            message.error('เกิดข้อผิดพลาด');
+        }
+    };
+
+    const handleFileChange = ({ file }) => {
+        setImageFile(file);
     };
 
     const columns = [
         {
             title: 'NO',
-            dataIndex: 'no',
             key: 'no',
+            render: (_, __, index) => index + 1,
+            width: '5%',
             align: 'center',
         },
         {
-            title: 'รูปรถ',
+            title: 'รูปภาพ',
             dataIndex: 'image_url',
             key: 'image_url',
             render: (image) => (
-                <div style={{ textAlign: 'center' }}>
-                    <Image
-                        src={`http://localhost:5182${image}`}
-                        width={100}
-                        alt="Car Image"
-                    />
-                </div>
+                <img src={image ? `http://localhost:5182${image}` : '/default-car.png'}
+                    alt="Car"
+                    style={{ width: 80, height: 60, objectFit: 'cover' }} />
             ),
         },
         {
-            title: 'รายละเอียดรถ',
-            key: 'details',
-            render: (record) => (
-                <div>
-                    <p><strong>ยี่ห้อ:</strong> {record.brand}</p>
-                    <p><strong>รุ่น:</strong> {record.model}</p>
-                    <p><strong>ทะเบียน:</strong> {record.license_plate}</p>
-                    <p><strong>จำนวนที่นั่ง:</strong> {record.seating_capacity} ที่นั่ง</p>
-                    <p><strong>เชื้อเพลิง:</strong> {fuelTypes[record.fuel_type]}</p>
-                    <p>
-                        <strong>สถานะ:</strong>
-                        <Tag color={record.status === 1 ? 'green' : 'red'}>
-                            {statusTypes[record.status]}
-                        </Tag>
-                    </p>
-                </div>
+            title: 'ยี่ห้อ',
+            dataIndex: 'brand',
+            key: 'brand',
+        },
+        {
+            title: 'รุ่น',
+            dataIndex: 'model',
+            key: 'model',
+        },
+        {
+            title: 'ทะเบียน',
+            dataIndex: 'license_plate',
+            key: 'license_plate',
+        },
+        {
+            title: 'จำนวนที่นั่ง',
+            dataIndex: 'seating_capacity',
+            key: 'seating_capacity',
+        },
+        {
+            title: 'ประเภทเชื้อเพลิง',
+            dataIndex: 'fuel_type',
+            key: 'fuel_type',
+            render: (fuelType) => (
+                <Tag color={fuelType === 1 ? 'green' : fuelType === 2 ? 'blue' : 'gray'}>
+                    {fuelType === 1 ? 'น้ำมัน' : fuelType === 2 ? 'ไฟฟ้า' : 'อื่นๆ'}
+                </Tag>
+            ),
+        },
+        {
+            title: 'สถานะ',
+            dataIndex: 'status',
+            key: 'status',
+            render: (status) => (
+                <Tag color={status === 1 ? 'green' : 'red'}>
+                    {status === 1 ? 'พร้อมใช้งาน' : 'ไม่พร้อมใช้งาน'}
+                </Tag>
             ),
         },
         {
@@ -87,154 +183,146 @@ function ResourceManagement() {
             key: 'action',
             render: (_, record) => (
                 <div style={{ display: 'flex', gap: '8px' }}>
-                    <Button type="primary" onClick={() => handleEdit(record)} size="small">
-                        แก้ไข
-                    </Button>
-                    <Button type="link" danger onClick={() => handleDelete(record.id)} size="small">
-                        ลบ
-                    </Button>
+                    <Button type="primary" onClick={() => handleEdit(record)} size="small" style={{backgroundColor: 'green', borderColor: 'green', color: 'white' }}>แก้ไข</Button>
+                    <Button danger onClick={() => handleDelete(record.car_id)} size="small">ลบ</Button>
                 </div>
             ),
         },
     ];
 
-    const handleEdit = (record) => {
-        setEditingRecord(record);
-        setIsModalVisible(true);
-        form.setFieldsValue({
-            brand: record.brand,
-            model: record.model,
-            license_plate: record.license_plate,
-            seating_capacity: record.seating_capacity,
-            fuel_type: record.fuel_type,
-            status: record.status,
-        });
-    };
-
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:5182/api/cars/${id}`);
-            message.success('ลบรถยนต์สำเร็จ');
-            setData(data.filter(item => item.id !== id));
-        } catch (error) {
-            message.error('ลบรถยนต์ไม่สำเร็จ');
-            console.error('Error:', error);
-        }
-    };
-
-    const handleOk = async () => {
-        try {
-            const values = await form.validateFields();
-            const formData = new FormData();
-
-            // ใส่ข้อมูลใน FormData
-            Object.keys(values).forEach((key) => formData.append(key, values[key]));
-
-            // เพิ่มไฟล์ภาพถ้ามี
-            if (previewImage?.file) {
-                formData.append('image_url', previewImage.file.originFileObj);
-            }
-
-            if (editingRecord) {
-                // Update
-                await axios.put(`http://localhost:5182/api/cars/${editingRecord.id}`, formData);
-                message.success('แก้ไขข้อมูลสำเร็จ');
-            } else {
-                // Add new
-                await axios.post('http://localhost:5182/api/cars', formData);
-                message.success('เพิ่มรถยนต์ใหม่สำเร็จ');
-            }
-
-            setIsModalVisible(false);
-            setEditingRecord(null);
-            form.resetFields();
-
-            // โหลดข้อมูลใหม่
-            const response = await axios.get('http://localhost:5182/api/cars');
-            setData(response.data.map((item, index) => ({
-                ...item,
-                key: item.id,
-                no: index + 1,
-            })));
-        } catch (error) {
-            message.error('การดำเนินการล้มเหลว');
-            console.error('Error:', error);
-        }
-    };
-
-
-    const handleCancel = () => {
-        setIsModalVisible(false);
-        setEditingRecord(null);
-    };
-
     return (
-        <Layout style={{ minHeight: '100vh', backgroundColor: '#ffff' }}>
-            <Content style={{ padding: '24px', backgroundColor: '#fff', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-                <div style={{ maxWidth: '900px', margin: '40px auto' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                        <h2 style={{ margin: 0 }}>การจัดการทรัพยากร</h2>
-                        <Button type="primary" onClick={() => setIsModalVisible(true)}>เพิ่มรถยนต์</Button>
+        <Layout style={{ backgroundColor: '#fff' }}>
+            <Navbar />
+
+            <Layout style={{ padding: '0px 40px', marginTop: '110px', backgroundColor: '#fff' }}>
+                <Sidebar />
+
+                <Layout style={{ marginTop: '20px', backgroundColor: '#fff' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center', // จัดให้อยู่กลางแนวตั้ง
+                            margin: '0 70px',
+                        }}
+                    >
+                        {/* ไอคอนหลัก */}
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '40px',
+                                height: '40px',
+                                backgroundColor: '#d9e8d2', // สีพื้นหลังไอคอน
+                                borderRadius: '50%', // รูปทรงกลม
+                                marginRight: '10px', // ระยะห่างระหว่างไอคอนและข้อความ
+                            }}
+                        >
+                            <HomeOutlined style={{ fontSize: '20px', color: '#4caf50' }} />
+                        </div>
+
+                        {/* Breadcrumb */}
+                        <Breadcrumb separator=">">
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#666', // สีข้อความหลัก
+                                    }}
+                                >
+                                    ระบบจองรถ
+                                </span>
+                            </Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#666', // สีข้อความรอง
+                                    }}
+                                >
+                                    เลือกรถที่ต้องการจอง
+                                </span>
+                            </Breadcrumb.Item>
+                            <Breadcrumb.Item>
+                                <span
+                                    style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#333', // สีข้อความรอง
+                                    }}
+                                >
+                                    กรอกรายละเอียกการจอง
+                                </span>
+                            </Breadcrumb.Item>
+                        </Breadcrumb>
                     </div>
-                    <Table columns={columns} dataSource={data} pagination={{ pageSize: 5 }} />
-                </div>
-
-                {/* Modal for Add/Edit */}
-                <Modal
-                    title={editingRecord ? 'แก้ไขข้อมูลรถยนต์' : 'เพิ่มข้อมูลรถยนต์'}
-                    visible={isModalVisible}
-                    onOk={handleOk}
-                    onCancel={handleCancel}
-                    footer={[
-                        <Button key="back" onClick={handleCancel}>ยกเลิก</Button>,
-                        <Button key="submit" type="primary" onClick={handleOk}>ยืนยัน</Button>,
-                    ]}
-                >
-                    <Form form={form} layout="vertical">
-                        <Form.Item name="brand" label="ยี่ห้อ" rules={[{ required: true, message: 'กรุณากรอกยี่ห้อ' }]}>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item name="brand" label="ยี่ห้อ" rules={[{ required: true, message: 'กรุณากรอกยี่ห้อ' }]}>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item name="model" label="รุ่น" rules={[{ required: true, message: 'กรุณากรอกรุ่น' }]}>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item name="license_plate" label="ทะเบียน" rules={[{ required: true, message: 'กรุณากรอกทะเบียน' }]}>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item name="seating_capacity" label="จำนวนที่นั่ง" rules={[{ required: true, message: 'กรุณากรอกจำนวนที่นั่ง' }]}>
-                            <Input type="number" />
-                        </Form.Item>
-                        <Form.Item name="fuel_type" label="ประเภทเชื้อเพลิง" rules={[{ required: true, message: 'กรุณาเลือกประเภทเชื้อเพลิง' }]}>
-                            <Select>
-                                <Option value={1}>น้ำมัน</Option>
-                                <Option value={2}>ไฟฟ้า</Option>
-                                <Option value={3}>อื่นๆ</Option>
-                            </Select>
-                        </Form.Item>
-                        <Form.Item name="status" label="สถานะ" rules={[{ required: true, message: 'กรุณาเลือกสถานะ' }]}>
-                            <Select>
-                                <Option value={1}>ใช้งานปกติ</Option>
-                                <Option value={2}>ไม่พร้อมใช้งาน</Option>
-                            </Select>
-                        </Form.Item>
-                        <Form.Item label="ภาพรถ" valuePropName="fileList">
-                            <Upload
-                                listType="picture"
-                                maxCount={1}
-                                beforeUpload={() => false}
-                                onChange={(info) => setPreviewImage(info)}
-                            >
-                                <Button icon={<UploadOutlined />}>เลือกไฟล์ภาพ</Button>
-                            </Upload>
-                        </Form.Item>
-
-                    </Form>
-                </Modal>
-            </Content>
+                    <Content style={{
+                        background: '#ffffff', // พื้นหลังสีขาว
+                        marginTop: '10px',
+                        marginLeft: '50px',
+                        padding: '20px',
+                        borderRadius: '8px',
+                    }}>
+                        <Title
+                            level={2}
+                            style={{
+                                marginBottom: '10px',
+                                color: '#666',
+                            }}
+                        >
+                            เพิ่มรถยนต์
+                        </Title>
+                        <Button type="primary" onClick={handleAdd} style={{ marginBottom: '20px',backgroundColor: 'green', borderColor: 'green', color: 'white'  }}>เพิ่มรถยนต์</Button>
+                        <Table columns={columns} dataSource={data} pagination={false} rowKey="car_id" />
+                        <Modal title={editingRecord ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูล'} open={isModalVisible} onCancel={() => setIsModalVisible(false)} onOk={form.submit} footer={null}>
+                            <Form form={form} onFinish={handleSubmit} layout="vertical">
+                                <Form.Item label="ยี่ห้อ" name="brand" rules={[{ required: true, message: 'กรุณากรอกยี่ห้อ' }]}>
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item label="รุ่น" name="model" rules={[{ required: true, message: 'กรุณากรอกรุ่น' }]}>
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item label="ทะเบียน" name="license_plate" rules={[{ required: true, message: 'กรุณากรอกทะเบียน' }]}>
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item label="จำนวนที่นั่ง" name="seating_capacity" rules={[{ required: true, message: 'กรุณากรอกจำนวนที่นั่ง' }]}>
+                                    <Input type="number" />
+                                </Form.Item>
+                                <Form.Item label="ประเภทเชื้อเพลิง" name="fuel_type" rules={[{ required: true, message: 'กรุณาเลือกประเภทเชื้อเพลิง' }]}>
+                                    <Select>
+                                        <Option value={1}>น้ำมัน</Option>
+                                        <Option value={2}>ไฟฟ้า</Option>
+                                        <Option value={3}>อื่นๆ</Option>
+                                    </Select>
+                                </Form.Item>
+                                <Form.Item label="สถานะ" name="status" rules={[{ required: true, message: 'กรุณาเลือกสถานะ' }]} initialValue={1}>
+                                    <Select>
+                                        <Option value={1}>พร้อมใช้งาน</Option>
+                                        <Option value={2}>ไม่พร้อมใช้งาน</Option>
+                                    </Select>
+                                </Form.Item>
+                                <Form.Item label="ประเภทรถ" name="type" rules={[{ required: true, message: 'กรุณาเลือกประเภทรถ' }]} initialValue={1}>
+                                    <Select>
+                                        <Option value={1}>รถส่วนตัว</Option>
+                                        <Option value={2}>รถตู้</Option>
+                                        <Option value={3}>รถกระบะ</Option>
+                                    </Select>
+                                </Form.Item>
+                                <Form.Item label="อัปโหลดรูปภาพ">
+                                    <Upload beforeUpload={() => false} onChange={handleFileChange} listType="picture">
+                                        <Button icon={<UploadOutlined />}>เลือกไฟล์</Button>
+                                    </Upload>
+                                </Form.Item>
+                                <Button type="primary" htmlType="submit">บันทึก</Button>
+                            </Form>
+                        </Modal>
+                    </Content>
+                </Layout>
+            </Layout>
         </Layout>
     );
 }
 
-export default ResourceManagement;
+export default CarManagement;

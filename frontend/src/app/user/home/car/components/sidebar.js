@@ -15,7 +15,6 @@ function Sidebar() {
   const toggleDrawer = () => {
     setVisible(!visible);
   };
-
   const sidebarContent = (
     <>
       <div
