@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Layout, Menu, Button, Grid, Drawer } from 'antd';
-import { MenuOutlined, CarOutlined, HomeOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { MenuOutlined, CarOutlined, HomeOutlined, HistoryOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 
 const { Sider } = Layout;
@@ -45,7 +45,7 @@ function Sidebar() {
         <Menu.Item key="2" icon={<CarOutlined />}>
           <Link href="/user/home/car/complete">จองรถ</Link>
         </Menu.Item>
-        <Menu.Item key="3" icon={<HomeOutlined />}>
+        <Menu.Item key="3" icon={<HistoryOutlined />}>
           <Link href="/user/home/car/recore">ประวัติการจอง</Link>
         </Menu.Item>
       </Menu>

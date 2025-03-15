@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../component/sidebar';
 import Navbar from '@/app/users/home/navbar';
-import { Layout, Table, Button, Modal, Form, Input, Select, Tag, message, Upload,Breadcrumb,Typography } from 'antd';
-import { UploadOutlined,HomeOutlined, } from '@ant-design/icons';
+import { Layout, Table, Button, Modal, Form, Input, Select, Tag, message, Upload, Breadcrumb, Typography } from 'antd';
+import { UploadOutlined, HomeOutlined, } from '@ant-design/icons';
 import axios from 'axios';
 
 const { Content } = Layout;
@@ -165,62 +165,45 @@ function MeetingRoomManagement() {
                 <Sidebar />
 
                 <Layout style={{ marginTop: '20px', backgroundColor: '#fff' }}>
-                    <div
-                        style={{
+                    <div style={{ display: 'flex', alignItems: 'center', margin: '0 70px' }}>
+                        <div style={{
                             display: 'flex',
-                            alignItems: 'center', // จัดให้อยู่กลางแนวตั้ง
-                            margin: '0 70px',
-                        }}
-                    >
-                        {/* ไอคอนหลัก */}
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '40px',
-                                height: '40px',
-                                backgroundColor: '#d9e8d2', // สีพื้นหลังไอคอน
-                                borderRadius: '50%', // รูปทรงกลม
-                                marginRight: '10px', // ระยะห่างระหว่างไอคอนและข้อความ
-                            }}
-                        >
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '40px',
+                            height: '40px',
+                            backgroundColor: '#d9e8d2',
+                            borderRadius: '50%',
+                            marginRight: '10px',
+                        }}>
                             <HomeOutlined style={{ fontSize: '20px', color: '#4caf50' }} />
                         </div>
 
-                        {/* Breadcrumb */}
                         <Breadcrumb separator=">">
                             <Breadcrumb.Item>
-                                <span
-                                    style={{
-                                        fontWeight: '500',
-                                        fontSize: '14px',
-                                        color: '#666', // สีข้อความหลัก
-                                    }}
-                                >
-                                    ระบบจองรถ
+                                <span style={{
+                                    fontWeight: '500',
+                                    fontSize: '14px',
+                                    color: '#666',
+                                    padding: '6px 14px',
+                                    borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                    backgroundColor: '#f5f5f5',
+
+                                }}>
+                                    ระบบแอดมิน
                                 </span>
                             </Breadcrumb.Item>
                             <Breadcrumb.Item>
-                                <span
-                                    style={{
-                                        fontWeight: '500',
-                                        fontSize: '14px',
-                                        color: '#666', // สีข้อความรอง
-                                    }}
-                                >
-                                    เลือกรถที่ต้องการจอง
-                                </span>
-                            </Breadcrumb.Item>
-                            <Breadcrumb.Item>
-                                <span
-                                    style={{
-                                        fontWeight: '500',
-                                        fontSize: '14px',
-                                        color: '#333', // สีข้อความรอง
-                                    }}
-                                >
-                                    กรอกรายละเอียกการจอง
+                                <span style={{
+                                    fontWeight: '500',
+                                    fontSize: '14px',
+                                    color: '#333',
+                                    padding: '6px 14px',
+                                    borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                    backgroundColor: '#f5f5f5',
+
+                                }}>
+                                    หน้าการจัดการห้องประชุม
                                 </span>
                             </Breadcrumb.Item>
                         </Breadcrumb>

@@ -159,60 +159,45 @@ function Approve() {
                 <Sidebar />
 
                 <Layout style={{ marginTop: '20px', backgroundColor: '#fff' }}>
-                    <div
-                        style={{
+                <div style={{ display: 'flex', alignItems: 'center', margin: '0 70px' }}>
+                        <div style={{
                             display: 'flex',
                             alignItems: 'center',
-                            margin: '0 70px',
-                        }}
-                    >
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '40px',
-                                height: '40px',
-                                backgroundColor: '#d9e8d2',
-                                borderRadius: '50%',
-                                marginRight: '10px',
-                            }}
-                        >
+                            justifyContent: 'center',
+                            width: '40px',
+                            height: '40px',
+                            backgroundColor: '#d9e8d2',
+                            borderRadius: '50%',
+                            marginRight: '10px',
+                        }}>
                             <HomeOutlined style={{ fontSize: '20px', color: '#4caf50' }} />
                         </div>
 
                         <Breadcrumb separator=">">
                             <Breadcrumb.Item>
-                                <span
-                                    style={{
-                                        fontWeight: '500',
-                                        fontSize: '14px',
-                                        color: '#666',
-                                    }}
-                                >
-                                    ระบบจองรถ
+                                <span style={{
+                                    fontWeight: '500',
+                                    fontSize: '14px',
+                                    color: '#666',
+                                    padding: '6px 14px',
+                                    borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                    backgroundColor: '#f5f5f5',
+
+                                }}>
+                                    ระบบแอดมิน
                                 </span>
                             </Breadcrumb.Item>
                             <Breadcrumb.Item>
-                                <span
-                                    style={{
-                                        fontWeight: '500',
-                                        fontSize: '14px',
-                                        color: '#666',
-                                    }}
-                                >
-                                    เลือกรถที่ต้องการจอง
-                                </span>
-                            </Breadcrumb.Item>
-                            <Breadcrumb.Item>
-                                <span
-                                    style={{
-                                        fontWeight: '500',
-                                        fontSize: '14px',
-                                        color: '#333',
-                                    }}
-                                >
-                                    กรอกรายละเอียกการจอง
+                                <span style={{
+                                    fontWeight: '500',
+                                    fontSize: '14px',
+                                    color: '#333',
+                                    padding: '6px 14px',
+                                    borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                    backgroundColor: '#f5f5f5',
+
+                                }}>
+                                    หน้าหลักระบบดูแลรถ
                                 </span>
                             </Breadcrumb.Item>
                         </Breadcrumb>

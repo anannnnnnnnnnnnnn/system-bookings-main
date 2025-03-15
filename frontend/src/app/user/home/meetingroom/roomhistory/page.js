@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from "react";
-import { Table, Layout, Typography, message, Breadcrumb, Tag, Modal, Button, Image, Space, Row, Col, Card } from "antd";
+import { Table, Layout, Typography, message, Breadcrumb, Tag, Modal, Button, Image, Divider, Row, Col, Card } from "antd";
 import { HomeOutlined, CalendarOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import Navbar from "@/app/users/home/navbar";
 import Sidebar from "../components/sidebar";
@@ -133,36 +133,45 @@ const ApproveBookings = () => {
             <Layout style={{ minHeight: "100%", padding: '0px 40px', marginTop: '110px', backgroundColor: '#fff' }}>
                 <Sidebar />
                 <Layout style={{ marginTop: '20px', backgroundColor: '#fff' }}>
-                    <div
-                        style={{
+                    <div style={{ display: 'flex', alignItems: 'center', margin: '0 70px' }}>
+                        <div style={{
                             display: 'flex',
                             alignItems: 'center',
-                            margin: '0 70px',
-                        }}
-                    >
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: '40px',
-                                height: '40px',
-                                backgroundColor: '#d9e8d2',
-                                borderRadius: '50%',
-                                marginRight: '10px',
-                            }}
-                        >
+                            justifyContent: 'center',
+                            width: '40px',
+                            height: '40px',
+                            backgroundColor: '#d9e8d2',
+                            borderRadius: '50%',
+                            marginRight: '10px',
+                        }}>
                             <HomeOutlined style={{ fontSize: '20px', color: '#4caf50' }} />
                         </div>
+
                         <Breadcrumb separator=">">
                             <Breadcrumb.Item>
-                                <span style={{ fontWeight: '500', fontSize: '14px', color: '#666' }}>
+                                <span style={{
+                                    fontWeight: '500',
+                                    fontSize: '14px',
+                                    color: '#666',
+                                    padding: '6px 14px',
+                                    borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                    backgroundColor: '#f5f5f5',
+
+                                }}>
                                     ระบบจองห้องประชุม
                                 </span>
                             </Breadcrumb.Item>
                             <Breadcrumb.Item>
-                                <span style={{ fontWeight: '500', fontSize: '14px', color: '#333' }}>
-                                    ประวัติการจอง
+                                <span style={{
+                                    fontWeight: '500',
+                                    fontSize: '14px',
+                                    color: '#333',
+                                    padding: '6px 14px',
+                                    borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                    backgroundColor: '#f5f5f5',
+
+                                }}>
+                                    หน้าประวัติการจอง
                                 </span>
                             </Breadcrumb.Item>
                         </Breadcrumb>
@@ -187,84 +196,75 @@ const ApproveBookings = () => {
                             style={{ cursor: 'pointer' }}
                         />
                         <Modal
-                            title={<Title level={4} style={{ marginBottom: 0, fontWeight: 600, color: "#333" }}>รายละเอียดการจอง</Title>}
+                            title={
+                                <Title level={4} style={{ marginBottom: 0, fontWeight: 600, color: "#333" }}>
+                                    รายละเอียดการจอง
+                                </Title>
+                            }
                             open={isModalVisible}
                             onCancel={handleCloseModal}
                             footer={[
                                 <Button key="close" type="primary" onClick={handleCloseModal}>
                                     ปิดหน้าต่าง
-                                </Button>
+                                </Button>,
                             ]}
                             style={{ borderRadius: "12px", overflow: "hidden" }}
-                            bodyStyle={{ padding: "24px", backgroundColor: "#ffffff" }}
-
+                            bodyStyle={{ padding: "0px", backgroundColor: "#ffffff" }}
+                            width={600} // ลดขนาดของ Modal ลง
                         >
-                            {/* ข้อมูลห้องประชุม */}
-                            {selectedBooking?.room && (
-                                <div
+                            {selectedBooking && (
+                                <Card
+                                    bordered
                                     style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        border: '1px solid #E0E0E0',
-                                        borderRadius: '10px',
-                                        padding: '10px',
-                                        backgroundColor: '#FFFFFF',
-                                        marginBottom: '16px',
-                                        transition: 'box-shadow 0.3s ease, transform 0.2s ease',
-                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                                        borderRadius: "10px",
+                                        border: "1px solid #e0e0e0",
+                                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                                        backgroundColor: "#ffffff",
                                     }}
                                 >
-
-                                    {/* แสดงรูปห้องประชุม */}
-                                    <Image
-                                        src={`http://localhost:5182${selectedBooking.room.room_img}`}  // แสดงรูปห้องประชุม
-                                        alt="รูปห้องประชุม"
-                                        style={{
-                                            width: '100px',
-                                            height: '70px',
-                                            borderRadius: '8px',
-                                            objectFit: 'cover',
-                                            marginRight: '16px',
-                                            border: '1px solid #E0E0E0',
-                                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                                        }}
-                                    />
-
-
-                                    <div style={{ flex: 1 }}>
-                                        <>
-                                            <Text
+                                    {/* ข้อมูลรถ (อยู่ด้านบน) */}
+                                    {selectedBooking?.room && (
+                                        <div style={{ display: "flex", alignItems: "center", marginBottom: "16px" }}>
+                                            <Image
+                                                src={`http://localhost:5182${selectedBooking.room.room_img}`}
+                                                alt="รูปห้องประชุม"
                                                 style={{
-                                                    fontSize: '14px',
-                                                    fontWeight: '600',
-                                                    color: '#2C3E50',
-                                                    marginBottom: '5px',
+                                                    width: "120px",
+                                                    height: "80px",
+                                                    borderRadius: "8px",
+                                                    objectFit: "cover",
+                                                    marginRight: "16px",
+                                                    border: "1px solid #E0E0E0",
+                                                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                                                 }}
-                                            >
-                                                {selectedBooking.room.room_name}
-                                            </Text>
-                                            <div
-                                                style={{
-                                                    fontSize: '10px',
-                                                    color: '#7F8C8D',
-                                                    lineHeight: '1.6',
-                                                }}
-                                            >
-                                                <p style={{ margin: 0 }}>อุปกรณ์ห้อง: {selectedBooking.room.equipment}</p>
-                                                <p style={{ margin: 0 }}>จำนวนที่นั่ง: {selectedBooking.room.capacity} ที่นั่ง</p>
+                                            />
+                                            <div>
+                                                <Text
+                                                    style={{
+                                                        fontSize: "16px",
+                                                        fontWeight: "600",
+                                                        color: "#2C3E50",
+                                                        marginBottom: "5px",
+                                                    }}
+                                                >
+                                                    {selectedBooking.room.room_name}
+                                                </Text>
+                                                <div style={{ fontSize: "14px", color: "#7F8C8D", lineHeight: "1.6" }}>
+                                                    <p style={{ margin: 0 }}>อุปกรณ์ห้อง: {selectedBooking.room.equipment}</p>
+                                                    <p style={{ margin: 0 }}>จำนวนที่นั่ง: {selectedBooking.room.capacity} ที่นั่ง</p>
+                                                </div>
                                             </div>
-                                        </>
-                                    </div>
-                                </div>
-                            )}
+                                        </div>
+                                    )}
 
-                            {selectedBooking && (
-                                <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+                                    <Divider style={{ margin: "16px 0", borderColor: "#e0e0e0" }} />
 
-                                    {/* เลขที่การจอง & สถานะ */}
-                                    <Row justify="space-between" align="middle" style={{ paddingBottom: "12px", borderBottom: "1px solid #e0e0e0" }}>
+                                    {/* ข้อมูลการจอง (อยู่ด้านล่าง) */}
+                                    <Row justify="space-between" align="middle" style={{ marginBottom: "12px" }}>
                                         <Col>
-                                            <Text strong style={{ fontSize: "16px", color: "#333" }}>เลขที่การจอง: {selectedBooking.roombooking_number}</Text>
+                                            <Text strong style={{ fontSize: "16px", color: "#333" }}>
+                                                เลขที่การจอง: {selectedBooking.roombooking_number}
+                                            </Text>
                                         </Col>
                                         <Col>
                                             <Tag
@@ -276,62 +276,44 @@ const ApproveBookings = () => {
                                         </Col>
                                     </Row>
 
-                                    {/* ข้อมูลการจอง */}
-                                    <Card
-                                        bordered
-                                        style={{
-                                            borderRadius: "8px",
-                                            backgroundColor: "#ffffff",
-                                            padding: "16px",
-                                            border: "1px solid #e0e0e0",
-                                            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                                            marginBottom: "20px",
-                                        }}
-                                    >
-                                        <Row gutter={[16, 16]}>
-                                            <Col span={12}>
-                                                <Text type="secondary">วันที่จอง</Text>
-                                                <Text
-                                                    strong
-                                                    style={{ display: "block", color: "#333", fontSize: "14px" }}
-                                                >
-                                                    {new Date(selectedBooking.booking_date).toLocaleDateString("th-TH", { day: "2-digit", month: "short", year: "numeric" })}
-                                                    {" - "}
-                                                    {new Date(selectedBooking.return_date).toLocaleDateString("th-TH", { day: "2-digit", month: "short", year: "numeric" })}
-                                                </Text>
-                                            </Col>
-                                            <Col span={12}>
-                                                <Text type="secondary">เวลาจอง</Text>
-                                                <Text
-                                                    strong
-                                                    style={{ display: "block", color: "#333", fontSize: "14px" }}
-                                                >
-                                                    {selectedBooking.booking_times}
-                                                </Text>
-                                            </Col>
-                                            <Col span={12}>
-                                                <Text type="secondary">จุดประสงค์</Text>
-                                                <Text
-                                                    strong
-                                                    style={{ display: "block", color: "#333", fontSize: "14px" }}
-                                                >
-                                                    {selectedBooking.meeting_topic || "-"}
-                                                </Text>
-                                            </Col>
-                                            <Col span={12}>
-                                                <Text type="secondary">จำนวนผู้เข้าร่วม</Text>
-                                                <Text
-                                                    strong
-                                                    style={{ display: "block", color: "#333", fontSize: "14px" }}
-                                                >
-                                                    {selectedBooking.attendee_count || "-"}
-                                                </Text>
-                                            </Col>
-                                        </Row>
-                                    </Card>
-                                </Space>
+                                    <Row gutter={[16, 8]}>
+                                        <Col span={12}>
+                                            <Text type="secondary">วันที่จอง</Text>
+                                            <Text strong style={{ display: "block", color: "#333", fontSize: "14px" }}>
+                                                {new Date(selectedBooking.booking_date).toLocaleDateString("th-TH", {
+                                                    day: "2-digit",
+                                                    month: "short",
+                                                    year: "numeric",
+                                                })}
+                                                {" ถึง "}
+                                                {new Date(selectedBooking.return_date).toLocaleDateString("th-TH", {
+                                                    day: "2-digit",
+                                                    month: "short",
+                                                    year: "numeric",
+                                                })}
+                                            </Text>
+                                        </Col>
+                                        <Col span={12}>
+                                            <Text type="secondary">เวลาจอง</Text>
+                                            <Text strong style={{ display: "block", color: "#333", fontSize: "14px" }}>
+                                                {selectedBooking.booking_times}
+                                            </Text>
+                                        </Col>
+                                        <Col span={12}>
+                                            <Text type="secondary">จุดประสงค์</Text>
+                                            <Text strong style={{ display: "block", color: "#333", fontSize: "14px" }}>
+                                                {selectedBooking.meeting_topic || "-"}
+                                            </Text>
+                                        </Col>
+                                        <Col span={12}>
+                                            <Text type="secondary">จำนวนผู้เข้าร่วม</Text>
+                                            <Text strong style={{ display: "block", color: "#333", fontSize: "14px" }}>
+                                                {selectedBooking.attendee_count || "-"}
+                                            </Text>
+                                        </Col>
+                                    </Row>
+                                </Card>
                             )}
-
                         </Modal>
                     </Content>
                 </Layout>
@@ -339,5 +321,4 @@ const ApproveBookings = () => {
         </Layout>
     );
 };
-
 export default ApproveBookings;

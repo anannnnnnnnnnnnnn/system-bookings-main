@@ -35,7 +35,7 @@ const BookingHistory = ({ userId }) => {
         }
         setLoading(false);
     };
-    
+
 
     const columns = [
         {
@@ -86,6 +86,56 @@ const BookingHistory = ({ userId }) => {
         <Layout style={{ backgroundColor: '#fff' }}>
             <Navbar />
             <Layout style={{ marginTop: '100px', backgroundColor: '#ffff', padding: '20px' }}></Layout>
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center', // จัดให้อยู่กลางแนวตั้ง
+                    margin: '0 70px',
+                }}
+            >
+                {/* ไอคอนหลัก */}
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '40px',
+                        height: '40px',
+                        backgroundColor: '#d9e8d2',
+                        borderRadius: '50%',
+                        marginRight: '10px',
+                    }}
+                >
+                    <HomeOutlined style={{ fontSize: '20px', color: '#4caf50' }} />
+                </div>
+                <Breadcrumb separator=">">
+                    <Breadcrumb.Item>
+                        <span style={{
+                            fontWeight: '500',
+                            fontSize: '14px',
+                            color: '#666',
+                            padding: '6px 14px',
+                            borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                            backgroundColor: '#f5f5f5',
+                        }}>
+                            ระบบจองรถ
+                        </span>
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Item>
+                        <span style={{
+                            fontWeight: '500',
+                            fontSize: '14px',
+                            color: '#333',
+                            padding: '6px 14px',
+                            borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                            backgroundColor: '#f5f5f5',
+
+                        }}>
+                            หน้าประวัติการจอง
+                        </span>
+                    </Breadcrumb.Item>
+                </Breadcrumb>
+            </div>
             <div>
                 <h3>ประวัติการจองของคุณ</h3>
                 <Table

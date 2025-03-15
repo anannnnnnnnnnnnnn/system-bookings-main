@@ -261,47 +261,50 @@ export const CarBooking = () => {
                                 justifyContent: 'center',
                                 width: '40px',
                                 height: '40px',
-                                backgroundColor: '#d9e8d2', // สีพื้นหลังไอคอน
-                                borderRadius: '50%', // รูปทรงกลม
-                                marginRight: '10px', // ระยะห่างระหว่างไอคอนและข้อความ
+                                backgroundColor: '#d9e8d2',
+                                borderRadius: '50%',
+                                marginRight: '10px',
                             }}
                         >
                             <HomeOutlined style={{ fontSize: '20px', color: '#4caf50' }} />
                         </div>
-
-                        {/* Breadcrumb */}
                         <Breadcrumb separator=">">
                             <Breadcrumb.Item>
-                                <span
-                                    style={{
-                                        fontWeight: '500',
-                                        fontSize: '14px',
-                                        color: '#666', // สีข้อความหลัก
-                                    }}
-                                >
+                                <span style={{
+                                    fontWeight: '500',
+                                    fontSize: '14px',
+                                    color: '#666',
+                                    padding: '6px 14px',
+                                    borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                    backgroundColor: '#f5f5f5',
+                                }}>
                                     ระบบจองรถ
                                 </span>
                             </Breadcrumb.Item>
                             <Breadcrumb.Item>
-                                <span
-                                    style={{
-                                        fontWeight: '500',
-                                        fontSize: '14px',
-                                        color: '#666', // สีข้อความรอง
-                                    }}
-                                >
-                                    เลือกรถที่ต้องการจอง
+                                <span style={{
+                                    fontWeight: '500',
+                                    fontSize: '14px',
+                                    color: '#666',
+                                    padding: '6px 14px',
+                                    borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                    backgroundColor: '#f5f5f5',
+
+                                }}>
+                                    หน้าเลือกรถที่ต้องการจอง
                                 </span>
                             </Breadcrumb.Item>
                             <Breadcrumb.Item>
-                                <span
-                                    style={{
-                                        fontWeight: '500',
-                                        fontSize: '14px',
-                                        color: '#333', // สีข้อความรอง
-                                    }}
-                                >
-                                    กรอกรายละเอียกการจอง
+                                <span style={{
+                                    fontWeight: '500',
+                                    fontSize: '14px',
+                                    color: '#333',
+                                    padding: '6px 14px',
+                                    borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                    backgroundColor: '#f5f5f5',
+
+                                }}>
+                                    หน้ากรอกรายละเอียดการจจอง
                                 </span>
                             </Breadcrumb.Item>
                         </Breadcrumb>

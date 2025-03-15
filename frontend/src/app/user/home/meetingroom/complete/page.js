@@ -37,7 +37,7 @@ function RoomBooking() {
     const [isRoomInfoModalOpen, setIsRoomInfoModalOpen] = useState(false);
     const [filteredRooms, setFilteredRooms] = useState([]);
 
-    
+
 
     useEffect(() => {
         const fetchRooms = async () => {
@@ -92,7 +92,7 @@ function RoomBooking() {
             setLoadingTimes(false);
         }
     };
-    
+
 
     const handleRoomTypeChange = (value) => {
         setRoomType(value); // อัปเดตค่า roomType เมื่อมีการเลือก
@@ -131,11 +131,37 @@ function RoomBooking() {
                             }}>
                                 <HomeOutlined style={{ fontSize: '20px', color: '#4caf50' }} />
                             </div>
+
                             <Breadcrumb separator=">">
-                                <Breadcrumb.Item><span style={{ fontWeight: '500', fontSize: '14px', color: '#666' }}>ระบบจองห้องประชุม</span></Breadcrumb.Item>
-                                <Breadcrumb.Item><span style={{ fontWeight: '500', fontSize: '14px', color: '#333' }}>เลือกห้องประชุมที่ต้องการจอง</span></Breadcrumb.Item>
+                                <Breadcrumb.Item>
+                                    <span style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#666',
+                                        padding: '6px 14px',
+                                        borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                        backgroundColor: '#f5f5f5',
+
+                                    }}>
+                                        ระบบจองห้องประชุม
+                                    </span>
+                                </Breadcrumb.Item>
+                                <Breadcrumb.Item>
+                                    <span style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#333',
+                                        padding: '6px 14px',
+                                        borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                        backgroundColor: '#f5f5f5',
+
+                                    }}>
+                                        หน้าเลือกห้องประชุม
+                                    </span>
+                                </Breadcrumb.Item>
                             </Breadcrumb>
                         </div>
+
 
                         <Content style={{
                             background: '#ffffff',

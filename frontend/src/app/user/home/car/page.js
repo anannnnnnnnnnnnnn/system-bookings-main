@@ -148,7 +148,6 @@ const ApproveBookings = ({ onUserFullNameChange }) => {
           const response = await fetch(`http://localhost:5182/api/bookings/${bookingId}/cancel`, {
             method: 'PUT',
           });
-
           const data = await response.json();
           if (response.ok) {
             fetchBookings(); // Refresh bookings after cancel
@@ -187,33 +186,72 @@ const ApproveBookings = ({ onUserFullNameChange }) => {
             </div>
             <Breadcrumb separator=">">
               <Breadcrumb.Item>
-                <span style={{ fontWeight: '500', fontSize: '14px', color: '#666' }}>ระบบจองรถ</span>
+                <span style={{
+                  fontWeight: '500',
+                  fontSize: '14px',
+                  color: '#666',
+                  padding: '6px 14px',
+                  borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                  backgroundColor: '#f5f5f5',
+                }}>
+                  ระบบจองรถ
+                </span>
               </Breadcrumb.Item>
               <Breadcrumb.Item>
-                <span style={{ fontWeight: '500', fontSize: '14px', color: '#333' }}>เลือกการจอง</span>
+                <span style={{
+                  fontWeight: '500',
+                  fontSize: '14px',
+                  color: '#333',
+                  padding: '6px 14px',
+                  borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                  backgroundColor: '#f5f5f5',
+
+                }}>
+                  หน้าหลักระบบจองรถ
+                </span>
               </Breadcrumb.Item>
             </Breadcrumb>
           </div>
 
           <Content style={{ background: '#ffffff', marginTop: '10px', marginLeft: '50px', padding: '20px', borderRadius: '8px' }}>
-            <Title level={3} style={{ textAlign: "center" }}>รถที่คุณจองแล้ว</Title>
+            <Title level={2} style={{
+              marginBottom: '24px',
+              color: '#666',
+            }}>สถานะรถที่จอง</Title>
 
             {loading ? (
               <Spin tip="กำลังโหลด..." style={{ display: "block", textAlign: "center", marginTop: 20 }} />
             ) : (
-              <Row gutter={[24, 24]} style={{ backgroundColor: '#ffffff', padding: '10px' }}>
+              <Row gutter={[16, 16]} justify="start">
                 {bookings.length > 0 ? (
                   bookings.map((booking) => (
                     <Col xs={24} sm={12} md={12} lg={12} xl={12} key={booking.confirmation_id}>
                       <Card hoverable style={{ marginBottom: 16, maxWidth: '100%' }}>
-                        <Image alt="car" src={`http://localhost:5182${booking.car?.image_url}`} style={{ height: '200px', objectFit: 'cover', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }} />
-                        <Title level={5}>{booking.booking_number}</Title>
-                        <p>รถที่จอง: {booking.car.model}</p>
-                        <p>วันที่จอง: {formatDate(booking.booking_date)} เวลา: {booking.booking_time}</p>
-                        <p>วันที่คืน: {formatDate(booking.return_date)} เวลา: {booking.return_time}</p>
-                        <p>จุดหมาย: {booking.purpose}</p>
-                        <p>จุดหมาย: {booking.destination}</p>
-                        
+                        <div style={{ height: '200px', overflow: 'hidden', borderRadius: '8px', marginBottom: '12px' }}>
+                          <Image
+                            alt="car"
+                            src={`http://localhost:5182${booking.car?.image_url}`}
+                            style={{ height: '100%', width: '100%', objectFit: 'cover' }}
+                          />
+                        </div>
+                        <Title level={5} style={{ fontWeight: '600', color: '#333', fontSize: '16px', marginBottom: '8px' }}>
+                          {booking.booking_number}
+                        </Title>
+
+                        <p style={{ marginBottom: '8px', fontSize: '14px', color: '#555' }}>
+                          รถที่จอง : <strong>{booking.car.model}</strong>
+                        </p>
+
+                        <p style={{ marginBottom: '6px', fontSize: '14px', color: '#555' }}>
+                          วันที่จอง : <span style={{ fontWeight: '500' }}>{formatDate(booking.booking_date)} เวลา: {booking.booking_time}</span>
+                        </p>
+                        <p style={{ marginBottom: '6px', fontSize: '14px', color: '#555' }}>
+                          วันที่คืน : <span style={{ fontWeight: '500' }}>{formatDate(booking.return_date)} เวลา: {booking.return_time}</span>
+                        </p>
+                        <p style={{ marginBottom: '6px', fontSize: '14px', color: '#555' }}>
+                          จุดหมาย : <span style={{ fontWeight: '500' }}>{booking.destination}</span>
+                        </p>
+
 
                         <Tag color={getStatusColor(booking.booking_status).color}>{getStatusColor(booking.booking_status).text}</Tag>
 
@@ -223,6 +261,7 @@ const ApproveBookings = ({ onUserFullNameChange }) => {
                             icon={<EditOutlined />}
                             onClick={() => canEditBooking(booking.booking_status) ? showModal(booking) : message.error("ไม่สามารถแก้ไขการจองได้")}
                             disabled={!canEditBooking(booking.booking_status)}
+                            style={{ background: '#236927', }}
                           >
                             แก้ไข
                           </Button>
@@ -230,6 +269,7 @@ const ApproveBookings = ({ onUserFullNameChange }) => {
                             type="danger"
                             icon={<DeleteOutlined />}
                             onClick={() => handleCancel(booking.confirmation_id)}
+                            style={{ background: 'red', color: '#fff' }}
                           >
                             ยกเลิก
                           </Button>
@@ -243,12 +283,12 @@ const ApproveBookings = ({ onUserFullNameChange }) => {
               </Row>
             )}
 
-            <Modal title="Edit Booking" visible={isModalVisible} onCancel={handleCancelModal} footer={null}>
+            <Modal title="แก้ไขข้อมูลการจอง" visible={isModalVisible} onCancel={handleCancelModal} footer={null}>
               <Form form={form} onFinish={handleEdit}>
-                <Form.Item label="Booking Date" name="bookingDate">
+                <Form.Item label="วันที่จอง" name="bookingDate">
                   <DatePicker style={{ width: "100%" }} />
                 </Form.Item>
-                <Form.Item label="Booking Time" name="bookingTime">
+                <Form.Item label="วันที่คืน" name="bookingTime">
                   <Select style={{ width: "100%" }} placeholder="Select booking time">
                     {['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'].map(time => (
                       <Select.Option key={time} value={time}>
@@ -258,10 +298,10 @@ const ApproveBookings = ({ onUserFullNameChange }) => {
                   </Select>
                 </Form.Item>
 
-                <Form.Item label="Return Date" name="returnDate">
+                <Form.Item label="เวลาจอง" name="returnDate">
                   <DatePicker style={{ width: "100%" }} />
                 </Form.Item>
-                <Form.Item label="Return Time" name="returnTime">
+                <Form.Item label="เวลาคืน" name="returnTime">
                   <Select style={{ width: "100%" }} placeholder="Select return time">
                     {['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'].map(time => (
                       <Select.Option key={time} value={time}>
@@ -270,10 +310,10 @@ const ApproveBookings = ({ onUserFullNameChange }) => {
                     ))}
                   </Select>
                 </Form.Item>
-                <Form.Item label="Destination" name="destination">
+                <Form.Item label="จุดหมาย" name="destination">
                   <Input />
                 </Form.Item>
-                <Form.Item label="purpose" name="purpose">
+                <Form.Item label="ปลายทาง" name="purpose">
                   <Input />
                 </Form.Item>
                 <Form.Item>

@@ -38,7 +38,7 @@ function SelectSystem() {
         </Title>
 
         {/* กล่องเลือกระบบ */}
-        <Row gutter={[24, 24]} justify="center" style={{ width: '100%', maxWidth: '900px' }}>
+        <Row gutter={[24, 24]} justify="center" style={{ width: '100%', maxWidth: '1200px' }}>
           {/* ระบบจองรถสำนักงาน */}
           <Col xs={24} sm={12} lg={8}>
             <Card
@@ -47,28 +47,37 @@ function SelectSystem() {
                 borderRadius: '16px',
                 textAlign: 'center',
                 border: 'none',
-                backgroundColor: '#e6f7e6',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                backgroundColor: '#236927', // สีเขียวเข้ม
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
                 transition: 'transform 0.3s ease-in-out',
+                height: '380px',
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%', // ให้กล่องกว้างสุดที่มี
               }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-              onClick={() => navigate('/user/home/car/complete')}
+              onClick={() => navigate('/user/home/car')}
             >
-              <CarOutlined style={{ fontSize: '48px', color: '#52c41a', marginBottom: '15px' }} />
-              <Title level={4} style={{
+              <CarOutlined style={{ fontSize: '64px', color: '#fff', marginBottom: '20px' }} /> {/* สีฟอนต์เป็นสีขาว */}
+              <Title level={3} style={{
                 fontFamily: 'var(--font-kanit)',
-                color: '#333',
-                margin: 0,
+                color: '#fff', // สีฟอนต์เป็นสีขาว
+                margin: '0 0 10px 0',
               }}>
                 ระบบจองรถสำนักงาน
               </Title>
+              <Text type="secondary" style={{color:'white'}}>(Car booking system)</Text><br/>
               <Text style={{
                 fontFamily: 'var(--font-kanit)',
-                color: '#666',
-                fontSize: '14px',
+                color: '#fff', // สีฟอนต์เป็นสีขาว
+                fontSize: '10px',
+                lineHeight: '1.5',
               }}>
-                สามารถทำการจองได้เลย
+               สามารถเลือกห้องประชุมที่ต้องการจอง
               </Text>
             </Card>
           </Col>
@@ -81,28 +90,37 @@ function SelectSystem() {
                 borderRadius: '16px',
                 textAlign: 'center',
                 border: 'none',
-                backgroundColor: '#e6f7e6',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                backgroundColor: '#236927', // สีเขียวเข้ม
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
                 transition: 'transform 0.3s ease-in-out',
+                height: '380px',
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%', // ให้กล่องกว้างสุดที่มี
               }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-              onClick={() => navigate('/user/home/meetingroom/complete')}
+              onClick={() => navigate('/user/home/meetingroom')}
             >
-              <TeamOutlined style={{ fontSize: '48px', color: '#73d13d', marginBottom: '15px' }} />
+              <TeamOutlined style={{ fontSize: '64px', color: '#fff', marginBottom: '20px' }} /> {/* สีฟอนต์เป็นสีขาว */}
               <Title level={4} style={{
                 fontFamily: 'var(--font-kanit)',
-                color: '#333',
-                margin: 0,
+                color: '#fff', // สีฟอนต์เป็นสีขาว
+                margin: '0 0 10px 0',
               }}>
                 ระบบจองห้องประชุม
               </Title>
+              <Text type="secondary" style={{color:'white'}}>(Meetingroom booking system)</Text><br/>
               <Text style={{
                 fontFamily: 'var(--font-kanit)',
-                color: '#666',
-                fontSize: '14px',
+                color: '#fff', // สีฟอนต์เป็นสีขาว
+                fontSize: '10px',
+                lineHeight: '1.5',
               }}>
-                สามารถทำการจองได้เลย
+                สามารถเลือกห้องประชุมที่ต้องการจอง
               </Text>
             </Card>
           </Col>

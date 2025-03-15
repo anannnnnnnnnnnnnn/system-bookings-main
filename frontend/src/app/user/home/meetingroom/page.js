@@ -267,7 +267,7 @@ const ShowRoom = () => {
                                         backgroundColor: '#f5f5f5',
 
                                     }}>
-                                        เลือกห้องประชุมที่ต้องการจอง
+                                        หน้าหลักห้องประชุม
                                     </span>
                                 </Breadcrumb.Item>
                             </Breadcrumb>
@@ -334,7 +334,6 @@ const ShowRoom = () => {
                                                             </p>
                                                         </Col>
                                                     </Row>
-
                                                     <Tag
                                                         color={
                                                             booking.booking_status === 1 ? "orange" :
@@ -347,7 +346,6 @@ const ShowRoom = () => {
                                                             booking.booking_status === 2 ? "อนุมัติแล้ว" :
                                                                 "ไม่อนุมัติ"}
                                                     </Tag>
-
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
                                                         <Button
                                                             type="primary"
@@ -355,6 +353,7 @@ const ShowRoom = () => {
                                                             onClick={() => canEditBooking(booking.booking_status) ? openEditModal(booking) : message.error("ไม่สามารถแก้ไขการจองได้")}
                                                             disabled={!canEditBooking(booking.booking_status)}
                                                             size="small"
+                                                            style={{ background: '#236927', color: '#ffff' }}
                                                         >
                                                             แก้ไข
                                                         </Button>
@@ -384,21 +383,21 @@ const ShowRoom = () => {
                                 title={<h3 style={{ textAlign: "center", fontWeight: "bold", marginBottom: 0 }}>แก้ไขการจอง</h3>}
                                 onCancel={() => setEditModalVisible(false)}
                                 footer={null}
-                                width={600} // ขนาดกว้างตามต้องการ
+                                width={600}
                                 style={{ borderRadius: "10px", padding: "15px" }}
                                 bodyStyle={{
-                                    maxHeight: "500px", // จำกัดความสูง
-                                    overflowY: "auto",  // ให้เลื่อนลงได้ถ้าเนื้อหามาก
+                                    maxHeight: "500px",
+                                    overflowY: "auto",
                                 }}
                             >
                                 <Form
                                     form={form}
                                     onFinish={handleEdit}
                                     layout="vertical"
-                                    style={{ padding: "5px 10px" }} // ลด Padding ลง
+                                    style={{ padding: "5px 10px" }}
                                 >
                                     <Form.Item
-                                        label="📅 วันที่จอง"
+                                        label="วันที่จอง"
                                         name="booking_date"
                                         rules={[{ required: true, message: "กรุณาเลือกวันที่จอง!" }]}
                                     >
@@ -409,7 +408,7 @@ const ShowRoom = () => {
                                     </Form.Item>
 
                                     <Form.Item
-                                        label="📅 วันที่คืน"
+                                        label="วันที่คืน"
                                         name="return_date"
                                         rules={[{ required: true, message: "กรุณาเลือกวันที่คืน!" }]}
                                     >
@@ -420,7 +419,7 @@ const ShowRoom = () => {
                                     </Form.Item>
 
                                     <Form.Item
-                                        label="⏰ เวลา"
+                                        label="เวลา"
                                         name="booking_times"
                                         rules={[{ required: true, message: "กรุณาเลือกเวลา!" }]}
                                     >
@@ -430,17 +429,24 @@ const ShowRoom = () => {
                                     </Form.Item>
 
                                     <Form.Item
-                                        label="📝 หัวข้อประชุม"
+                                        label="หัวข้อประชุม"
                                         name="meeting_topic"
                                     >
-                                        <Input placeholder="ระบุหัวข้อ" style={{ borderRadius: "6px", padding: "6px" }} />
+                                        <Input
+                                            placeholder="ระบุหัวข้อ"
+                                            style={{ width: "100%", borderRadius: "6px", padding: "6px" }}
+                                        />
                                     </Form.Item>
 
                                     <Form.Item
-                                        label="👥 จำนวนผู้เข้าร่วม"
+                                        label="จำนวนผู้เข้าร่วม"
                                         name="attendee_count"
                                     >
-                                        <Input type="number" min={1} style={{ borderRadius: "6px", padding: "6px" }} />
+                                        <Input
+                                            type="number"
+                                            min={1}
+                                            style={{ width: "100%", borderRadius: "6px", padding: "6px" }}
+                                        />
                                     </Form.Item>
 
                                     <div style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>
@@ -456,11 +462,12 @@ const ShowRoom = () => {
                                                 borderRadius: "6px",
                                             }}
                                         >
-                                            ✅ บันทึกการแก้ไข
+                                             บันทึกการแก้ไข
                                         </Button>
                                     </div>
                                 </Form>
                             </Modal>
+
 
                         </Content>
                     </Layout>

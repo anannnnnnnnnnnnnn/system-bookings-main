@@ -106,9 +106,9 @@ const ApproveBookings = ({ onUserFullNameChange }) => {
         purpose: values.purpose,
         department: values.department,
       };
-  
+
       console.log("Data Sent to API:", formattedValues);
-  
+
       const response = await fetch(
         `http://localhost:5182/api/bookings/update-booking/${selectedBooking.confirmation_id}`,
         {
@@ -119,15 +119,15 @@ const ApproveBookings = ({ onUserFullNameChange }) => {
           body: JSON.stringify(formattedValues),
         }
       );
-  
+
       const responseData = await response.json();
       console.log("API Response:", responseData);
-  
+
       if (!response.ok) {
         console.error("API Error Details:", responseData);
         throw new Error(responseData.message || "Error updating booking");
       }
-  
+
       console.log("Booking updated successfully!");
     } catch (error) {
       console.error("API Error:", error);

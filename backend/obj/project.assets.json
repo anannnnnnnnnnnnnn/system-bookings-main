@@ -3298,11 +3298,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\project coop\\system-bookings-main\\backend\\backend.csproj",
+      "projectUniqueName": "C:\\project coop\\system-bookings\\backend\\backend.csproj",
       "projectName": "backend",
-      "projectPath": "C:\\project coop\\system-bookings-main\\backend\\backend.csproj",
+      "projectPath": "C:\\project coop\\system-bookings\\backend\\backend.csproj",
       "packagesPath": "C:\\Users\\ASUS\\.nuget\\packages\\",
-      "outputPath": "C:\\project coop\\system-bookings-main\\backend\\obj\\",
+      "outputPath": "C:\\project coop\\system-bookings\\backend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\ASUS\\AppData\\Roaming\\NuGet\\NuGet.Config"

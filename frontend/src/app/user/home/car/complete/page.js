@@ -156,13 +156,28 @@ function CarBooking() {
                             </div>
                             <Breadcrumb separator=">">
                                 <Breadcrumb.Item>
-                                    <span style={{ fontWeight: '500', fontSize: '14px', color: '#666' }}>
+                                    <span style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#666',
+                                        padding: '6px 14px',
+                                        borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                        backgroundColor: '#f5f5f5',
+                                    }}>
                                         ระบบจองรถ
                                     </span>
                                 </Breadcrumb.Item>
                                 <Breadcrumb.Item>
-                                    <span style={{ fontWeight: '500', fontSize: '14px', color: '#333' }}>
-                                        เลือกรถที่ต้องการจอง
+                                    <span style={{
+                                        fontWeight: '500',
+                                        fontSize: '14px',
+                                        color: '#333',
+                                        padding: '6px 14px',
+                                        borderRadius: '20px', /* เพิ่มความโค้งให้มากขึ้น */
+                                        backgroundColor: '#f5f5f5',
+
+                                    }}>
+                                        หน้าเลือกรถที่ต้องการจอง
                                     </span>
                                 </Breadcrumb.Item>
                             </Breadcrumb>
